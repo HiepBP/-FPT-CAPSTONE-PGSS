@@ -1,0 +1,1 @@
+# All datasheets for modules, ics... used in the project
