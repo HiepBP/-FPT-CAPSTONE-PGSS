@@ -19,6 +19,9 @@ namespace Capstone.Models.Entities
         public byte[] Address { get; set; }
         public int Type { get; set; }
         public int Status { get; set; }
+        public int ParkingLotId { get; set; }
         public int CarParkId { get; set; }
+    
+        public virtual ParkingLot ParkingLot { get; set; }
     }
 }

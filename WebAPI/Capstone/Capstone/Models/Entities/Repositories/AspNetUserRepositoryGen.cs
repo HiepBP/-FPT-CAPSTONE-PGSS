@@ -7,16 +7,20 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Capstone.Models.Entities
+namespace Capstone.Models.Entities.Repositories
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class C__MigrationHistory
+    
+    public partial interface IAspNetUserRepository : SkyWeb.DatVM.Data.IBaseRepository<AspNetUser>
     {
-        public string MigrationId { get; set; }
-        public string ContextKey { get; set; }
-        public byte[] Model { get; set; }
-        public string ProductVersion { get; set; }
+    }
+    
+    public partial class AspNetUserRepository : SkyWeb.DatVM.Data.BaseRepository<AspNetUser>, IAspNetUserRepository
+    {
+    	public AspNetUserRepository(System.Data.Entity.DbContext dbContext) : base(dbContext)
+    	{
+    	}
     }
 }

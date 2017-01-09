@@ -18,6 +18,10 @@ namespace Capstone.Models.Entities
         public int CarParkId { get; set; }
         public string AspNetUserId { get; set; }
         public System.DateTime BookingTime { get; set; }
-        public string ItemId { get; set; }
+        public Nullable<int> ParkingLotId { get; set; }
+    
+        public virtual AspNetUser AspNetUser { get; set; }
+        public virtual CarPark CarPark { get; set; }
+        public virtual ParkingLot ParkingLot { get; set; }
     }
 }

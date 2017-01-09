@@ -20,5 +20,8 @@ namespace Capstone.Models.Entities
         public int Status { get; set; }
         public int CarParkId { get; set; }
         public string AspNetUserId { get; set; }
+    
+        public virtual AspNetUser AspNetUser { get; set; }
+        public virtual CarPark CarPark { get; set; }
     }
 }

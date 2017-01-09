@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,6 +19,11 @@ namespace Capstone
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            Capstone.ApiEndpoint.Entry(this.AdditionalMapperConfig);
+        }
+
+        public void AdditionalMapperConfig(IMapperConfiguration config)
+        {
         }
     }
 }

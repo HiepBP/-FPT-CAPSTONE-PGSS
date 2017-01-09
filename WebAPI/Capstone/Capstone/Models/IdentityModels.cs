@@ -21,7 +21,7 @@ namespace Capstone.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("CapstonePGSSEntities", throwIfV1Schema: false)
+            : base("PGSSEntities", throwIfV1Schema: false)
         {
         }
         

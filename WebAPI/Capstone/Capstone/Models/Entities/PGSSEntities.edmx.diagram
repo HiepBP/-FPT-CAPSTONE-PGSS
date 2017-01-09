@@ -4,20 +4,28 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="2cdf0ea0a141401e90af0ed37eef4b65" Name="Diagram1">
-        <EntityTypeShape EntityType="PGSSModel.C__MigrationHistory" Width="1.5" PointX="0.75" PointY="6.75" />
-        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="2.75" PointY="6.75" />
-        <EntityTypeShape EntityType="PGSSModel.AspNetRole" Width="1.5" PointX="0.75" PointY="2.5" />
-        <EntityTypeShape EntityType="PGSSModel.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="3.625" />
-        <EntityTypeShape EntityType="PGSSModel.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="1" />
-        <EntityTypeShape EntityType="PGSSModel.AspNetUser" Width="1.5" PointX="3" PointY="1.375" />
-        <EntityTypeShape EntityType="PGSSModel.CarPark" Width="1.5" PointX="4.75" PointY="6.75" />
-        <EntityTypeShape EntityType="PGSSModel.Item" Width="1.5" PointX="6.75" PointY="6.75" />
-        <EntityTypeShape EntityType="PGSSModel.ParkingLot" Width="1.5" PointX="7.75" PointY="0.75" />
-        <EntityTypeShape EntityType="PGSSModel.Transaction" Width="1.5" PointX="7.75" PointY="3.75" />
-        <EntityTypeShape EntityType="PGSSModel.BookingHistory" Width="1.5" PointX="8.75" PointY="6.75" />
+      <Diagram DiagramId="4dc90a5d9c2a4d7e84735a6f040eb493" Name="Diagram1">
+        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="0.75" PointY="8.875" />
+        <EntityTypeShape EntityType="PGSSModel.AspNetRole" Width="1.5" PointX="0.75" PointY="6.375" />
+        <EntityTypeShape EntityType="PGSSModel.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="14" />
+        <EntityTypeShape EntityType="PGSSModel.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="11.5" />
+        <EntityTypeShape EntityType="PGSSModel.AspNetUser" Width="1.5" PointX="3" PointY="5" />
+        <EntityTypeShape EntityType="PGSSModel.CarPark" Width="1.5" PointX="3" PointY="10.375" />
+        <EntityTypeShape EntityType="PGSSModel.Item" Width="1.5" PointX="5.25" PointY="2.375" />
+        <EntityTypeShape EntityType="PGSSModel.ParkingLot" Width="1.5" PointX="3" PointY="0.75" />
+        <EntityTypeShape EntityType="PGSSModel.Transaction" Width="1.5" PointX="8.25" PointY="5.875" />
+        <EntityTypeShape EntityType="PGSSModel.BookingHistory" Width="1.5" PointX="5.25" PointY="5.875" />
+        <AssociationConnector Association="PGSSModel.FK_Area_Area" />
+        <AssociationConnector Association="PGSSModel.FK_Area_CarPark" />
+        <AssociationConnector Association="PGSSModel.FK_ParkingLot_Area" />
         <AssociationConnector Association="PGSSModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />
         <AssociationConnector Association="PGSSModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="PGSSModel.FK_BookingHistory_AspNetUsers" />
+        <AssociationConnector Association="PGSSModel.FK_Transaction_AspNetUsers" />
+        <AssociationConnector Association="PGSSModel.FK_BookingHistory_CarPark" />
+        <AssociationConnector Association="PGSSModel.FK_Transaction_CarPark" />
+        <AssociationConnector Association="PGSSModel.FK_Item_ParkingLot" />
+        <AssociationConnector Association="PGSSModel.FK_BookingHistory_ParkingLot" />
         <AssociationConnector Association="PGSSModel.AspNetUserRoles" />
       </Diagram>
     </edmx:Diagrams>

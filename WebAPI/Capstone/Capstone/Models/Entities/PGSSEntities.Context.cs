@@ -13,10 +13,10 @@ namespace Capstone.Models.Entities
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class CapstonePGSSEntities : DbContext
+    public partial class PGSSEntities : DbContext
     {
-        public CapstonePGSSEntities()
-            : base("name=CapstonePGSSEntities")
+        public PGSSEntities()
+            : base("name=PGSSEntities")
         {
         }
     
@@ -25,7 +25,6 @@ namespace Capstone.Models.Entities
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<C__MigrationHistory> C__MigrationHistory { get; set; }
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
