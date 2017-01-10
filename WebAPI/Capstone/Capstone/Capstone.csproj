@@ -104,6 +104,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Device" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.Entity" />
@@ -379,6 +380,7 @@
     <Compile Include="Models\Entities\Repositories\TransactionRepositoryGen.cs">
       <DependentUpon>Repositories.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Entities\Services\AreaService.cs" />
     <Compile Include="Models\Entities\Services\AreaServiceGen.cs">
       <DependentUpon>Services.tt</DependentUpon>
     </Compile>
@@ -397,6 +399,7 @@
     <Compile Include="Models\Entities\Services\BookingHistoryServiceGen.cs">
       <DependentUpon>Services.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Entities\Services\CarParkService.cs" />
     <Compile Include="Models\Entities\Services\CarParkServiceGen.cs">
       <DependentUpon>Services.tt</DependentUpon>
     </Compile>
@@ -421,11 +424,13 @@
       <DependentUpon>EntityRefinery.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\EntityExtensions.cs" />
+    <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\HmsDependencyResolver.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
+    <Compile Include="Sdk\AreaApi.cs" />
     <Compile Include="Sdk\AreaApiGen.cs">
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
@@ -445,6 +450,7 @@
     <Compile Include="Sdk\BookingHistoryApiGen.cs">
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
+    <Compile Include="Sdk\CarParkApi.cs" />
     <Compile Include="Sdk\CarParkApiGen.cs">
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
@@ -484,6 +490,7 @@
     <Compile Include="ViewModels\CarParkViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\CarParkWithAmount.cs" />
     <Compile Include="ViewModels\ItemViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>

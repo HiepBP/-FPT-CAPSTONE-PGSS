@@ -5,12 +5,12 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="4dc90a5d9c2a4d7e84735a6f040eb493" Name="Diagram1">
-        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="0.75" PointY="8.875" />
+        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="0.75" PointY="9" />
         <EntityTypeShape EntityType="PGSSModel.AspNetRole" Width="1.5" PointX="0.75" PointY="6.375" />
         <EntityTypeShape EntityType="PGSSModel.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="14" />
         <EntityTypeShape EntityType="PGSSModel.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="11.5" />
         <EntityTypeShape EntityType="PGSSModel.AspNetUser" Width="1.5" PointX="3" PointY="5" />
-        <EntityTypeShape EntityType="PGSSModel.CarPark" Width="1.5" PointX="3" PointY="10.375" />
+        <EntityTypeShape EntityType="PGSSModel.CarPark" Width="1.5" PointX="3" PointY="10.5" />
         <EntityTypeShape EntityType="PGSSModel.Item" Width="1.5" PointX="5.25" PointY="2.375" />
         <EntityTypeShape EntityType="PGSSModel.ParkingLot" Width="1.5" PointX="3" PointY="0.75" />
         <EntityTypeShape EntityType="PGSSModel.Transaction" Width="1.5" PointX="8.25" PointY="5.875" />

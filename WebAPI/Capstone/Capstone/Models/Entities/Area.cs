@@ -26,6 +26,7 @@ namespace Capstone.Models.Entities
         public Nullable<int> ParentId { get; set; }
         public int CarParkId { get; set; }
         public int EmptyAmount { get; set; }
+        public int Status { get; set; }
         public bool Active { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

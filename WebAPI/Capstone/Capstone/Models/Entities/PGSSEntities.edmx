@@ -14,6 +14,7 @@
           <Property Name="ParentId" Type="int" />
           <Property Name="CarParkId" Type="int" Nullable="false" />
           <Property Name="EmptyAmount" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="Active" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="AspNetRoles">
@@ -440,6 +441,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <Property Name="ParentId" Type="Int32" />
           <Property Name="CarParkId" Type="Int32" Nullable="false" />
           <Property Name="EmptyAmount" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Area1" Relationship="PGSSModel.FK_Area_Area" FromRole="Area" ToRole="Area1" />
           <NavigationProperty Name="Area2" Relationship="PGSSModel.FK_Area_Area" FromRole="Area1" ToRole="Area" />
@@ -710,7 +712,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <End Type="PGSSModel.AspNetRole" Role="AspNetRole" Multiplicity="*" />
           <End Type="PGSSModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
         </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -720,6 +722,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             <EntityTypeMapping TypeName="PGSSModel.Area">
               <MappingFragment StoreEntitySet="Area">
                 <ScalarProperty Name="Active" ColumnName="Active" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="EmptyAmount" ColumnName="EmptyAmount" />
                 <ScalarProperty Name="CarParkId" ColumnName="CarParkId" />
                 <ScalarProperty Name="ParentId" ColumnName="ParentId" />
