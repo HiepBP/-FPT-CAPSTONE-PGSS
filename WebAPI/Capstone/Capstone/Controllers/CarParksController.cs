@@ -80,7 +80,7 @@ namespace Capstone.Controllers
         }
 
         [HttpPost]
-        public IHttpActionResult Post([FromBody]CarParkViewModel model)
+        public IHttpActionResult Create([FromBody]CarParkViewModel model)
         {
             CarParkApi carParkApi = new CarParkApi();
             try
@@ -146,7 +146,7 @@ namespace Capstone.Controllers
         }
 
         [HttpPost]
-        public IHttpActionResult GetCoordinateNearestCarPark(double lat, double lon, int numberOfCarPark)
+        public IHttpActionResult GetCoordinateNearestCarPark([FromBody]double lat, [FromBody]double lon, [FromBody]int numberOfCarPark)
         {
             CarParkApi carParkApi = new CarParkApi();
             var coord = new GeoCoordinate(lat, lon);
