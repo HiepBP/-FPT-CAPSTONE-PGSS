@@ -18,6 +18,7 @@
 // Commands
 #define CMD_ACK 0x06
 #define CMD_NACK 0x15
+#define CMD_DETECTED 0xAA
 
 // Pipes
 #define PIPE_1 0xF0F0F0F0E1LL

@@ -75,7 +75,7 @@ uint32_t CRC24::calculateDebug(const uint8_t* data, uint8_t size)
 		Serial.println(b);
 		uint8_t index = ((result >> 16) ^ b) & 0xff;
 		Serial.print(F("Index "));
-		Serial.print(index);
+		Serial.println(index);
 		Serial.print(F("Table value: "));
 		Serial.println(pgm_read_dword_near(CRC_24_TABLE + index));
 		result = (pgm_read_dword_near(CRC_24_TABLE + index) ^ (result << 8)) & 0x00ffffff;
