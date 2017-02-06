@@ -10,6 +10,7 @@
 class CRC24
 {
 	public:
+		CRC24();
 		CRC24(uint32_t init);
 		uint32_t calculate(const uint8_t* data, uint8_t size);
 		uint32_t calculateDebug(const uint8_t* data, uint8_t size);

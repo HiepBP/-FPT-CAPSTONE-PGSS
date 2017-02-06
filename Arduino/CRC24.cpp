@@ -44,6 +44,11 @@ const uint32_t CRC_24_TABLE[256] PROGMEM = {
 	0x00f6d10c, 0x00fa48fa, 0x007c0401, 0x0042fa2f, 0x00c4b6d4, 0x00c82f22, 0x004e63d9,
 	0x00d11cce, 0x00575035, 0x005bc9c3, 0x00dd8538
 	};
+	
+CRC24::CRC24()
+{
+	CRC_24_INITIALIZATION = 0x00b704ce;
+}
 
 CRC24::CRC24(uint32_t init)
 {

@@ -13,6 +13,7 @@ class HMC5883L
 		HMC5883L(int16_t xOffset, int16_t zOffset, int16_t yOffset);
 		void setup();
 		boolean isInRange();
+		boolean isInRangeDebug();
 	private:
 		void readData(int16_t* x, int16_t* z, int16_t* y);
 		void setupStabilityValue();

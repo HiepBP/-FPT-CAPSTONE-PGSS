@@ -1,6 +1,5 @@
 #include <HMC5883L.h>
 #include <RFUtil.h>
-#include <CRC24.h>
 #include <RF24_config.h>
 #include <RF24.h>
 #include <printf.h>
@@ -25,42 +24,33 @@ bool sensorStatus = false;
 
 // Setup nRF24L01 radio with SPI bus, CE and CSN pin
 RF24 radio(PIN_RF_CE, PIN_RF_CSN);
-RFUtil radioUtil(DEVICE_ADDRESS);
-
-// nRF24L01 pipe addresses
-const uint64_t pipes[2] = { PIPE_1, PIPE_2 };
+RFUtil rfUtil;
 
 // Payload
 char receive_payload[MAX_PAYLOAD_SIZE + 1];
 char send_payload[MAX_PAYLOAD_SIZE + 1];
 
-// CRC
-CRC24 crc(CRC_PAYLOAD_INIT);
-
 void sendAckPayload(uint8_t payloadSize) {
-	radio.stopListening();
+	if (payloadSize > 0) {
+		radio.stopListening();
 
-	radio.write(send_payload, payloadSize);
-	Serial.print(F("Sent message: "));
-	radioUtil.printHex8((uint8_t *)send_payload, payloadSize);
+		radio.write(send_payload, payloadSize);
+		Serial.print(F("Sent message: "));
+		rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
 
-	radio.startListening();
+		radio.startListening();
+	}	
 }
 
 void sendPayload(uint8_t payloadSize) {
-	uint32_t checksum = crc.calculateDebug((uint8_t *)send_payload, payloadSize);
-	for (int i = 2; i >= 0; i--) {
-		uint8_t bits = i * 8;
-		send_payload[payloadSize++] = checksum >> bits & 0xFF;
-	}
-
+	uint8_t originalPayloadSize = payloadSize - 3;
 	radio.stopListening();
 
 	radio.write(send_payload, payloadSize);
 	Serial.print(F("Sent message: "));
-	radioUtil.printHex8((uint8_t *)send_payload, payloadSize);
+	rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
 
-	waitAckPayload(payloadSize);
+	waitAckPayload(originalPayloadSize);
 }
 
 void waitAckPayload(uint8_t payloadSize) {
@@ -77,9 +67,9 @@ void waitAckPayload(uint8_t payloadSize) {
 			Serial.print(F("Got response size="));
 			Serial.println(len);
 			Serial.print(F("Value= "));
-			radioUtil.printHex8((uint8_t *)receive_payload, len);
+			rfUtil.printHex8((uint8_t *)receive_payload, len);
 
-			if (radioUtil.isTarget(receive_payload)) {
+			if (rfUtil.isTarget(receive_payload, DEVICE_ADDRESS)) {
 				if (receive_payload[2] != CMD_ACK) {
 					resend = true;
 				}
@@ -96,12 +86,12 @@ void waitAckPayload(uint8_t payloadSize) {
 }
 
 void processPayload(char payload[], uint8_t payloadSize) {
-	// Check the target of payload
-	if (radioUtil.isTarget(payload)) {
-		// Payload error detecting
-		if (crc.calculateDebug((uint8_t *)payload, payloadSize) == 0) {
+	// Payload error detecting
+	if (rfUtil.isValidated(payload, payloadSize)) {
+		// Check the target of payload
+		if (rfUtil.isTarget(payload, DEVICE_ADDRESS)) {
 			// send ACK message
-			sendAckPayload(radioUtil.generateAckPayload(send_payload));
+			sendAckPayload(rfUtil.generateAckPayload(send_payload, DEVICE_ADDRESS));
 
 			//TODO: execute command
 		}
@@ -124,8 +114,8 @@ void setup()
 	radio.begin();
 	radio.enableDynamicPayloads();
 	radio.setRetries(5, 15);
-	radio.openWritingPipe(pipes[1]);
-	radio.openReadingPipe(1, pipes[0]);
+	radio.openWritingPipe(rfUtil.getPipeAddress(1));
+	radio.openReadingPipe(1, rfUtil.getPipeAddress(0));
 	radio.startListening();
 	radio.printDetails();
 	// Setup metal detector sensor
@@ -137,12 +127,16 @@ void loop()
 	while (true) {
 		if (sensor.isInRange()) {
 			if (!sensorStatus) {
+				Serial.println(F("Metal is near"));
 				sensorStatus = true;
-				sendPayload(radioUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED));
+				sendPayload(rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED));
 			}
 		}
 		else {
-			sensorStatus = false;
+			if (sensorStatus) {
+				sensorStatus = false;
+				Serial.println(F("Metal is gone"));
+			}
 		}
 		if (radio.available()) {
 			uint8_t payloadSize = radio.getDynamicPayloadSize();
@@ -155,7 +149,7 @@ void loop()
 			Serial.print(F("Got message size="));
 			Serial.println(payloadSize);
 			Serial.print(F("Value= "));
-			radioUtil.printHex8((uint8_t *)receive_payload, payloadSize);
+			rfUtil.printHex8((uint8_t *)receive_payload, payloadSize);
 
 			processPayload(receive_payload, payloadSize);
 
