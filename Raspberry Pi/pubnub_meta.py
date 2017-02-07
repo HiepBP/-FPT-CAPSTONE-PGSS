@@ -5,11 +5,11 @@ from my_class import *
 #################################
 
 ####### PubNub Keys #######
-PUBLISH_KEY ="pub-c-c902018c-10eb-4d11-a1fd-f9d878473e74"
-SUBSCRIBE_KEY = "sub-c-978952a6-9f22-11e6-96cb-02ee2ddab7fe"
+PUBLISH_KEY = "pub-c-85b2050b-5425-4964-972f-90910aa358ca"
+SUBSCRIBE_KEY = "sub-c-ed7a8b02-ed34-11e6-a504-02ee2ddab7fe"
 
 ####### PubNub Channels #######
-CHANNEL_LED = "led"
+CHANNEL_DEBUG = "debug"
 
 ####### PubNub Status Message #######
 MESSAGE_CONNECT = "Connected to channel {}"

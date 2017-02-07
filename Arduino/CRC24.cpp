@@ -44,6 +44,11 @@ const uint32_t CRC_24_TABLE[256] PROGMEM = {
 	0x00f6d10c, 0x00fa48fa, 0x007c0401, 0x0042fa2f, 0x00c4b6d4, 0x00c82f22, 0x004e63d9,
 	0x00d11cce, 0x00575035, 0x005bc9c3, 0x00dd8538
 	};
+	
+CRC24::CRC24()
+{
+	CRC_24_INITIALIZATION = 0x00b704ce;
+}
 
 CRC24::CRC24(uint32_t init)
 {
@@ -75,7 +80,7 @@ uint32_t CRC24::calculateDebug(const uint8_t* data, uint8_t size)
 		Serial.println(b);
 		uint8_t index = ((result >> 16) ^ b) & 0xff;
 		Serial.print(F("Index "));
-		Serial.print(index);
+		Serial.println(index);
 		Serial.print(F("Table value: "));
 		Serial.println(pgm_read_dword_near(CRC_24_TABLE + index));
 		result = (pgm_read_dword_near(CRC_24_TABLE + index) ^ (result << 8)) & 0x00ffffff;

@@ -51,6 +51,20 @@ boolean HMC5883L::isInRange()
 	zDiff = z - zStab;
 	if (abs(xDiff) >= X_OFFSET || abs(yDiff) >= Y_OFFSET || abs(zDiff) >= Z_OFFSET)
 	{
+		return true;
+	}
+	return false;
+}
+
+boolean HMC5883L::isInRangeDebug()
+{
+	int16_t x,z,y,xDiff,zDiff,yDiff;
+	readData(&x, &z, &y);
+	xDiff = x - xStab;
+	yDiff = y - yStab;
+	zDiff = z - zStab;
+	if (abs(xDiff) >= X_OFFSET || abs(yDiff) >= Y_OFFSET || abs(zDiff) >= Z_OFFSET)
+	{
 		Serial.print(F("Current axis data: "));
 		Serial.print(F("x: "));
 		Serial.print(x);
