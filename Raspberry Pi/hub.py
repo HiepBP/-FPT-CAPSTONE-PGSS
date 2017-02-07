@@ -15,13 +15,17 @@ HUB_NAME = "Hub 1"
 HUB_ADDRESS = 0xFA00
 
 # Devices dictionary [Device name] : [Device address]
-DEVICES_DICTIONARY ={
+DEVICES_DICTIONARY = BiDict({
     "Device 1":0xFA01,
     "Device 2":0xFA02
-    }
+    })
 
 # Radio max waiting time
 MAX_WAITING_MILLIS = 500
+
+# Wait for ACK payload
+global WAIT_FOR_ACK
+WAIT_FOR_ACK = False
 
 ###################################
 ###### LIBRARY CONFIGURATION ######     
@@ -77,7 +81,18 @@ def _send_payload(message):
         radio.write(payload)
         _wait_ack_payload(message)
 
+def _send_ack_payload(target_address):
+    payload = RFUtil.generate_ack_payload(target_address)
+    if payload != None:
+        radio.stopListening()
+        print("Now sending ... ", end="")
+        RFUtil.print_payload(payload)
+        radio.write(payload)
+        radio.startListening()
+
 def _wait_ack_payload(message):
+    global WAIT_FOR_ACK
+    WAIT_FOR_ACK = True
     radio.startListening()
     started_waiting_at = millis()
     timeout = False
@@ -88,15 +103,26 @@ def _wait_ack_payload(message):
             receive_payload = radio.read(len)
             print("Get response ... ", end="")
             RFUtil.print_payload(receive_payload)
-            device_address = receive_payload[0] << 8 | receive_payload[1]
+            device_address = RFUtil.get_payload_address(receive_payload)
             if device_address == DEVICES_DICTIONARY[message.target]:
-                if receive_payload[2] != RFUtil.CMD_ACK:
+                if receive_payload[2] != RFUtil.get_command_address(RFUtil.CMD_ACK):
                     resend = True
+                else:
+                    WAIT_FOR_ACK = False
                 break;
         if (millis() - started_waiting_at) > MAX_WAITING_MILLIS:
             timeout = True
     if timeout or resend:
         _send_payload(message)
+
+def _process_payload(payload):
+    # Payload error detecting
+    if RFUtil.is_validated(payload):
+        # Check the device address of payload
+        device_address = RFUtil.get_payload_address(payload)
+        if device_address in DEVICES_DICTIONARY:
+            # First, send ACK payload
+            _send_ack_payload(device_address)
 
 #############################
 ####### MAIN PROGRAM ########
@@ -108,21 +134,26 @@ radio.enableDynamicPayloads()
 radio.setRetries(5,15)
 radio.printDetails()
 radio.openWritingPipe(RFUtil.PIPES[0])
-radio.openReadingPipe(1,RFUtil.PIPES[1]) 
+radio.openReadingPipe(1,RFUtil.PIPES[1])
+radio.startListening()
 
 # Start Pubnub
 try:
-    pubnub.subscribe(channels = PubnubMeta.CHANNEL_LED,
+    pubnub.subscribe(channels = PubnubMeta.CHANNEL_DEBUG,
                      callback = _pubnub_callback,
                      error = _pubnub_error,
                      connect = _pubnub_connect,
                      reconnect = _pubnub_reconnect,
                      disconnect = _pubnub_disconnect)
     while True:
-        time.sleep(1)      
+        if radio.available() and not WAIT_FOR_ACK:
+            len = radio.getDynamicPayloadSize()
+            receive_payload = radio.read(len)
+            print("Get payload ... ", end="")
+            RFUtil.print_payload(receive_payload)
+            _process_payload(receive_payload)
 finally:
     print("Pubnub stop")
     pubnub.stop()
     print("GPIO cleanup")
     GPIO.cleanup()
-    

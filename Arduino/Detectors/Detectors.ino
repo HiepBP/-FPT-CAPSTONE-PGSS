@@ -5,13 +5,12 @@
 #include <printf.h>
 #include <nRF24L01.h>
 
+// Address of device. Used for communication in RF network, each device need to have an unique address
 #define DEVICE_ADDRESS 0xFA01
 
-#define MAX_WAITING_MILLIS 500
-
 // Hardware pins definition
-#define PIN_RF_CE 7
-#define PIN_RF_CSN 8
+#define PIN_RF_CE 7 // Chip Enable of RF module
+#define PIN_RF_CSN 8 // Chip Select Not of RF module
 
 // Metal detector offset
 #define X_OFFSET 300
@@ -24,13 +23,19 @@ bool sensorStatus = false;
 
 // Setup nRF24L01 radio with SPI bus, CE and CSN pin
 RF24 radio(PIN_RF_CE, PIN_RF_CSN);
+// RFUtil contains all neccessary meta data and function to use with RF module
+// like PIPES_ADDRESS, MAX_PAYLOAD_SIZE, MAX_WAITING_MILLIS...
 RFUtil rfUtil;
 
-// Payload
+// Payload variables
+// the receive_payload will contains the payload get from RF module in RXMODE
+// the send_payload will contains the payload to be send by RF module in TXMODE
 char receive_payload[MAX_PAYLOAD_SIZE + 1];
 char send_payload[MAX_PAYLOAD_SIZE + 1];
 
-void sendAckPayload(uint8_t payloadSize) {
+// This function will send an ACK payload from this device
+void sendAckPayload() {
+	uint8_t payloadSize = rfUtil.generateAckPayload(send_payload, DEVICE_ADDRESS);
 	if (payloadSize > 0) {
 		radio.stopListening();
 
@@ -39,21 +44,23 @@ void sendAckPayload(uint8_t payloadSize) {
 		rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
 
 		radio.startListening();
-	}	
+	}
 }
 
+// This function will send the payload stored in send_payload
+// After the payload has been sent, the device will change in to standby mode to wait for ACK payload from target
 void sendPayload(uint8_t payloadSize) {
-	uint8_t originalPayloadSize = payloadSize - 3;
 	radio.stopListening();
 
 	radio.write(send_payload, payloadSize);
 	Serial.print(F("Sent message: "));
 	rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
-
-	waitAckPayload(originalPayloadSize);
 }
 
-void waitAckPayload(uint8_t payloadSize) {
+// This function will make the device stop working and wait for an ACK payload
+// in case no ACK payload after a limited time, or the payload receive from target is not an ACK payload, 
+// the device will resend the payload stored in send_payload
+bool waitAckPayload(uint8_t payloadSize) {
 	radio.startListening();
 	unsigned long startWaitingAt = millis();
 	bool timeout = false;
@@ -73,7 +80,7 @@ void waitAckPayload(uint8_t payloadSize) {
 				if (receive_payload[2] != CMD_ACK) {
 					resend = true;
 				}
-				break;
+				return true;
 			}
 		}
 		if ((millis() - startWaitingAt) > MAX_WAITING_MILLIS) {
@@ -81,17 +88,18 @@ void waitAckPayload(uint8_t payloadSize) {
 		}
 	}
 	if (timeout || resend) {
-		sendPayload(payloadSize);
+		return false;
 	}
 }
 
+// This function will check the payload stored in receive_payload and process based on the content of payload
 void processPayload(char payload[], uint8_t payloadSize) {
 	// Payload error detecting
 	if (rfUtil.isValidated(payload, payloadSize)) {
 		// Check the target of payload
 		if (rfUtil.isTarget(payload, DEVICE_ADDRESS)) {
 			// send ACK message
-			sendAckPayload(rfUtil.generateAckPayload(send_payload, DEVICE_ADDRESS));
+			sendAckPayload();
 
 			//TODO: execute command
 		}
@@ -102,6 +110,23 @@ void processPayload(char payload[], uint8_t payloadSize) {
 	else {
 		//TODO: hop payload
 	}
+}
+
+// This function will processes the payload by resend the payload multiple times until receive the ACK payload
+// The process will break and back to main process of device after a set number of resend
+bool sendPayloadProcess(uint8_t payloadSize)
+{	
+	if (payloadSize > 0) {
+		bool ack = false;
+		uint8_t resendTime = 0;
+		while ((!ack) && (resendTime < MAX_RESEND_PAYLOAD)) {
+			sendPayload(payloadSize);
+			ack = waitAckPayload(payloadSize);
+			resendTime++;
+		}
+		return ack;
+	}
+	return false;
 }
 
 void setup()
@@ -124,20 +149,36 @@ void setup()
 
 void loop()
 {
+	// this variable will work similar to a global variable
+	// to check if the device need to resend the payload stored in send_payload
+	bool resendPayload = false;
+	uint8_t payloadSize = 0;
 	while (true) {
+		// check if there is any metal (car) in range
 		if (sensor.isInRange()) {
-			if (!sensorStatus) {
+			if (sensorStatus == false) {
+				// 1st time detected
 				Serial.println(F("Metal is near"));
 				sensorStatus = true;
-				sendPayload(rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED));
-			}
+				payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED);
+				resendPayload = !sendPayloadProcess(payloadSize);
+			} 	
 		}
 		else {
-			if (sensorStatus) {
-				sensorStatus = false;
+			if (sensorStatus == true) {
+				// 1st time undetected
 				Serial.println(F("Metal is gone"));
+				sensorStatus = false;
+				payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_UNDETECTED);
+				resendPayload = !sendPayloadProcess(payloadSize);
 			}
 		}
+
+		if (resendPayload) {
+			Serial.println(F("Resend payload"));
+			resendPayload = !sendPayloadProcess(payloadSize);
+		}
+
 		if (radio.available()) {
 			uint8_t payloadSize = radio.getDynamicPayloadSize();
 			if (!payloadSize) {
@@ -154,6 +195,6 @@ void loop()
 			processPayload(receive_payload, payloadSize);
 
 			radio.startListening();
-		}
+		}	
 	}
 }

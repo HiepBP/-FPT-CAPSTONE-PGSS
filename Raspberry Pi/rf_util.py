@@ -10,14 +10,16 @@ PIPES = [0xF0F0F0F0E1,
          0xF0F0F0F0D2]
 
 ####### Radio Command Name #######
-CMD_ACK = 0x06
-CMD_NACK = 0x15
+CMD_ACK = "ack"
+CMD_NACK = "nack"
 CMD_TEST = "test"
 
 ####### Radio Command Dictionary #######
-CMD_DICTIONARY =  {
-    CMD_TEST : 0x01
-    }
+CMD_DICTIONARY =  BiDict({
+    CMD_TEST : 0xAA,
+    CMD_ACK : 0x06,
+    CMD_NACK : 0x15
+    })
 
 ###################################
 ####### FUNCTION DEFINITION #######
@@ -47,8 +49,37 @@ def generate_payload(devices_dictionary, message):
     else:
         return None
 
+####### Generate new payload with CRC #######
+def generate_ack_payload(target_address):
+
+    cmd_address = CMD_DICTIONARY[CMD_ACK]
+    
+    payload = bytearray()
+    payload = _payload_append(payload, target_address.to_bytes(2, "big"))
+    payload = _payload_append(payload, cmd_address.to_bytes(1, "big"))
+
+    return payload
+
 ####### Print payload in a readable form #######
 def print_payload(payload):
     for byte in payload:
         print(format(byte, '#04x'), end=" ")
     print()
+
+####### Get the address in the payload #######
+def get_payload_address(payload):
+    address = payload[0] << 8 | payload[1]
+    return address
+
+####### Check if the payload contains errors using CRC #######
+def is_validated(payload):
+    checksum = CRC.calculate(payload)
+    if checksum == 0:
+        return True
+    else:
+        return False
+
+####### Get the address of command #######
+def get_command_address(command):
+    return CMD_DICTIONARY[command]
+

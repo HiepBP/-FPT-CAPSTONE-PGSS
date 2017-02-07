@@ -15,11 +15,14 @@
 // Payload
 #define MAX_PAYLOAD_SIZE 32
 #define CRC_PAYLOAD_INIT 0x00b704ce
+#define MAX_WAITING_MILLIS 500
+#define MAX_RESEND_PAYLOAD 15
 
 // Commands
-#define CMD_ACK 0x06
-#define CMD_NACK 0x15
-#define CMD_DETECTED 0xAA
+#define CMD_ACK 0x06        //0000 0110
+#define CMD_NACK 0x15       //0001 0010
+#define CMD_DETECTED 0x08   //0000 1000
+#define CMD_UNDETECTED 0x18 //0001 1000
 
 /*************************************************
 * Definitions
