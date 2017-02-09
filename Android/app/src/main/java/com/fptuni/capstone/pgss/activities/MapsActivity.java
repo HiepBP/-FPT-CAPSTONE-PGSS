@@ -1,12 +1,22 @@
 package com.fptuni.capstone.pgss.activities;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -15,6 +25,7 @@ import com.fptuni.capstone.pgss.R;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private MapMarkerHelper markerHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +51,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        markerHelper = MapMarkerHelper.getInstance();
+
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.addMarker(new MarkerOptions()
+                .position(sydney)
+                .title("Marker in Sydney"))
+                .setIcon(BitmapDescriptorFactory
+                        .fromBitmap(markerHelper.getParkingMarker(this.getApplicationContext(), 100)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 }
