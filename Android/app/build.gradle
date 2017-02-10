@@ -33,4 +33,6 @@ dependencies {
     // Timber logger
     compile 'com.jakewharton.timber:timber:4.4.0'
     testCompile 'junit:junit:4.12'
+    // Pubnub
+    compile 'com.pubnub:pubnub-gson:4.4.4'
 }
