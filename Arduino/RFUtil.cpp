@@ -39,18 +39,18 @@ bool RFUtil::isTarget(char payload[], uint16_t targetAddress)
 
 uint8_t RFUtil::generateAckPayload(char* payload, uint16_t targetAddress)
 {
-	payload[0] = targetAddress >> 8 & 0xFF;
-	payload[1] = targetAddress >> 0 & 0xFF;
-	payload[2] = CMD_ACK;
+	payload[PAYLOAD_ADDRESS_BYTE_1] = targetAddress >> 8 & 0xFF;
+	payload[PAYLOAD_ADDRESS_BYTE_2] = targetAddress >> 0 & 0xFF;
+	payload[PAYLOAD_COMMAND_BYTE] = CMD_ACK;
 	
 	return 3;
 }
 
 uint8_t RFUtil::generatePayload(char* payload, uint16_t target, uint8_t command)
 {
-	payload[0] = target >> 8 & 0xFF;
-	payload[1] = target >> 0 & 0xFF;
-	payload[2] = command;
+	payload[PAYLOAD_ADDRESS_BYTE_1] = target >> 8 & 0xFF;
+	payload[PAYLOAD_ADDRESS_BYTE_2] = target >> 0 & 0xFF;
+	payload[PAYLOAD_COMMAND_BYTE] = command;
 	uint8_t payloadSize = 3;
 	
 	uint32_t checksum = crc.calculate((uint8_t *)payload, payloadSize);
@@ -64,10 +64,10 @@ uint8_t RFUtil::generatePayload(char* payload, uint16_t target, uint8_t command)
 
 uint8_t RFUtil::generatePayload(char* payload, uint16_t target, uint8_t command, uint8_t data)
 {
-	payload[0] = target >> 8 & 0xFF;
-	payload[1] = target >> 0 & 0xFF;
-	payload[2] = command;
-	payload[3] = data;
+	payload[PAYLOAD_ADDRESS_BYTE_1] = target >> 8 & 0xFF;
+	payload[PAYLOAD_ADDRESS_BYTE_2] = target >> 0 & 0xFF;
+	payload[PAYLOAD_COMMAND_BYTE] = command;
+	payload[PAYLOAD_DATA_BYTE] = data;
 	uint8_t payloadSize = 4;
 	
 	uint32_t checksum = crc.calculate((uint8_t *)payload, payloadSize);
@@ -92,4 +92,9 @@ bool RFUtil::isValidated(char* payload, uint8_t payloadSize)
 	} else {
 		return false;
 	}
+}
+
+uint8_t RFUtil::getCommand(uint8_t* payload)
+{
+	return payload[PAYLOAD_COMMAND_BYTE];
 }

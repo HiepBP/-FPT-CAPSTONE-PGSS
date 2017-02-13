@@ -17,12 +17,17 @@
 #define CRC_PAYLOAD_INIT 0x00b704ce
 #define MAX_WAITING_MILLIS 500
 #define MAX_RESEND_PAYLOAD 15
+#define PAYLOAD_ADDRESS_BYTE_1 0
+#define PAYLOAD_ADDRESS_BYTE_2 1
+#define PAYLOAD_COMMAND_BYTE 2
+#define PAYLOAD_DATA_BYTE 3
 
 // Commands
 #define CMD_ACK 0x06        //0000 0110
 #define CMD_NACK 0x15       //0001 0010
 #define CMD_DETECTED 0x08   //0000 1000
 #define CMD_UNDETECTED 0x18 //0001 1000
+#define CMD_LOT_STATUS 0xFA //1111 1010
 
 /*************************************************
 * Definitions
@@ -39,6 +44,7 @@ class RFUtil
 		uint8_t generatePayload(char* payload, uint16_t target, uint8_t command, uint8_t data);
 		uint64_t getPipeAddress(uint8_t pos);
 		bool isValidated(char* payload, uint8_t payloadSize);
+		uint8_t getCommand(uint8_t *payload);
 	private:
 };
 

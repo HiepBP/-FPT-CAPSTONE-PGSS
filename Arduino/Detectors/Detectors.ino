@@ -100,8 +100,24 @@ void processPayload(char payload[], uint8_t payloadSize) {
 		if (rfUtil.isTarget(payload, DEVICE_ADDRESS)) {
 			// send ACK message
 			sendAckPayload();
-
-			//TODO: execute command
+			// execute command
+			uint8_t command = rfUtil.getCommand((uint8_t *)payload);
+			switch (command)
+			{
+			case CMD_LOT_STATUS: {
+				Serial.println(F("Start sending status"));
+				if (sensorStatus == true) {
+					payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED);
+				}
+				else {
+					payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_UNDETECTED);
+				}
+				sendPayloadProcess(payloadSize);
+				break;
+			}
+			default:
+				break;
+			}
 		}
 		else {
 			//TODO: request resent payload
@@ -115,7 +131,7 @@ void processPayload(char payload[], uint8_t payloadSize) {
 // This function will processes the payload by resend the payload multiple times until receive the ACK payload
 // The process will break and back to main process of device after a set number of resend
 bool sendPayloadProcess(uint8_t payloadSize)
-{	
+{
 	if (payloadSize > 0) {
 		bool ack = false;
 		uint8_t resendTime = 0;
@@ -145,38 +161,32 @@ void setup()
 	radio.printDetails();
 	// Setup metal detector sensor
 	sensor.setup();
+	// Check car status
+	if (sensor.isInRange()) {
+		sensorStatus = true;
+	}
+	else {
+		sensorStatus = false;
+	}
 }
 
 void loop()
 {
-	// this variable will work similar to a global variable
-	// to check if the device need to resend the payload stored in send_payload
-	bool resendPayload = false;
-	uint8_t payloadSize = 0;
 	while (true) {
 		// check if there is any metal (car) in range
 		if (sensor.isInRange()) {
 			if (sensorStatus == false) {
 				// 1st time detected
 				Serial.println(F("Metal is near"));
-				sensorStatus = true;
-				payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED);
-				resendPayload = !sendPayloadProcess(payloadSize);
-			} 	
+				sensorStatus = true;	
+			}
 		}
 		else {
 			if (sensorStatus == true) {
 				// 1st time undetected
 				Serial.println(F("Metal is gone"));
 				sensorStatus = false;
-				payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_UNDETECTED);
-				resendPayload = !sendPayloadProcess(payloadSize);
 			}
-		}
-
-		if (resendPayload) {
-			Serial.println(F("Resend payload"));
-			resendPayload = !sendPayloadProcess(payloadSize);
 		}
 
 		if (radio.available()) {
@@ -195,6 +205,6 @@ void loop()
 			processPayload(receive_payload, payloadSize);
 
 			radio.startListening();
-		}	
+		}
 	}
 }
