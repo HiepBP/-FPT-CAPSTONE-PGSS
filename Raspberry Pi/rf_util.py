@@ -5,6 +5,10 @@ import crc24 as CRC
 ###### VARIABLE DEFINITION ######
 #################################
 
+# Radio max waiting time
+MAX_WAITING_MILLIS = 500
+MAX_RESEND_PAYLOAD = 15
+
 ####### Radio Pipes #######
 PIPES = [0xF0F0F0F0E1,
          0xF0F0F0F0D2]
@@ -13,12 +17,18 @@ PIPES = [0xF0F0F0F0E1,
 CMD_ACK = "ack"
 CMD_NACK = "nack"
 CMD_TEST = "test"
+CMD_DETECTED = "detected"
+CMD_UNDETECTED = "undetected"
+CMD_LOT_STATUS = "lot status"
 
 ####### Radio Command Dictionary #######
 CMD_DICTIONARY =  BiDict({
     CMD_TEST : 0xAA,
     CMD_ACK : 0x06,
-    CMD_NACK : 0x15
+    CMD_NACK : 0x15,
+    CMD_DETECTED : 0x08,
+    CMD_UNDETECTED : 0x18,
+    CMD_LOT_STATUS : 0xFA
     })
 
 ###################################

@@ -39,4 +39,13 @@ class PubnubMessage:
     def __str__(self):
         return self._message.format(self.target, self.command, self.data)
 
+class ParkingLot:
+
+    def __init__(self, sensor_address, indicator_address, barrier_address, information_address):
+        self.sensor_address = sensor_address
+        self.indicator_address = indicator_address
+        self.barrier_address = barrier_address
+        self.information_address = information_address
+
+
 
