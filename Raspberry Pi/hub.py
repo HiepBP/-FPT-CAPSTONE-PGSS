@@ -20,12 +20,20 @@ DEVICES_DICTIONARY = BiDict({
     "Device 2":0xFA02
     })
 
-# Radio max waiting time
-MAX_WAITING_MILLIS = 500
+# Parking lot object dictionary [Sensor name] : [Parking lot obj]
+PARKING_LOT_DICTIONARY = {
+    "Device 1":ParkingLot(0xFA01,0xAA01,0xBB01,0xCC01)
+    }
 
 # Wait for ACK payload
 global WAIT_FOR_ACK
 WAIT_FOR_ACK = False
+
+# Global statuc checker
+global POLLING_STATUS
+global REQUEST_STATUS
+POLLING_STATUS = False
+REQUEST_STATUS = False
 
 ###################################
 ###### LIBRARY CONFIGURATION ######     
@@ -69,17 +77,32 @@ def _pubnub_disconnect(channel):
 
 ####### RF functions #######
 def _execute_message(message):
+    global REQUEST_STATUS
+    global POLLING_STATUS
+    REQUEST_STATUS = True
+    while POLLING_STATUS:
+        time.sleep(0.1)
     if message.command == RFUtil.CMD_TEST:
-        _send_payload(message)
+        _send_payload_process(message)
+        time.sleep(10)
+    REQUEST_STATUS = False
 
-def _send_payload(message):
+def _send_payload_process(message):
     payload = RFUtil.generate_payload(DEVICES_DICTIONARY, message)
+    if payload != None:
+        ack = False
+        resendTime = 0
+        while not ack and resendTime < RFUtil.MAX_RESEND_PAYLOAD:
+            _send_payload(payload)
+            ack = _wait_ack_payload(message)
+            resendTime = resendTime + 1
+
+def _send_payload(payload):
     if payload != None:
         radio.stopListening()
         print("Now sending ... ", end="")
         RFUtil.print_payload(payload)
         radio.write(payload)
-        _wait_ack_payload(message)
 
 def _send_ack_payload(target_address):
     payload = RFUtil.generate_ack_payload(target_address)
@@ -91,8 +114,6 @@ def _send_ack_payload(target_address):
         radio.startListening()
 
 def _wait_ack_payload(message):
-    global WAIT_FOR_ACK
-    WAIT_FOR_ACK = True
     radio.startListening()
     started_waiting_at = millis()
     timeout = False
@@ -108,21 +129,25 @@ def _wait_ack_payload(message):
                 if receive_payload[2] != RFUtil.get_command_address(RFUtil.CMD_ACK):
                     resend = True
                 else:
-                    WAIT_FOR_ACK = False
-                break;
-        if (millis() - started_waiting_at) > MAX_WAITING_MILLIS:
+                    return True
+        if (millis() - started_waiting_at) > RFUtil.MAX_WAITING_MILLIS:
             timeout = True
     if timeout or resend:
-        _send_payload(message)
+        return False
 
-def _process_payload(payload):
+def _process_payload(payload, target_address):
+    print("Start process payload")
     # Payload error detecting
     if RFUtil.is_validated(payload):
+        print("Checksum OK")
         # Check the device address of payload
         device_address = RFUtil.get_payload_address(payload)
-        if device_address in DEVICES_DICTIONARY:
+        if device_address == target_address:
+            print("Target OK")
             # First, send ACK payload
             _send_ack_payload(device_address)
+            return True
+    return False
 
 #############################
 ####### MAIN PROGRAM ########
@@ -146,12 +171,28 @@ try:
                      reconnect = _pubnub_reconnect,
                      disconnect = _pubnub_disconnect)
     while True:
-        if radio.available() and not WAIT_FOR_ACK:
-            len = radio.getDynamicPayloadSize()
-            receive_payload = radio.read(len)
-            print("Get payload ... ", end="")
-            RFUtil.print_payload(receive_payload)
-            _process_payload(receive_payload)
+        while REQUEST_STATUS:
+            POLLING_STATUS = False
+            time.sleep(0.1)
+        POLLING_STATUS = True
+        print("Start polling")
+        for sensor_address, lot in PARKING_LOT_DICTIONARY.items():
+            message = PubnubMessage(RFUtil.CMD_LOT_STATUS, sensor_address, None)
+            _send_payload_process(message)
+            
+            started_waiting_at = millis()
+            total_waiting_time = RFUtil.MAX_WAITING_MILLIS * RFUtil.MAX_RESEND_PAYLOAD
+            while (millis() - started_waiting_at) < total_waiting_time:
+                if radio.available():
+                    len = radio.getDynamicPayloadSize()
+                    receive_payload = radio.read(len)
+                    print("Get payload ... ", end="")
+                    RFUtil.print_payload(receive_payload)
+                    check_payload = _process_payload(receive_payload, lot.sensor_address)
+                    if check_payload:
+                        break
+        print("End polling")
+        time.sleep(0.1)
 finally:
     print("Pubnub stop")
     pubnub.stop()
