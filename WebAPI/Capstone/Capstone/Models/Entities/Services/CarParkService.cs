@@ -46,6 +46,6 @@ namespace Capstone.Models.Entities.Services
     public class CarParkWithAmountEntities
     {
         public CarPark CarPark { get; set; }
-        public int EmptyAmount { get; set; }
+        public int? EmptyAmount { get; set; }
     }
 }

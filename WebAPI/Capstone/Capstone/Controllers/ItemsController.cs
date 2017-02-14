@@ -39,8 +39,5 @@ namespace Capstone.Controllers
                 });
             }
         }
-
-        [HttpPost]
-
     }
 }

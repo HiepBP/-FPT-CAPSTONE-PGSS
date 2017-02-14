@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace Capstone.Controllers
 {
@@ -101,6 +102,7 @@ namespace Capstone.Controllers
         }
 
         [HttpGet]
+        [Route("api/CarParks/GetEmptyAmount")]
         public IHttpActionResult GetEmptyAmount(int id)
         {
             CarParkApi carParkApi = new CarParkApi();
@@ -123,7 +125,8 @@ namespace Capstone.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("api/CarParks/GetCoordinateCarPark")]
         public IHttpActionResult GetCoordinateCarPark()
         {
             CarParkApi carParkApi = new CarParkApi();
@@ -145,17 +148,30 @@ namespace Capstone.Controllers
             }
         }
 
-        [HttpPost]
-        public IHttpActionResult GetCoordinateNearestCarPark([FromBody]double lat, [FromBody]double lon, [FromBody]int numberOfCarPark)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lat">Lattitude</param>
+        /// <param name="lon">Longtitude</param>
+        /// <param name="numberOfCarPark">Number of car park you want to get</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/CarParks/GetCoordinateNearestCarPark/{lat}/{lon}/{numberOfCarPark}")]
+        [ResponseType(typeof(List<CarParkGeoJson>))]
+        public IHttpActionResult GetCoordinateNearestCarPark(double lat, double lon, int numberOfCarPark)
         {
             CarParkApi carParkApi = new CarParkApi();
             var coord = new GeoCoordinate(lat, lon);
             try
             {
                 var listCarPark = carParkApi.GetCoordinatesWithEmptyAmount();
-                var nearest = listCarPark.Select(q => new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)))
-                                    .OrderBy(q => q.GetDistanceTo(coord))
-                                    .Take(numberOfCarPark);
+                var nearest = listCarPark.Select(q => new
+                    {
+                        Carpark = q.CarPark,
+                        Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
+                    })
+                    .OrderBy(q => q.Geo.GetDistanceTo(coord))
+                    .Take(numberOfCarPark);
                 return Json(new
                 {
                     result = nearest,
@@ -169,6 +185,12 @@ namespace Capstone.Controllers
                     success = false,
                 });
             }
+        }
+
+        private class CarParkGeoJson
+        {
+            public CarParkViewModel CarPark { get; set; }
+            public GeoCoordinate Geo { get; set; }
         }
     }
 }
