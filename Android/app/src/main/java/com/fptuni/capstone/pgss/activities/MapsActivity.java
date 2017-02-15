@@ -18,6 +18,12 @@ import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
+import com.fptuni.capstone.pgss.interfaces.CarParkClient;
+import com.fptuni.capstone.pgss.models.CarPark;
+import com.fptuni.capstone.pgss.models.CarParkWithGeo;
+import com.fptuni.capstone.pgss.models.Geo;
+import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
+import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,6 +45,11 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.Arrays;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -178,6 +189,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
             locationTv.setText("Latitude:" + latitude + ", Longitude:" + longitude);
         }
+
+        testRetrofit();
+    }
+
+    private void testRetrofit() {
+        CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
+        Call<GetCoordinatePackage> call =
+                client.getCoordinateNearestCarPark(10.8045389, 106.6980829, 20);
+        call.enqueue(new Callback<GetCoordinatePackage>() {
+            @Override
+            public void onResponse(Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
+                List<CarParkWithGeo> list = response.body().getResult();
+                for (CarParkWithGeo data : list) {
+                    final Geo geo = data.getGeo();
+                    final CarPark carPark = data.getCarPark();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LatLng latLng = new LatLng(geo.getLatitude(), geo.getLongitude());
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(carPark.getName()));
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GetCoordinatePackage> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
