@@ -9,6 +9,8 @@ import com.google.gson.annotations.SerializedName;
 public class CarParkWithGeo {
     @SerializedName("Carpark")
     private CarPark carPark;
+    @SerializedName("EmptyAmount")
+    private int availableLot;
     @SerializedName("Geo")
     private Geo geo;
 
@@ -29,5 +31,13 @@ public class CarParkWithGeo {
 
     public void setGeo(Geo geo) {
         this.geo = geo;
+    }
+
+    public int getAvailableLot() {
+        return availableLot;
+    }
+
+    public void setAvailableLot(int availableLot) {
+        this.availableLot = availableLot;
     }
 }

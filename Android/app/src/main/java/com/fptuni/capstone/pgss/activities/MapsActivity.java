@@ -1,12 +1,8 @@
 package com.fptuni.capstone.pgss.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,7 +10,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
@@ -35,7 +30,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -45,6 +39,7 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -59,6 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleApiClient googleApiClient;
 
+    private HashMap<String, Marker> markerMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +64,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        markerMap = new HashMap<>();
+
         testPubnub();
 
         // Create an instance of GoogleAPIClient.
@@ -99,7 +99,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         PubNub pubNub = new PubNub(pnConfiguration);
         pubNub.subscribe()
-                .channels(Arrays.asList("debug"))
+                .channels(Arrays.asList("debug", "realtime map"))
                 .execute();
 
         pubNub.addListener(new SubscribeCallback() {
@@ -111,26 +111,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
                 Log.d("Pubnub", message.getMessage().toString());
-                JsonObject json = message.getMessage().getAsJsonObject();
-                String test = json.get("test").getAsString();
-                if (test.equals("detected")) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            marker.setIcon(BitmapDescriptorFactory
-                                    .fromBitmap(markerHelper.getParkingMarker(getBaseContext(), 99)));
-                        }
-                    });
-                } else if (test.equals("undetected")) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            marker.setIcon(BitmapDescriptorFactory
-                                    .fromBitmap(markerHelper.getParkingMarker(getBaseContext(), 100)));
-                        }
-                    });
+                String channel = message.getChannel();
+                if (channel.equals("realtime map")) {
+                    JsonObject json = message.getMessage().getAsJsonObject();
+                    String hubName = json.get("hub_name").getAsString();
+                    final int availableLot = json.get("available").getAsInt();
+                    if (markerMap.containsKey(hubName)) {
+                        final Marker marker = markerMap.get(hubName);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                marker.setIcon(BitmapDescriptorFactory
+                                        .fromBitmap(markerHelper
+                                                .getParkingMarker(getBaseContext(), availableLot)));
+                            }
+                        });
+                    }
                 }
-
             }
 
             @Override
@@ -168,6 +165,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        testRetrofit();
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -186,11 +185,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng latLng = new LatLng(latitude, longitude);
             mMap.addMarker(new MarkerOptions().position(latLng));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(30));
             locationTv.setText("Latitude:" + latitude + ", Longitude:" + longitude);
         }
-
-        testRetrofit();
     }
 
     private void testRetrofit() {
@@ -199,18 +196,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 client.getCoordinateNearestCarPark(10.8045389, 106.6980829, 20);
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
-            public void onResponse(Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
+            public void onResponse(final Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
                 List<CarParkWithGeo> list = response.body().getResult();
-                for (CarParkWithGeo data : list) {
+                for (final CarParkWithGeo data : list) {
                     final Geo geo = data.getGeo();
                     final CarPark carPark = data.getCarPark();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             LatLng latLng = new LatLng(geo.getLatitude(), geo.getLongitude());
-                            mMap.addMarker(new MarkerOptions()
+                            Marker marker = mMap.addMarker(new MarkerOptions()
                                     .position(latLng)
                                     .title(carPark.getName()));
+                            marker.setIcon(BitmapDescriptorFactory
+                                    .fromBitmap(markerHelper
+                                            .getParkingMarker(getBaseContext(), data.getAvailableLot())));
+                            markerMap.put(carPark.getName(), marker);
                         }
                     });
                 }
