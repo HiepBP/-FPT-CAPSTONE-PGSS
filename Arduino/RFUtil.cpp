@@ -98,3 +98,8 @@ uint8_t RFUtil::getCommand(uint8_t* payload)
 {
 	return payload[PAYLOAD_COMMAND_BYTE];
 }
+
+uint8_t RFUtil::getData(uint8_t* payload)
+{
+	return payload[PAYLOAD_DATA_BYTE];
+}

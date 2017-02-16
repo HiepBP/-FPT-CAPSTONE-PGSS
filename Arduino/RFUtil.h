@@ -28,6 +28,7 @@
 #define CMD_DETECTED 0x08   //0000 1000
 #define CMD_UNDETECTED 0x18 //0001 1000
 #define CMD_LOT_STATUS 0xFA //1111 1010
+#define CMD_UPDATE_INFORMATION 0xC0
 
 /*************************************************
 * Definitions
@@ -45,6 +46,7 @@ class RFUtil
 		uint64_t getPipeAddress(uint8_t pos);
 		bool isValidated(char* payload, uint8_t payloadSize);
 		uint8_t getCommand(uint8_t *payload);
+		uint8_t getData(uint8_t *payload);
 	private:
 };
 
