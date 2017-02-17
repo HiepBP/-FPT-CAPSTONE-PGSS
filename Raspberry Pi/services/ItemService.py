@@ -3,10 +3,11 @@ import errno
 
 from model.Item import Item
 
-resp = requests.get('202.78.227.93/api/')
+resp = requests.get('http://capstoneapi.azurewebsites.net//api/CarParks/GetCoordinateNearestCarPark/10.8045389/106.6980829/10')
 if resp.status_code != 200:
     print('Error')
-for todo_item in resp.json():
-    print('{}{}'.format(todo_item['id'], todo_item['name']))
+else:
+    result = resp.json()['result']
+    print(result)
+    # print('{}{}'.format(todo_item['result'], todo_item['success']))
 
-def GetItemFromServer():

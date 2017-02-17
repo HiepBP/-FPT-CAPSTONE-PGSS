@@ -168,6 +168,7 @@ namespace Capstone.Controllers
                 var nearest = listCarPark.Select(q => new
                     {
                         Carpark = q.CarPark,
+                        EmptyAmount = q.EmptyAmount,
                         Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
                     })
                     .OrderBy(q => q.Geo.GetDistanceTo(coord))
@@ -190,6 +191,7 @@ namespace Capstone.Controllers
         private class CarParkGeoJson
         {
             public CarParkViewModel CarPark { get; set; }
+            public int EmptyAmount { get; set; }
             public GeoCoordinate Geo { get; set; }
         }
     }

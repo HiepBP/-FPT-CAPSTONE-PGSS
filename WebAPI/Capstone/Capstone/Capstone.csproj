@@ -488,6 +488,7 @@
     <Compile Include="ViewModels\BookingHistoryViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\CarParkViewModel.cs" />
     <Compile Include="ViewModels\CarParkViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
