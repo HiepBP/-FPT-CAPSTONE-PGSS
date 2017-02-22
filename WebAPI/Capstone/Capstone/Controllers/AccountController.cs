@@ -71,6 +71,7 @@ namespace Capstone.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
+        [AllowAnonymous]
         [Route("Login")]
         [ResponseType(typeof(ResultModel))]
         public IHttpActionResult Login(LoginViewModel model)
@@ -84,14 +85,15 @@ namespace Capstone.Controllers
                     message = "Tên tài khoản hoặc mật khẩu không đúng, xin thử lại!"
                 });
             }
-
+            var user = UserManager.Find(model.Username, model.Password);
             var result = signManager.PasswordSignIn(model.Username, model.Password, model.RememberMe, shouldLockout: false);
             if (result == SignInStatus.Success)
             {
                 return Json(new ResultModel
                 {
                     success = true,
-                    message = "Đăng nhập thành công!"
+                    message = "Đăng nhập thành công!",
+                    obj = UserManager.GetRoles(user.Id),
                 });
             }
             return Json(new ResultModel
@@ -102,6 +104,7 @@ namespace Capstone.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [Route("Register")]
         [ResponseType(typeof(ResultModel))]
         public IHttpActionResult Register(RegisterViewModel model)

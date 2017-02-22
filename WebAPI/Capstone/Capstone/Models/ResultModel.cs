@@ -9,5 +9,6 @@ namespace Capstone.Models
     {
         public bool success { get; set; }
         public string message { get; set; }
+        public object obj { get; set; }
     }
 }
