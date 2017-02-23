@@ -2,4 +2,21 @@
     <string name="app_name">PGSS</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="login_register">No account yet? Create one</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="login_password">Password</string>
+    <string name="login_username">Username</string>
+
+    <!-- Strings related to register -->
+    <string name="register_email">Email</string>
+    <string name="register_username">Username</string>
+    <string name="register_fullname">Fullname</string>
+    <string name="register_password">Password</string>
+    <string name="register_confirm_password">Confirm Password</string>
+    <string name="register_sign_up">Create Account</string>
+    <string name="register_login">Already a member? Login</string>
 </resources>
