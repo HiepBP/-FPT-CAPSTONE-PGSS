@@ -19,4 +19,7 @@
     <string name="register_confirm_password">Confirm Password</string>
     <string name="register_sign_up">Create Account</string>
     <string name="register_login">Already a member? Login</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>
