@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.interfaces.AccountClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.network.AccountPackage;
@@ -38,6 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.textview_login_register)
     TextView tvRegister;
 
+    private Account account;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     void onLoginButtonClick(View view) {
         String username = etUsername.getText().toString();
         String password = etPassword.getText().toString();
-        Account account = new Account(username, password);
+        account = new Account(username, password);
         AccountClient client = ServiceGenerator.createService(AccountClient.class);
         Call<AccountPackage> call = client.login(account);
         call.enqueue(new Callback<AccountPackage>() {
@@ -57,7 +60,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<AccountPackage> call, Response<AccountPackage> response) {
                 final AccountPackage result = response.body();
                 if (result.isSuccess()) {
-                    //TODO: store account information
+                    AccountHelper.save(LoginActivity.this, account);
+                    // TODO: load Activity based on account role
+                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                    startActivity(intent);
+                    finish();
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
