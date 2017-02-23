@@ -60,8 +60,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap map;
-    private MapMarkerHelper markerHelper;
-    private PubNubHelper pubNubHelper;
     private Marker currentLocation;
 
     private GoogleApiClient googleApiClient;
@@ -87,9 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         markerMap = new HashMap<>();
 
-        pubNubHelper = PubNubHelper.getInstance();
-        markerHelper = MapMarkerHelper.getInstance();
-        testPubnub();
+        initiatePubnub();
 
         // Create an instance of GoogleAPIClient.
         if (googleApiClient == null) {
@@ -113,8 +109,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
     }
 
-    private void testPubnub() {
-        pubNub = pubNubHelper.getPubNub();
+    private void initiatePubnub() {
+        pubNub = PubNubHelper.getPubNub();
 
         pubNub.addListener(new SubscribeCallback() {
             @Override
@@ -135,7 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             @Override
                             public void run() {
                                 marker.setIcon(BitmapDescriptorFactory
-                                        .fromBitmap(markerHelper
+                                        .fromBitmap(MapMarkerHelper
                                                 .getParkingMarker(getBaseContext(), availableLot)));
                             }
                         });
@@ -193,11 +189,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.i("MapsActivity", "onConnected");
+        map.clear();
         locationSettingRequest();
-//        testRetrofit();
     }
 
     private void getCurrentLocation() {
+        Log.i("MapsActivity", "getCurrentLocation");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -208,24 +206,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            LatLng latLng = new LatLng(latitude, longitude);
-            currentLocation = map.addMarker(new MarkerOptions().position(latLng));
-            map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            map.animateCamera(CameraUpdateFactory.zoomTo(50));
+        Location location = null;
+        // When first start location and connect to google api client, it will need sometime to
+        // get the location data
+        while (location == null) {
+            // TODO: display progess bar
+            location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         }
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        LatLng latLng = new LatLng(latitude, longitude);
+        currentLocation = map.addMarker(new MarkerOptions().position(latLng));
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(50));
+        getCarParkData(latitude, longitude);
+
     }
 
-    private void testRetrofit() {
+    private void getCarParkData(double lat, double lon) {
         CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
         Call<GetCoordinatePackage> call =
-                client.getCoordinateNearestCarPark(10.8045389, 106.6980829, 20);
+                client.getCoordinateNearestCarPark(lat, lon, 20);
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
-            public void onResponse(final Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
+            public void onResponse(final Call<GetCoordinatePackage> call,
+                                   Response<GetCoordinatePackage> response) {
                 List<CarParkWithGeo> list = response.body().getResult();
                 for (final CarParkWithGeo data : list) {
                     final Geo geo = data.getGeo();
@@ -238,7 +244,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     .position(latLng)
                                     .title(carPark.getName()));
                             marker.setIcon(BitmapDescriptorFactory
-                                    .fromBitmap(markerHelper
+                                    .fromBitmap(MapMarkerHelper
                                             .getParkingMarker(getBaseContext(), data.getAvailableLot())));
                             markerMap.put(carPark.getName(), marker);
                         }
@@ -265,8 +271,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i("MapsActivity", "onActivityResult");
         switch (requestCode) {
             case REQUEST_CHECK_SETTINGS:
+                Log.i("MapsActivity", String.valueOf(resultCode));
                 switch (resultCode) {
                     case RESULT_OK:
                         getCurrentLocation();
@@ -281,6 +289,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void locationSettingRequest() {
+        Log.i("MapsActivity", "locationSettingRequest");
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(30 * 1000);
@@ -294,11 +303,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(@NonNull LocationSettingsResult result) {
+                Log.i("MapsActivity", "onResult");
                 Status status = result.getStatus();
                 LocationSettingsStates state = result.getLocationSettingsStates();
-
+                Log.i("MapsActivity", status.getStatusMessage());
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
+                        Log.i("MapsActivity", "on success");
                         getCurrentLocation();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
