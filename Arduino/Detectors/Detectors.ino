@@ -1,3 +1,4 @@
+#include <Servo.h>
 #include <RGBLED.h>
 #include <HMC5883L.h>
 #include <RFUtil.h>
@@ -21,6 +22,10 @@
 // Indicator LED controller
 RGBLED indicator(3, 5, 6, COMMON_ANODE);
 
+// Servo controller
+Servo servo;
+bool servoStatus = false;
+
 // Metal detector sensor
 HMC5883L sensor(X_OFFSET, Z_OFFSET, Y_OFFSET);
 bool sensorStatus = false;
@@ -43,8 +48,8 @@ void sendAckPayload() {
 	if (payloadSize > 0) {
 		radio.stopListening();
 		radio.write(send_payload, payloadSize);
-		Serial.print(F("Sent ack message: "));
-		rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
+		//Serial.print(F("Sent ack message: "));
+		//rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
 	}
 }
 
@@ -54,8 +59,8 @@ void sendPayload(uint8_t payloadSize) {
 	radio.stopListening();
 	radio.write(send_payload, payloadSize);
 	radio.startListening();
-	Serial.print(F("Sent message: "));
-	rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
+	//Serial.print(F("Sent message: "));
+	//rfUtil.printHex8((uint8_t *)send_payload, payloadSize);
 }
 
 // This function will make the device stop working and wait for an ACK payload
@@ -71,10 +76,10 @@ bool waitAckPayload(uint8_t payloadSize) {
 			radio.read(receive_payload, len);
 
 			// Spew it
-			Serial.print(F("Got response size="));
-			Serial.println(len);
-			Serial.print(F("Value= "));
-			rfUtil.printHex8((uint8_t *)receive_payload, len);
+			//Serial.print(F("Got response size="));
+			//Serial.println(len);
+			//Serial.print(F("Value= "));
+			//rfUtil.printHex8((uint8_t *)receive_payload, len);
 
 			if (rfUtil.isTarget(receive_payload, DEVICE_ADDRESS)) {
 				if (receive_payload[2] != CMD_ACK) {
@@ -107,7 +112,7 @@ void processPayload(char payload[], uint8_t payloadSize) {
 			switch (command)
 			{
 			case CMD_LOT_STATUS: {
-				Serial.println(F("Start sending status"));
+				//Serial.println(F("Start sending status"));
 				if (sensorStatus == true) {
 					payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_DETECTED);
 				}
@@ -115,6 +120,20 @@ void processPayload(char payload[], uint8_t payloadSize) {
 					payloadSize = rfUtil.generatePayload(send_payload, DEVICE_ADDRESS, CMD_UNDETECTED);
 				}
 				sendPayloadProcess(payloadSize);
+				break;
+			}
+			case CMD_TEST: {
+				Serial.println("Update servo");
+				if (servoStatus == true) {
+					Serial.println("Servo write 0");
+					servo.write(0);
+					servoStatus = false;
+				}
+				else {
+					Serial.println("Servo write 90");
+					servo.write(90);
+					servoStatus = true;
+				}
 				break;
 			}
 			default:
@@ -172,6 +191,9 @@ void setup()
 		sensorStatus = false;
 		indicator.writeRGB(255, 0, 255);
 	}
+
+	// Setup servo
+	servo.attach(4);
 }
 
 void loop()
@@ -196,7 +218,7 @@ void loop()
 		}
 
 		if (radio.available()) {
-			Serial.println("##########################");
+			//Serial.println("##########################");
 			uint8_t payloadSize = radio.getDynamicPayloadSize();
 			if (!payloadSize) {
 				continue;
@@ -204,10 +226,10 @@ void loop()
 			radio.read(receive_payload, payloadSize);
 
 			// Spew it
-			Serial.print(F("Got message size="));
-			Serial.println(payloadSize);
-			Serial.print(F("Value= "));
-			rfUtil.printHex8((uint8_t *)receive_payload, payloadSize);
+			//Serial.print(F("Got message size="));
+			//Serial.println(payloadSize);
+			//Serial.print(F("Value= "));
+			//rfUtil.printHex8((uint8_t *)receive_payload, payloadSize);
 
 			processPayload(receive_payload, payloadSize);
 			radio.startListening();
