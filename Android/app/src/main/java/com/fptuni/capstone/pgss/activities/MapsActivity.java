@@ -28,6 +28,7 @@ import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
+import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
@@ -51,11 +52,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -146,7 +150,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void selectDrawerItem(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_first_fragment:
-                Toast.makeText(this, "First Fragment", Toast.LENGTH_SHORT).show();
+                ControlPubnubPackage message = new ControlPubnubPackage();
+                message.setHub_name("Hub 1");
+                message.setDevice_name("Detector 1");
+                message.setCommand("test");
+                pubNub.publish()
+                        .message(message)
+                        .channel("control")
+                        .usePOST(true)
+                        .async(new PNCallback<PNPublishResult>() {
+                            @Override
+                            public void onResponse(PNPublishResult result, PNStatus status) {
+
+                            }
+                        });
                 break;
             case R.id.nav_second_fragment:
                 Toast.makeText(this, "Second Fragment", Toast.LENGTH_SHORT).show();
