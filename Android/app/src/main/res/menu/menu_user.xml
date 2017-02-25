@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_user_map_view"
+            android:checked="true"
+            android:title="@string/user_map_view_title" />
+        <item
+            android:id="@+id/nav_user_list_view"
+            android:title="@string/user_list_view_title" />
+        <item
+            android:id="@+id/nav_user_save_parking"
+            android:title="@string/user_save_parking_title" />
+        <item
+            android:id="@+id/nav_user_my_cars"
+            android:title="@string/user_my_cars" />
+        <item
+            android:id="@+id/nav_user_search_location"
+            android:title="@string/user_search_location_title" />
+        <item
+            android:id="@+id/nav_user_select_range"
+            android:title="@string/user_select_range_title" />
+        <item
+            android:id="@+id/nav_user_sort"
+            android:title="@string/user_sort_title" />
+        <item
+            android:id="@+id/nav_user_about_us"
+            android:title="@string/user_about_us_title" />
+        <item
+            android:id="@+id/nav_user_share"
+            android:title="@string/user_share_app_title" />
+        <item
+            android:id="@+id/nav_user_rate"
+            android:title="@string/user_rate_us_title" />
+        <item
+            android:id="@+id/nav_user_log_out"
+            android:title="@string/user_log_out_title" />
+    </group>
+</menu>

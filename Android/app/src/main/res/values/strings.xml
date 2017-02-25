@@ -20,6 +20,20 @@
     <string name="register_sign_up">Create Account</string>
     <string name="register_login">Already a member? Login</string>
 
+    <!-- Strings related to user -->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="user_map_view_title">Map View</string>
+    <string name="user_list_view_title">List View</string>
+    <string name="user_save_parking_title">Save Parking Location</string>
+    <string name="user_my_cars">My Cars</string>
+    <string name="user_search_location_title">Search by Locations</string>
+    <string name="user_select_range_title">Select Range</string>
+    <string name="user_sort_title">Sort</string>
+    <string name="user_about_us_title">About us</string>
+    <string name="user_share_app_title">Share App</string>
+    <string name="user_rate_us_title">Rate us</string>
+    <string name="user_log_out_title">Log Out</string>
+    <!-- Menu title -->
+
 </resources>

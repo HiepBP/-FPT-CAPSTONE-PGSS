@@ -1,31 +1,36 @@
 package com.fptuni.capstone.pgss.network;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by TrungTNM on 2/24/2017.
  */
 
 public class ControlPubnubPackage {
-    private String hub_name;
-    private String device_name;
+    @SerializedName("hub_name")
+    private String hubName;
+    @SerializedName("device_name")
+    private String deviceName;
+    @SerializedName("command")
     private String command;
 
     public ControlPubnubPackage() {
     }
 
-    public String getHub_name() {
-        return hub_name;
+    public String getHubName() {
+        return hubName;
     }
 
-    public void setHub_name(String hub_name) {
-        this.hub_name = hub_name;
+    public void setHubName(String hubName) {
+        this.hubName = hubName;
     }
 
-    public String getDevice_name() {
-        return device_name;
+    public String getDeviceName() {
+        return deviceName;
     }
 
-    public void setDevice_name(String device_name) {
-        this.device_name = device_name;
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public String getCommand() {

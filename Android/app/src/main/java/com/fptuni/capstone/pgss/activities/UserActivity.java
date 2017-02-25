@@ -11,24 +11,25 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
+import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
-import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
@@ -52,14 +53,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
-import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,7 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class UserActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -89,7 +87,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_user);
         ButterKnife.bind(this);
 
         initiateInstance();
@@ -110,7 +108,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initiateInstance() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_maps_map);
+                .findFragmentById(R.id.fragment_user_map);
         mapFragment.getMapAsync(this);
 
         markerMap = new HashMap<>();
@@ -129,47 +127,75 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Drawer
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationMenu = (NavigationView) findViewById(R.id.nvView);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout_user);
+        navigationMenu = (NavigationView) findViewById(R.id.navigationview_user);
         setupDrawerContent();
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(drawerToggle);
+        View header = navigationMenu.getHeaderView(0);
+        TextView tvUsername = (TextView) header.findViewById(R.id.textview_header_user_username);
+        Account account = AccountHelper.get(this);
+        tvUsername.setText(account.getUsername());
     }
 
     private void setupDrawerContent() {
         navigationMenu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                selectDrawerItem(item);
+                onDrawerItemClick(item);
                 return true;
             }
         });
     }
 
-    private void selectDrawerItem(MenuItem item) {
+    private void onDrawerItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.nav_first_fragment:
-                ControlPubnubPackage message = new ControlPubnubPackage();
-                message.setHub_name("Hub 1");
-                message.setDevice_name("Detector 1");
-                message.setCommand("test");
-                pubNub.publish()
-                        .message(message)
-                        .channel("control")
-                        .usePOST(true)
-                        .async(new PNCallback<PNPublishResult>() {
-                            @Override
-                            public void onResponse(PNPublishResult result, PNStatus status) {
-
-                            }
-                        });
+            case R.id.nav_user_map_view:
+                // TODO: navigation drawer map view click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.nav_second_fragment:
-                Toast.makeText(this, "Second Fragment", Toast.LENGTH_SHORT).show();
+            case R.id.nav_user_list_view:
+                // TODO: navigation drawer list view click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.nav_third_fragment:
-                Toast.makeText(this, "Third Fragment", Toast.LENGTH_SHORT).show();
+            case R.id.nav_user_save_parking:
+                // TODO: navigation drawer save parking click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_my_cars:
+                // TODO: navigation drawer my cars click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_search_location:
+                // TODO: navigation drawer search location click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_select_range:
+                // TODO: navigation drawer select range click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_sort:
+                // TODO: navigation drawer sort click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_about_us:
+                // TODO: navigation drawer about us click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_share:
+                // TODO: navigation drawer share click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_rate:
+                // TODO: navigation drawer rate click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.nav_user_log_out:
+                Intent intent = new Intent(this, LoginActivity.class);
+                AccountHelper.clear(this);
+                startActivity(intent);
+                finish();
                 break;
             default:
         }
@@ -279,13 +305,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i("MapsActivity", "onConnected");
+        Log.i("UserActivity", "onConnected");
         map.clear();
         locationSettingRequest();
     }
 
     private void getCurrentLocation() {
-        Log.i("MapsActivity", "getCurrentLocation");
+        Log.i("UserActivity", "getCurrentLocation");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -361,10 +387,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i("MapsActivity", "onActivityResult");
+        Log.i("UserActivity", "onActivityResult");
         switch (requestCode) {
             case REQUEST_CHECK_SETTINGS:
-                Log.i("MapsActivity", String.valueOf(resultCode));
+                Log.i("UserActivity", String.valueOf(resultCode));
                 switch (resultCode) {
                     case RESULT_OK:
                         getCurrentLocation();
@@ -379,7 +405,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void locationSettingRequest() {
-        Log.i("MapsActivity", "locationSettingRequest");
+        Log.i("UserActivity", "locationSettingRequest");
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(30 * 1000);
@@ -393,13 +419,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(@NonNull LocationSettingsResult result) {
-                Log.i("MapsActivity", "onResult");
+                Log.i("UserActivity", "onResult");
                 Status status = result.getStatus();
                 LocationSettingsStates state = result.getLocationSettingsStates();
-                Log.i("MapsActivity", status.getStatusMessage());
+                Log.i("UserActivity", status.getStatusMessage());
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        Log.i("MapsActivity", "on success");
+                        Log.i("UserActivity", "on success");
                         getCurrentLocation();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -409,7 +435,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             // Show the dialog by calling startResolutionForResult(),
                             // and check the result in onActivityResult().
                             status.startResolutionForResult(
-                                    MapsActivity.this,
+                                    UserActivity.this,
                                     REQUEST_CHECK_SETTINGS);
                         } catch (IntentSender.SendIntentException e) {
                             // Ignore the error.
