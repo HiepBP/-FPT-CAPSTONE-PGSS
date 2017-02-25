@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.adapters.UserInfoWindowAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
@@ -136,6 +137,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         View header = navigationMenu.getHeaderView(0);
         TextView tvUsername = (TextView) header.findViewById(R.id.textview_header_user_username);
         Account account = AccountHelper.get(this);
+        assert account != null;
         tvUsername.setText(account.getUsername());
     }
 
@@ -296,6 +298,14 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         map.getUiSettings().setCompassEnabled(true);
+        map.setInfoWindowAdapter(new UserInfoWindowAdapter(getLayoutInflater()));
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                // TODO: show car park detail page
+                marker.hideInfoWindow();
+            }
+        });
     }
 
     /***
@@ -362,6 +372,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                             marker.setIcon(BitmapDescriptorFactory
                                     .fromBitmap(MapMarkerHelper
                                             .getParkingMarker(getBaseContext(), data.getAvailableLot())));
+                            marker.setTag(data);
                             markerMap.put(carPark.getName(), marker);
                         }
                     });
