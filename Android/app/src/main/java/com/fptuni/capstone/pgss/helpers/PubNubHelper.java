@@ -13,8 +13,6 @@ import java.util.List;
 
 public class PubNubHelper {
 
-    private static PubNubHelper helper;
-
     private static final String SUBSCRIBE_KEY = "sub-c-ed7a8b02-ed34-11e6-a504-02ee2ddab7fe";
     private static final String PUBLISH_KEY = "pub-c-85b2050b-5425-4964-972f-90910aa358ca";
     private static final List<String> CHANNELS_LIST = Arrays.asList("debug", "realtime map");
@@ -23,15 +21,7 @@ public class PubNubHelper {
 
     }
 
-    public static PubNubHelper getInstance() {
-        if (helper == null) {
-            helper = new PubNubHelper();
-        }
-
-        return helper;
-    }
-
-    public PubNub getPubNub() {
+    public static PubNub getPubNub() {
         PNConfiguration pnConfiguration = new PNConfiguration();
         pnConfiguration.setSubscribeKey(SUBSCRIBE_KEY);
         pnConfiguration.setPublishKey(PUBLISH_KEY);

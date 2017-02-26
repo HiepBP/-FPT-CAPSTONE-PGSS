@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -62,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (result.isSuccess()) {
                     AccountHelper.save(LoginActivity.this, account);
                     // TODO: load Activity based on account role
-                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, UserActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
