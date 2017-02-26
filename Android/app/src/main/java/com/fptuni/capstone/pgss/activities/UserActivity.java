@@ -1,6 +1,7 @@
 package com.fptuni.capstone.pgss.activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,6 +33,7 @@ import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
+import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
@@ -54,7 +57,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
@@ -304,6 +309,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onInfoWindowClick(Marker marker) {
                 // TODO: show car park detail page
                 marker.hideInfoWindow();
+                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
+                CarPark carPark = data.getCarPark();
+                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark);
+                startActivity(intent);
             }
         });
     }

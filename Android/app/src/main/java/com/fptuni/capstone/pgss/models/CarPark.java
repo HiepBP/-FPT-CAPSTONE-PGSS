@@ -2,11 +2,13 @@ package com.fptuni.capstone.pgss.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by TrungTNM on 2/15/2017.
  */
 
-public class CarPark {
+public class CarPark implements Serializable {
     @SerializedName("Id")
     private int id;
     @SerializedName("Name")
