@@ -17,20 +17,10 @@ import com.fptuni.capstone.pgss.R;
 
 public class MapMarkerHelper {
 
-    private static MapMarkerHelper helper;
-
     private MapMarkerHelper() {
     }
 
-    public static MapMarkerHelper getInstance() {
-        if (helper == null) {
-            helper = new MapMarkerHelper();
-        }
-
-        return helper;
-    }
-
-    public Bitmap getParkingMarker(Context context, int availableLot) {
+    public static Bitmap getParkingMarker(Context context, int availableLot) {
         String text = String.valueOf(availableLot);
 
         int drawableId;
@@ -81,7 +71,7 @@ public class MapMarkerHelper {
         return (int) ((nDP * conversionScale) + 0.5f);
     }
 
-    private boolean isBetween(int x, int lower, int upper) {
+    private static boolean isBetween(int x, int lower, int upper) {
         return lower <= x && x <= upper;
     }
 }

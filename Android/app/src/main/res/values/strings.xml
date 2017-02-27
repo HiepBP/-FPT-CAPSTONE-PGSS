@@ -19,4 +19,28 @@
     <string name="register_confirm_password">Confirm Password</string>
     <string name="register_sign_up">Create Account</string>
     <string name="register_login">Already a member? Login</string>
+
+    <!-- Strings related to user -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="user_map_view_title">Map View</string>
+    <string name="user_list_view_title">List View</string>
+    <string name="user_save_parking_title">Save Parking Location</string>
+    <string name="user_my_cars">My Cars</string>
+    <string name="user_search_location_title">Search by Locations</string>
+    <string name="user_select_range_title">Select Range</string>
+    <string name="user_sort_title">Sort</string>
+    <string name="user_about_us_title">About us</string>
+    <string name="user_share_app_title">Share App</string>
+    <string name="user_rate_us_title">Rate us</string>
+    <string name="user_log_out_title">Log Out</string>
+    <string name="carparkdetail_button_call">Call</string>
+    <string name="carparkdetail_button_save">Save</string>
+    <string name="carparkdetail_button_reserve">Reserve</string>
+    <string name="carparkdetail_reserve_dialog_title">Reserve Parking Lot</string>
+    <string name="carparkdetail_reserve_dialog_message">Are you sure you want to reserve a parking lot in this parking car?</string>
+    <string name="carparkdetail_reserve_dialog_failed">An error has occurred! Please try again.</string>
+    <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification and invoice via app.</string>
+    <!-- Menu title -->
+
 </resources>

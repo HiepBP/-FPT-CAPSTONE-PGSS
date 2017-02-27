@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_user_map_view"
+            android:checked="true"
+            android:icon="@drawable/user_nav_map_view_icon"
+            android:title="@string/user_map_view_title" />
+        <item
+            android:id="@+id/nav_user_list_view"
+            android:icon="@drawable/user_nav_list_view_icon"
+            android:title="@string/user_list_view_title" />
+        <item
+            android:id="@+id/nav_user_save_parking"
+            android:icon="@drawable/user_nav_save_parking_icon"
+            android:title="@string/user_save_parking_title" />
+        <item
+            android:id="@+id/nav_user_my_cars"
+            android:icon="@drawable/user_nav_my_cars_icon"
+            android:title="@string/user_my_cars" />
+        <item
+            android:id="@+id/nav_user_search_location"
+            android:icon="@drawable/user_nav_search_location_icon"
+            android:title="@string/user_search_location_title" />
+        <item
+            android:id="@+id/nav_user_select_range"
+            android:icon="@drawable/user_nav_select_range_icon"
+            android:title="@string/user_select_range_title" />
+        <item
+            android:id="@+id/nav_user_sort"
+            android:icon="@drawable/user_nav_sort_icon"
+            android:title="@string/user_sort_title" />
+        <item
+            android:id="@+id/nav_user_about_us"
+            android:icon="@drawable/user_nav_about_us_icon"
+            android:title="@string/user_about_us_title" />
+        <item
+            android:id="@+id/nav_user_share"
+            android:icon="@drawable/user_nav_share_app_icon"
+            android:title="@string/user_share_app_title" />
+        <item
+            android:id="@+id/nav_user_rate"
+            android:icon="@drawable/user_nav_rate_us_icon"
+            android:title="@string/user_rate_us_title" />
+        <item
+            android:id="@+id/nav_user_log_out"
+            android:icon="@drawable/user_nav_log_out_icon"
+            android:title="@string/user_log_out_title" />
+    </group>
+</menu>
