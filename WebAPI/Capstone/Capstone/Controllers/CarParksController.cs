@@ -166,13 +166,45 @@ namespace Capstone.Controllers
             {
                 var listCarPark = carParkApi.GetCoordinatesWithEmptyAmount();
                 var nearest = listCarPark.Select(q => new
-                    {
-                        Carpark = q.CarPark,
-                        EmptyAmount = q.EmptyAmount,
-                        Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
-                    })
+                {
+                    Carpark = q.CarPark,
+                    EmptyAmount = q.EmptyAmount,
+                    Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
+                })
                     .OrderBy(q => q.Geo.GetDistanceTo(coord))
                     .Take(numberOfCarPark);
+                return Json(new
+                {
+                    result = nearest,
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpGet]
+        [Route("api/CarParks/GetCoordinateNearestCarParkByRange/{lat}/{lon}/{numberOfCarPark}")]
+        [ResponseType(typeof(List<CarParkGeoJson>))]
+        public IHttpActionResult GetCoordinateNearestCarParkByRange(double lat, double lon, double range)
+        {
+            CarParkApi carParkApi = new CarParkApi();
+            var coord = new GeoCoordinate(lat, lon);
+            try
+            {
+                var listCarPark = carParkApi.GetCoordinatesWithEmptyAmount();
+                var nearest = listCarPark.Select(q => new
+                {
+                    Carpark = q.CarPark,
+                    EmptyAmount = q.EmptyAmount,
+                    Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
+                })
+                    .Where(q => q.Geo.GetDistanceTo(coord) <= range);
                 return Json(new
                 {
                     result = nearest,

@@ -265,6 +265,7 @@
     <Compile Include="Controllers\CarParksController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ItemsController.cs" />
+    <Compile Include="Controllers\ParkingLotsController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="ErrorHandler\AiHandleErrorAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -407,6 +408,7 @@
     <Compile Include="Models\Entities\Services\ItemServiceGen.cs">
       <DependentUpon>Services.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Entities\Services\ParkingLotService.cs" />
     <Compile Include="Models\Entities\Services\ParkingLotServiceGen.cs">
       <DependentUpon>Services.tt</DependentUpon>
     </Compile>
@@ -460,6 +462,7 @@
     <Compile Include="Sdk\ItemApiGen.cs">
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
+    <Compile Include="Sdk\ParkingLotApi.cs" />
     <Compile Include="Sdk\ParkingLotApiGen.cs">
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
@@ -497,6 +500,7 @@
     <Compile Include="ViewModels\ItemViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\ParkingLotViewModel.cs" />
     <Compile Include="ViewModels\ParkingLotViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>

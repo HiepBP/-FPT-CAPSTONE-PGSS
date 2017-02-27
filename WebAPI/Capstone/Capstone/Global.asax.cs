@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Capstone.Models.Entities;
 using Capstone.Models.Entities.Services;
 using Capstone.ViewModels;
 using System;
@@ -27,6 +28,7 @@ namespace Capstone
         public void AdditionalMapperConfig(IMapperConfiguration config)
         {
             config.CreateMap<CarParkWithAmountEntities, CarParkWithAmount>();
+            config.CreateMap<ParkingLot, ParkingLotWithItemViewModel>();
         }
     }
 }
