@@ -7,6 +7,8 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class ControlPubnubPackage {
+    @SerializedName("username")
+    private String username;
     @SerializedName("hub_name")
     private String hubName;
     @SerializedName("device_name")
@@ -39,5 +41,13 @@ public class ControlPubnubPackage {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

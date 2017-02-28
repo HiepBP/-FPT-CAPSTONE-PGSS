@@ -3,6 +3,8 @@ package com.fptuni.capstone.pgss.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
+import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.pubnub.api.PubNub;
@@ -28,6 +32,8 @@ import butterknife.OnClick;
 public class CarParkDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_CAR_PARK = "carPark";
+
+    private Account account;
 
     @BindView(R.id.textview_carparkdetail_name)
     TextView tvName;
@@ -71,10 +77,16 @@ public class CarParkDetailActivity extends AppCompatActivity {
         tvPhone.setText(carPark.getPhone());
         tvEmail.setText(carPark.getEmail());
         tvDescription.setText(carPark.getDescription());
+
+        if (account == null) {
+            btnReserve.setClickable(false);
+            btnReserve.setAlpha(0.3f);
+        }
     }
 
     private void initiateFields() {
         carPark = (CarPark) getIntent().getSerializableExtra(EXTRA_CAR_PARK);
+        account = AccountHelper.get(this);
     }
 
     @OnClick(R.id.button_carparkdetail_call)
@@ -112,6 +124,7 @@ public class CarParkDetailActivity extends AppCompatActivity {
     private void reserveParkingLot() {
         PubNub pubNub = PubNubHelper.getPubNub();
         ControlPubnubPackage message = new ControlPubnubPackage();
+        message.setUsername(account.getUsername());
         message.setCommand("test");
         message.setDeviceName("Detector 1");
         message.setHubName(carPark.getName());
