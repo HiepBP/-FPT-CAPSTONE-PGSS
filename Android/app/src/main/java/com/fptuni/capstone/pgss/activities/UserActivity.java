@@ -1,6 +1,8 @@
 package com.fptuni.capstone.pgss.activities;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -35,6 +37,7 @@ import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
 import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
+import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -55,6 +58,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
@@ -142,8 +146,11 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         View header = navigationMenu.getHeaderView(0);
         TextView tvUsername = (TextView) header.findViewById(R.id.textview_header_user_username);
         Account account = AccountHelper.get(this);
-        assert account != null;
-        tvUsername.setText(account.getUsername());
+        if (account != null) {
+            tvUsername.setText(account.getUsername());
+        } else {
+            tvUsername.setText(R.string.user_guest);
+        }
     }
 
     private void setupDrawerContent() {
@@ -242,7 +249,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
             @Override
-            public void message(PubNub pubnub, PNMessageResult message) {
+            public void message(PubNub pubnub, final PNMessageResult message) {
                 String channel = message.getChannel();
                 if (channel.equals("realtime map")) {
                     JsonObject json = message.getMessage().getAsJsonObject();
@@ -258,6 +265,21 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                 .getParkingMarker(getBaseContext(), availableLot)));
                             }
                         });
+                    }
+                } else if (channel.equals("mobile")) {
+                    String json = message.getMessage().toString();
+                    Gson gson = new Gson();
+                    MobilePubnubPackage data = gson.fromJson(json, MobilePubnubPackage.class);
+                    Account account = AccountHelper.get(UserActivity.this);
+                    if (data.getUsername().equals(account.getUsername())) {
+                        NotificationManager notificationManager =
+                                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        Notification notification = new Notification.Builder(UserActivity.this)
+                                .setContentTitle("Reserve Parking Lot of " + data.getHubName())
+                                .setSmallIcon(R.drawable.user_nav_select_range_icon)
+                                .setContentText("Your reserved parking lot is " + data.getLotName())
+                                .build();
+                        notificationManager.notify(0, notification);
                     }
                 }
             }
