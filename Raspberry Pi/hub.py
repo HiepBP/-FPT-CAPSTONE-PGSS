@@ -21,12 +21,15 @@ DEVICES_DICTIONARY = BiDict({
     "Detector 1":0xFA01,
     "Indicator 1":0xAA01,
     "Barrier 1":0xBB01,
-    "Information 1":0xCC01
+    "Information 1":0xCC01,
+    "Detector 2":0xFA02,
+    "Detector 3":0xFA03
     })
 
 # Parking lot object dictionary [Sensor name] : [Parking lot obj]
 PARKING_LOT_DICTIONARY = {
-    "Detector 1":ParkingLot("Detector 1","Indicator 1","Barrier 1","Information 1")
+    "Detector 1":ParkingLot("Detector 1","Indicator 1","Barrier 1","Information 1"),
+    "Detector 2":ParkingLot("Detector 2","Indicator 1","Barrier 1","Information 1")
     }
 
 # Wait for ACK payload
@@ -88,9 +91,45 @@ def _execute_message(message):
     while POLLING_STATUS:
         time.sleep(0.1)
     print("Start request")
-    if message.command == RFUtil.CMD_TEST:
+    if message.command == RFUtil.CMD_RESERVE:
+        global CURRENT_AVAILABLE
+        lot = PARKING_LOT_DICTIONARY.get(message.target)
+        lot.reserved = True
         print("Start send request payload")
         _send_payload_process(message)
+        new_available = CURRENT_AVAILABLE - 1
+        pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+        # Current setting for demo is Detector, Indicator and Barrier will be in the same node
+        # Send message to Indicator
+        print("Send indicator payload")
+        message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
+        print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+        radio.openWritingPipe(RFUtil.PIPES[2])
+        if _send_payload_process(message):
+            lot.set_available(False)
+            CURRENT_AVAILABLE = new_available
+        radio.openWritingPipe(RFUtil.PIPES[0])
+    elif message.command == RFUtil.CMD_UNRESERVE:
+        global CURRENT_AVAILABLE
+        lot = PARKING_LOT_DICTIONARY.get(message.target)
+        lot.reserved = False
+        print("Start send request payload")
+        _send_payload_process(message)
+        new_available = CURRENT_AVAILABLE + 1
+        pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+        # Current setting for demo is Detector, Indicator and Barrier will be in the same node
+        # Send message to Indicator
+        print("Send indicator payload")
+        message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
+        print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+        radio.openWritingPipe(RFUtil.PIPES[2])
+        if _send_payload_process(message):
+            lot.set_available(True)
+            CURRENT_AVAILABLE = new_available
+        radio.openWritingPipe(RFUtil.PIPES[0])
+
     REQUEST_STATUS = False
     print("End request")
 
@@ -107,8 +146,8 @@ def _send_payload_process(message):
 
 def _send_payload(payload):
     if payload != None:
-        #print("Now sending ... ", end="")
-        #RFUtil.print_payload(payload)
+        print("Now sending ... ", end="")
+        RFUtil.print_payload(payload)
         radio.stopListening()
         radio.write(payload)
         radio.startListening()
@@ -116,8 +155,8 @@ def _send_payload(payload):
 def _send_ack_payload(target_address):
     payload = RFUtil.generate_ack_payload(target_address)
     if payload != None:
-        #print("Now sending ... ", end="")
-        #RFUtil.print_payload(payload)
+        print("Now sending ... ", end="")
+        RFUtil.print_payload(payload)
         radio.stopListening()
         radio.write(payload)
 
@@ -129,8 +168,8 @@ def _wait_ack_payload(message):
         if radio.available():
             len = radio.getDynamicPayloadSize()
             receive_payload = radio.read(len)
-            #print("Get response ... ", end="")
-            #RFUtil.print_payload(receive_payload)
+            print("Get response ... ", end="")
+            RFUtil.print_payload(receive_payload)
             device_address = RFUtil.get_payload_address(receive_payload)
             if device_address == DEVICES_DICTIONARY[message.target]:
                 if receive_payload[2] != RFUtil.get_command_address(RFUtil.CMD_ACK):
@@ -144,21 +183,21 @@ def _wait_ack_payload(message):
                     return True
         wait_time = millis() - started_waiting_at
         if wait_time > RFUtil.MAX_WAITING_MILLIS:
-            #print("Start: {} Wait: {}".format(started_waiting_at, wait_time))
+            print("Start: {} Wait: {}".format(started_waiting_at, wait_time))
             timeout = True
     if timeout or resend:
         return False
     
 
 def _process_payload(payload, lot):
-    #print("Start process payload")
+    print("Start process payload")
     # Payload error detecting
     if RFUtil.is_validated(payload):
-        #print("Checksum OK")
+        print("Checksum OK")
         # Check the device address of payload
         device_address = RFUtil.get_payload_address(payload)
         if device_address in DEVICES_DICTIONARY:
-            #print("Target OK")
+            print("Target OK")
             # First, send ACK payload
             _send_ack_payload(device_address)
             # Check command
@@ -171,17 +210,20 @@ def _process_payload(payload, lot):
             elif command == RFUtil.get_command_address(RFUtil.CMD_UNDETECTED):
                 available = True
                 new_available = CURRENT_AVAILABLE + 1
-            if available != lot.available:
-                pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
-                # Current setting for demo is Detector, Indicator and Barrier will be in the same node
-                # Send message to Indicator
-##                print("Send indicator payload")
-##                message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_address, None)
-                #print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
-                message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
-                if _send_payload_process(message):
-                    lot.set_available(available)
-                    CURRENT_AVAILABLE = new_available
+            if lot.reserved == False:
+                if available != lot.available:
+                    pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+                    # Current setting for demo is Detector, Indicator and Barrier will be in the same node
+                    # Send message to Indicator
+                    print("Send indicator payload")
+                    message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
+                    print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+                    message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+                    radio.openWritingPipe(RFUtil.PIPES[2])
+                    if _send_payload_process(message):
+                        lot.set_available(available)
+                        CURRENT_AVAILABLE = new_available
+                    radio.openWritingPipe(RFUtil.PIPES[0])
             return True
     return False
 
@@ -211,7 +253,7 @@ try:
             POLLING_STATUS = False
             time.sleep(0.1)
         POLLING_STATUS = True
-        #print("####################")
+        print("####################")
         for sensor_name, lot in PARKING_LOT_DICTIONARY.items():
             message = PubnubMessage(RFUtil.CMD_LOT_STATUS, sensor_name, None)
             _send_payload_process(message)
@@ -224,8 +266,8 @@ try:
                     len = radio.getDynamicPayloadSize()
                     receive_payload = radio.read(len)
 
-                    #print("Get payload ... ", end="")
-                    #RFUtil.print_payload(receive_payload)
+                    print("Get payload ... ", end="")
+                    RFUtil.print_payload(receive_payload)
                     check_payload = _process_payload(receive_payload, lot)
                     if check_payload:
                         break

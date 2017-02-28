@@ -11,7 +11,8 @@ MAX_RESEND_PAYLOAD = 15
 
 ####### Radio Pipes #######
 PIPES = [0xF0F0F0F0E1,
-         0xF0F0F0F0D2]
+         0xF0F0F0F0D2,
+         0xF0F0F0F0CC]
 
 ####### Radio Command Name #######
 CMD_ACK = "ack"
@@ -21,6 +22,8 @@ CMD_DETECTED = "detected"
 CMD_UNDETECTED = "undetected"
 CMD_LOT_STATUS = "lot status"
 CMD_UPDATE_INFORMATION = "update information"
+CMD_RESERVE = "reserve"
+CMD_UNRESERVE = "unreserve"
 
 ####### Radio Command Dictionary #######
 CMD_DICTIONARY =  BiDict({
@@ -30,7 +33,9 @@ CMD_DICTIONARY =  BiDict({
     CMD_DETECTED : 0x08,
     CMD_UNDETECTED : 0x18,
     CMD_LOT_STATUS : 0xFA,
-    CMD_UPDATE_INFORMATION : 0xC0
+    CMD_UPDATE_INFORMATION : 0xC0,
+    CMD_RESERVE : 0xDA,
+    CMD_UNRESERVE : 0xCD
     })
 
 ###################################

@@ -8,7 +8,7 @@
 #include <nRF24L01.h>
 
 // Address of device. Used for communication in RF network, each device need to have an unique address
-#define DEVICE_ADDRESS 0xFA01
+#define DEVICE_ADDRESS 0xFA02
 
 // Hardware pins definition
 #define PIN_RF_CE 7 // Chip Enable of RF module
@@ -83,7 +83,13 @@ bool waitAckPayload(uint8_t payloadSize) {
 
 			if (rfUtil.isTarget(receive_payload, DEVICE_ADDRESS)) {
 				if (receive_payload[2] != CMD_ACK) {
-					resend = true;
+					if (receive_payload[2] == CMD_RESERVE || receive_payload[2] == CMD_UNRESERVE) {
+						processPayload(receive_payload, payloadSize);
+						return true;
+					}
+					else {
+						resend = true;
+					}
 				}
 				else {
 					return true;
@@ -122,17 +128,24 @@ void processPayload(char payload[], uint8_t payloadSize) {
 				sendPayloadProcess(payloadSize);
 				break;
 			}
-			case CMD_TEST: {
-				Serial.println("Update servo");
-				if (servoStatus == true) {
-					Serial.println("Servo write 0");
-					servo.write(0);
-					servoStatus = false;
-				}
-				else {
-					Serial.println("Servo write 90");
-					servo.write(90);
+			case CMD_RESERVE: {
+				if (servoStatus == false) {
+					Serial.println("Reserve");
 					servoStatus = true;
+					sensorStatus = true;
+					servo.write(90);
+					indicator.writeRGB(0, 255, 255);
+				}
+				break;
+			}
+			case CMD_UNRESERVE: {
+				Serial.println("In CMD_UNRESER");
+				if (servoStatus == true) {
+					Serial.println("Unreserve");
+					servoStatus = false;
+					sensorStatus = false;
+					servo.write(0);
+					indicator.writeRGB(255, 0, 255);
 				}
 				break;
 			}
@@ -194,6 +207,7 @@ void setup()
 
 	// Setup servo
 	servo.attach(4);
+	servo.write(0);
 }
 
 void loop()
@@ -201,7 +215,8 @@ void loop()
 	while (true) {
 		// check if there is any metal (car) in range
 		if (sensor.isInRange()) {
-			if (sensorStatus == false) {
+			Serial.println("Metal here");
+			if (sensorStatus == false && servoStatus == false) {
 				// 1st time detected
 				Serial.println(F("Metal is near"));
 				sensorStatus = true;
@@ -209,7 +224,7 @@ void loop()
 			}
 		}
 		else {
-			if (sensorStatus == true) {
+			if (sensorStatus == true && servoStatus == false) {
 				// 1st time undetected
 				Serial.println(F("Metal is gone"));
 				sensorStatus = false;

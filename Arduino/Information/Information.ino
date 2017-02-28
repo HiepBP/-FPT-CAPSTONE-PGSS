@@ -154,7 +154,7 @@ void setup()
 	radio.enableDynamicPayloads();
 	radio.setRetries(5, 15);
 	radio.openWritingPipe(rfUtil.getPipeAddress(1));
-	radio.openReadingPipe(1, rfUtil.getPipeAddress(0));
+	radio.openReadingPipe(1, rfUtil.getPipeAddress(2));
 	radio.startListening();
 	radio.printDetails();
 	// Create ack payload

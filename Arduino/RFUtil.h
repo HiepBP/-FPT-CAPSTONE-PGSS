@@ -30,6 +30,8 @@
 #define CMD_LOT_STATUS 0xFA //1111 1010
 #define CMD_UPDATE_INFORMATION 0xC0
 #define CMD_TEST 0xAA
+#define CMD_RESERVE 0xDA
+#define CMD_UNRESERVE 0xCD
 
 /*************************************************
 * Definitions

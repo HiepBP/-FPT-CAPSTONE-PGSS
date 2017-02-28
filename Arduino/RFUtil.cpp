@@ -8,7 +8,8 @@
 
 const uint64_t PIPES[] = {
 	0xF0F0F0F0E1,
-	0xF0F0F0F0D2
+	0xF0F0F0F0D2,
+	0xF0F0F0F0CC
 };
 
 CRC24 crc;

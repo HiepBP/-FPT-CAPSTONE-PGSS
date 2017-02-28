@@ -47,6 +47,7 @@ class ParkingLot:
         self.barrier_name = barrier_name
         self.information_name = information_name
         self.available = True
+        self.reserved = False
 
     def set_available(self, available):
         self.available = available
