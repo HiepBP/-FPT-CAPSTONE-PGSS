@@ -125,7 +125,7 @@ public class CarParkDetailActivity extends AppCompatActivity {
         PubNub pubNub = PubNubHelper.getPubNub();
         ControlPubnubPackage message = new ControlPubnubPackage();
         message.setUsername(account.getUsername());
-        message.setCommand("test");
+        message.setCommand("reserve");
         message.setDeviceName("Detector 1");
         message.setHubName(carPark.getName());
         pubNub.publish()
