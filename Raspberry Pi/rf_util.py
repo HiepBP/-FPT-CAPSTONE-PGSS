@@ -6,12 +6,13 @@ import crc24 as CRC
 #################################
 
 # Radio max waiting time
-MAX_WAITING_MILLIS = 500
+MAX_WAITING_MILLIS = 1000
 MAX_RESEND_PAYLOAD = 15
 
 ####### Radio Pipes #######
 PIPES = [0xF0F0F0F0E1,
-         0xF0F0F0F0D2]
+         0xF0F0F0F0D2,
+         0xF0F0F0F0CC]
 
 ####### Radio Command Name #######
 CMD_ACK = "ack"
@@ -20,6 +21,9 @@ CMD_TEST = "test"
 CMD_DETECTED = "detected"
 CMD_UNDETECTED = "undetected"
 CMD_LOT_STATUS = "lot status"
+CMD_UPDATE_INFORMATION = "update information"
+CMD_RESERVE = "reserve"
+CMD_UNRESERVE = "unreserve"
 
 ####### Radio Command Dictionary #######
 CMD_DICTIONARY =  BiDict({
@@ -28,7 +32,10 @@ CMD_DICTIONARY =  BiDict({
     CMD_NACK : 0x15,
     CMD_DETECTED : 0x08,
     CMD_UNDETECTED : 0x18,
-    CMD_LOT_STATUS : 0xFA
+    CMD_LOT_STATUS : 0xFA,
+    CMD_UPDATE_INFORMATION : 0xC0,
+    CMD_RESERVE : 0xDA,
+    CMD_UNRESERVE : 0xCD
     })
 
 ###################################
@@ -51,6 +58,8 @@ def generate_payload(devices_dictionary, message):
         payload = bytearray()
         payload = _payload_append(payload, target_address.to_bytes(2, "big"))
         payload = _payload_append(payload, cmd_address.to_bytes(1, "big"))
+        if message.data != None:
+            payload = _payload_append(payload, message.data.to_bytes(1, "big"))
 
         checksum = CRC.calculate(payload)
         payload = _payload_append(payload, checksum.to_bytes(3, "big"))
@@ -92,4 +101,8 @@ def is_validated(payload):
 ####### Get the address of command #######
 def get_command_address(command):
     return CMD_DICTIONARY[command]
+
+####### Get the command from payload #######
+def get_command(payload):
+    return payload[2]
 

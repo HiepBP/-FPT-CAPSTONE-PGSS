@@ -10,6 +10,9 @@ SUBSCRIBE_KEY = "sub-c-ed7a8b02-ed34-11e6-a504-02ee2ddab7fe"
 
 ####### PubNub Channels #######
 CHANNEL_DEBUG = "debug"
+CHANNEL_REALTIME_MAP = "realtime map"
+CHANNEL_LOGGING = "logging"
+CHANNEL_CONTROL = "control"
 
 ####### PubNub Status Message #######
 MESSAGE_CONNECT = "Connected to channel {}"
@@ -49,3 +52,6 @@ def get_message(hub_name, message):
             return None
     else:
         return None
+
+def realtime_map_message(hub_name, available):
+    return {'hub_name' : hub_name, 'available' : available}
