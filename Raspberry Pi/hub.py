@@ -14,7 +14,10 @@ from my_class import *
 # Hub definition
 HUB_NAME = "Hub 1"
 HUB_ADDRESS = 0xFA00
+global CURRENT_AVAILABLE
+global TMP_AVAILABLE
 CURRENT_AVAILABLE = 45
+TMP_AVAILABLE = 45
 
 # Devices dictionary [Device name] : [Device address]
 DEVICES_DICTIONARY = BiDict({
@@ -93,41 +96,39 @@ def _execute_message(message):
     print("Start request")
     if message.command == RFUtil.CMD_RESERVE:
         global CURRENT_AVAILABLE
+        global TMP_AVAILABLE
         lot = PARKING_LOT_DICTIONARY.get(message.target)
         lot.reserved = True
         print("Start send request payload")
         _send_payload_process(message)
-        new_available = CURRENT_AVAILABLE - 1
+        new_available = TMP_AVAILABLE - 1
         pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
         # Current setting for demo is Detector, Indicator and Barrier will be in the same node
-        # Send message to Indicator
-        print("Send indicator payload")
-        message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
-        print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+        print("Send information payload {} {}".format(TMP_AVAILABLE, new_available))
         message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
         radio.openWritingPipe(RFUtil.PIPES[2])
         if _send_payload_process(message):
             lot.set_available(False)
             CURRENT_AVAILABLE = new_available
+            TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[0])
     elif message.command == RFUtil.CMD_UNRESERVE:
+        global TMP_AVAILABLE
         global CURRENT_AVAILABLE
         lot = PARKING_LOT_DICTIONARY.get(message.target)
         lot.reserved = False
         print("Start send request payload")
         _send_payload_process(message)
-        new_available = CURRENT_AVAILABLE + 1
+        new_available = TMP_AVAILABLE + 1
         pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
         # Current setting for demo is Detector, Indicator and Barrier will be in the same node
-        # Send message to Indicator
-        print("Send indicator payload")
-        message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
-        print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+        print("Send information payload {} {}".format(TMP_AVAILABLE, new_available))
         message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
         radio.openWritingPipe(RFUtil.PIPES[2])
         if _send_payload_process(message):
             lot.set_available(True)
             CURRENT_AVAILABLE = new_available
+            TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[0])
 
     REQUEST_STATUS = False
@@ -203,27 +204,29 @@ def _process_payload(payload, lot):
             # Check command
             command = RFUtil.get_command(payload)
             available = None
-            global CURRENT_AVAILABLE
+            global TMP_AVAILABLE
             if command == RFUtil.get_command_address(RFUtil.CMD_DETECTED):
                 available = False
-                new_available = CURRENT_AVAILABLE - 1
+                new_available = TMP_AVAILABLE - 1
             elif command == RFUtil.get_command_address(RFUtil.CMD_UNDETECTED):
                 available = True
-                new_available = CURRENT_AVAILABLE + 1
+                new_available = TMP_AVAILABLE + 1
             if lot.reserved == False:
                 if available != lot.available:
-                    pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
-                    # Current setting for demo is Detector, Indicator and Barrier will be in the same node
-                    # Send message to Indicator
-                    print("Send indicator payload")
-                    message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
-                    print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
-                    message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
-                    radio.openWritingPipe(RFUtil.PIPES[2])
-                    if _send_payload_process(message):
-                        lot.set_available(available)
-                        CURRENT_AVAILABLE = new_available
-                    radio.openWritingPipe(RFUtil.PIPES[0])
+                    TMP_AVAILABLE = new_available
+                    lot.set_available(available)
+##                    pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+##                    # Current setting for demo is Detector, Indicator and Barrier will be in the same node
+##                    # Send message to Indicator
+##                    print("Send indicator payload")
+##                    message = PubnubMessage(RFUtil.CMD_TEST, lot.indicator_name, None)
+##                    print("Send information payload {} {}".format(CURRENT_AVAILABLE, new_available))
+##                    message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+##                    radio.openWritingPipe(RFUtil.PIPES[2])
+##                    if _send_payload_process(message):
+##                        lot.set_available(available)
+##                        CURRENT_AVAILABLE = new_available
+##                    radio.openWritingPipe(RFUtil.PIPES[0])
             return True
     return False
 
@@ -271,6 +274,15 @@ try:
                     check_payload = _process_payload(receive_payload, lot)
                     if check_payload:
                         break
+        if CURRENT_AVAILABLE != TMP_AVAILABLE:
+            pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, TMP_AVAILABLE))
+            # Current setting for demo is Detector, Indicator and Barrier will be in the same node
+            print("Send information payload {} {}".format(CURRENT_AVAILABLE, TMP_AVAILABLE))
+            message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, "Information 1", TMP_AVAILABLE)
+            radio.openWritingPipe(RFUtil.PIPES[2])
+            if _send_payload_process(message):
+                CURRENT_AVAILABLE = TMP_AVAILABLE
+            radio.openWritingPipe(RFUtil.PIPES[0])
         time.sleep(0.1)
 finally:
     print("Pubnub stop")
