@@ -6,6 +6,7 @@ from RF24 import *
 import RPi.GPIO as GPIO
 import rf_util as RFUtil
 from my_class import *
+import AreaService
 
 #################################
 ###### VARIABLE DEFINITION ######
@@ -16,23 +17,23 @@ HUB_NAME = "Hub 1"
 HUB_ADDRESS = 0xFA00
 global CURRENT_AVAILABLE
 global TMP_AVAILABLE
-CURRENT_AVAILABLE = 45
-TMP_AVAILABLE = 45
+CURRENT_AVAILABLE = 2
+TMP_AVAILABLE = 2
 
 # Devices dictionary [Device name] : [Device address]
 DEVICES_DICTIONARY = BiDict({
-    "Detector 1":0xFA01,
+    "Lot 1":0xFA01,
     "Indicator 1":0xAA01,
     "Barrier 1":0xBB01,
     "Information 1":0xCC01,
-    "Detector 2":0xFA02,
-    "Detector 3":0xFA03
+    "Lot 2":0xFA02,
+    "Lot 3":0xFA03
     })
 
 # Parking lot object dictionary [Sensor name] : [Parking lot obj]
 PARKING_LOT_DICTIONARY = {
-    "Detector 1":ParkingLot("Detector 1","Indicator 1","Barrier 1","Information 1"),
-    "Detector 2":ParkingLot("Detector 2","Indicator 1","Barrier 1","Information 1")
+    "Lot 1":ParkingLot("Lot 1","Indicator 1","Barrier 1","Information 1"),
+    "Lot 2":ParkingLot("Lot 2","Indicator 1","Barrier 1","Information 1")
     }
 
 # Wait for ACK payload
@@ -97,20 +98,29 @@ def _execute_message(message):
     if message.command == RFUtil.CMD_RESERVE:
         global CURRENT_AVAILABLE
         global TMP_AVAILABLE
-        lot = PARKING_LOT_DICTIONARY.get(message.target)
-        lot.reserved = True
+        reserve_lot = None
+        for sensor_name, lot in PARKING_LOT_DICTIONARY.items():
+            if lot.available == True:
+                reserve_lot = lot
+                break
+        if reserve_lot == None:
+            return
+        reserve_lot.reserved = True
         print("Start send request payload")
+        message.target = reserve_lot.sensor_name
         _send_payload_process(message)
         new_available = TMP_AVAILABLE - 1
         pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+        pubnub.publish(PubnubMeta.CHANNEL_MOBILE, PubnubMeta.noti_mobile_message(message.username, HUB_NAME, reserve_lot.sensor_name))
+        AreaService.UpdateEmptyNumber(6, new_available)
         # Current setting for demo is Detector, Indicator and Barrier will be in the same node
         print("Send information payload {} {}".format(TMP_AVAILABLE, new_available))
-        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available, None)
+        TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[2])
         if _send_payload_process(message):
             lot.set_available(False)
             CURRENT_AVAILABLE = new_available
-            TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[0])
     elif message.command == RFUtil.CMD_UNRESERVE:
         global TMP_AVAILABLE
@@ -121,14 +131,15 @@ def _execute_message(message):
         _send_payload_process(message)
         new_available = TMP_AVAILABLE + 1
         pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
+        AreaService.UpdateEmptyNumber(6, new_available)
         # Current setting for demo is Detector, Indicator and Barrier will be in the same node
         print("Send information payload {} {}".format(TMP_AVAILABLE, new_available))
-        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available)
+        message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, lot.information_name, new_available, None)
+        TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[2])
         if _send_payload_process(message):
             lot.set_available(True)
             CURRENT_AVAILABLE = new_available
-            TMP_AVAILABLE = new_available
         radio.openWritingPipe(RFUtil.PIPES[0])
 
     REQUEST_STATUS = False
@@ -213,7 +224,7 @@ def _process_payload(payload, lot):
                 new_available = TMP_AVAILABLE + 1
             if lot.reserved == False:
                 if available != lot.available:
-                    TMP_AVAILABLE = new_available
+                    TMP_AVAILABLE = new_available 
                     lot.set_available(available)
 ##                    pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, new_available))
 ##                    # Current setting for demo is Detector, Indicator and Barrier will be in the same node
@@ -242,6 +253,12 @@ radio.printDetails()
 radio.openWritingPipe(RFUtil.PIPES[0])
 radio.openReadingPipe(1,RFUtil.PIPES[1])
 
+# Update information display
+message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, "Information 1", CURRENT_AVAILABLE, None)
+radio.openWritingPipe(RFUtil.PIPES[2])
+_send_payload_process(message)
+radio.openWritingPipe(RFUtil.PIPES[0])
+
 # Start Pubnub
 try:
     pubnub.publish(PubnubMeta.CHANNEL_LOGGING, "Rise and Shine baby")
@@ -258,7 +275,7 @@ try:
         POLLING_STATUS = True
         print("####################")
         for sensor_name, lot in PARKING_LOT_DICTIONARY.items():
-            message = PubnubMessage(RFUtil.CMD_LOT_STATUS, sensor_name, None)
+            message = PubnubMessage(RFUtil.CMD_LOT_STATUS, sensor_name, None, None)
             _send_payload_process(message)
             radio.startListening()
             
@@ -276,9 +293,10 @@ try:
                         break
         if CURRENT_AVAILABLE != TMP_AVAILABLE:
             pubnub.publish(PubnubMeta.CHANNEL_REALTIME_MAP, PubnubMeta.realtime_map_message(HUB_NAME, TMP_AVAILABLE))
+            AreaService.UpdateEmptyNumber(6, TMP_AVAILABLE)
             # Current setting for demo is Detector, Indicator and Barrier will be in the same node
             print("Send information payload {} {}".format(CURRENT_AVAILABLE, TMP_AVAILABLE))
-            message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, "Information 1", TMP_AVAILABLE)
+            message = PubnubMessage(RFUtil.CMD_UPDATE_INFORMATION, "Information 1", TMP_AVAILABLE, None)
             radio.openWritingPipe(RFUtil.PIPES[2])
             if _send_payload_process(message):
                 CURRENT_AVAILABLE = TMP_AVAILABLE

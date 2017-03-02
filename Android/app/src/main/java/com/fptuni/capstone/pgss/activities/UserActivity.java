@@ -3,7 +3,6 @@ package com.fptuni.capstone.pgss.activities;
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -16,12 +15,12 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +34,6 @@ import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
-import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
@@ -61,9 +59,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
-import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
@@ -81,7 +77,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap map;
-    private Marker currentLocation;
+    private Location currentLocation;
 
     private GoogleApiClient googleApiClient;
 
@@ -98,6 +94,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ButterKnife.bind(this);
 
         initiateInstance();
@@ -260,6 +257,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
+                                data.setAvailableLot(availableLot);
                                 marker.setIcon(BitmapDescriptorFactory
                                         .fromBitmap(MapMarkerHelper
                                                 .getParkingMarker(getBaseContext(), availableLot)));
@@ -318,7 +317,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                LatLng latLng = currentLocation.getPosition();
+                LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(50));
                 return true;
@@ -333,7 +332,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 marker.hideInfoWindow();
                 CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
                 CarPark carPark = data.getCarPark();
-                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark);
+                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark,
+                        data.getAvailableLot());
                 startActivity(intent);
             }
         });
@@ -374,7 +374,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
-        currentLocation = map.addMarker(new MarkerOptions().position(latLng));
+        currentLocation = location;
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         map.animateCamera(CameraUpdateFactory.zoomTo(50));
         getCarParkData(latitude, longitude);

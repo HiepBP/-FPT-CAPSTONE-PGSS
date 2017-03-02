@@ -13,6 +13,7 @@ CHANNEL_DEBUG = "debug"
 CHANNEL_REALTIME_MAP = "realtime map"
 CHANNEL_LOGGING = "logging"
 CHANNEL_CONTROL = "control"
+CHANNEL_MOBILE = "mobile"
 
 ####### PubNub Status Message #######
 MESSAGE_CONNECT = "Connected to channel {}"
@@ -24,6 +25,7 @@ HUB_NAME = "hub_name"
 DEVICE_NAME = "device_name"
 COMMAND = "command"
 DATA = "data"
+USERNAME = "username"
 
 ###################################
 ####### FUNCTION DEFINITION #######
@@ -43,11 +45,13 @@ def get_message(hub_name, message):
             if DATA in message:
                 return PubnubMessage(message[COMMAND],
                              message[DEVICE_NAME],
-                             message[DATA])
+                             message[DATA],
+                             message[USERNAME])
             else:
                 return PubnubMessage(message[COMMAND],
                              message[DEVICE_NAME],
-                             None)
+                             None,
+                             message[USERNAME])
         else:
             return None
     else:
@@ -55,3 +59,6 @@ def get_message(hub_name, message):
 
 def realtime_map_message(hub_name, available):
     return {'hub_name' : hub_name, 'available' : available}
+
+def noti_mobile_message(username, hub_name, lot_name):
+    return {'username' : username, 'lot_name' : lot_name, 'hub_name' : hub_name}
