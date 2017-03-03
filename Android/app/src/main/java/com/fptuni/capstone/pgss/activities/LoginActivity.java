@@ -36,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
     Button btnSignIn;
     @BindView(R.id.textview_login_register)
     TextView tvRegister;
+    @BindView(R.id.textview_login_sign_in_guest)
+    TextView tvSignInGuest;
 
     private Account account;
 
@@ -92,6 +94,13 @@ public class LoginActivity extends AppCompatActivity {
         // Call Register Activity
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
+    }
+
+    @OnClick(R.id.textview_login_sign_in_guest)
+    void onSignInGuestTextClick(View view) {
+        Intent intent = new Intent(LoginActivity.this, UserActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
 

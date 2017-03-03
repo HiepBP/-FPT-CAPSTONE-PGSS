@@ -8,7 +8,8 @@
 
 const uint64_t PIPES[] = {
 	0xF0F0F0F0E1,
-	0xF0F0F0F0D2
+	0xF0F0F0F0D2,
+	0xF0F0F0F0CC
 };
 
 CRC24 crc;
@@ -97,4 +98,9 @@ bool RFUtil::isValidated(char* payload, uint8_t payloadSize)
 uint8_t RFUtil::getCommand(uint8_t* payload)
 {
 	return payload[PAYLOAD_COMMAND_BYTE];
+}
+
+uint8_t RFUtil::getData(uint8_t* payload)
+{
+	return payload[PAYLOAD_DATA_BYTE];
 }

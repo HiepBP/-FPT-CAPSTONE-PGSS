@@ -70,5 +70,15 @@
             android:text="@string/login_register"
             android:textStyle="bold" />
 
+        <TextView
+            android:id="@+id/textview_login_sign_in_guest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp"
+            android:text="@string/login_sign_in_guest"
+            android:textStyle="bold" />
+
     </LinearLayout>
 </ScrollView>

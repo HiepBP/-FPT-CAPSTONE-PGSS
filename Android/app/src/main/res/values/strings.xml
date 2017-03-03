@@ -10,6 +10,7 @@
     <string name="login_sign_in">Sign In</string>
     <string name="login_password">Password</string>
     <string name="login_username">Username</string>
+    <string name="login_sign_in_guest">Sign In as Guest</string>
 
     <!-- Strings related to register -->
     <string name="register_email">Email</string>
@@ -23,6 +24,8 @@
     <!-- Strings related to user -->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <!-- Menu title -->
+    <string name="user_guest">Guest</string>
     <string name="user_map_view_title">Map View</string>
     <string name="user_list_view_title">List View</string>
     <string name="user_save_parking_title">Save Parking Location</string>
@@ -34,6 +37,9 @@
     <string name="user_share_app_title">Share App</string>
     <string name="user_rate_us_title">Rate us</string>
     <string name="user_log_out_title">Log Out</string>
+
+    <!-- Strings related to car park detail -->
+    <string name="carparkdetail_text_available">Spaces Available :</string>
     <string name="carparkdetail_button_call">Call</string>
     <string name="carparkdetail_button_save">Save</string>
     <string name="carparkdetail_button_reserve">Reserve</string>
@@ -41,6 +47,6 @@
     <string name="carparkdetail_reserve_dialog_message">Are you sure you want to reserve a parking lot in this parking car?</string>
     <string name="carparkdetail_reserve_dialog_failed">An error has occurred! Please try again.</string>
     <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification and invoice via app.</string>
-    <!-- Menu title -->
+
 
 </resources>

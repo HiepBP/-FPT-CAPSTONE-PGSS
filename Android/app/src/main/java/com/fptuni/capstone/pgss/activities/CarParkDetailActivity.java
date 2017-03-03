@@ -1,8 +1,12 @@
 package com.fptuni.capstone.pgss.activities;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,13 +17,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.helpers.AccountHelper;
+import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
+import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
+import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,9 +43,16 @@ import butterknife.OnClick;
 public class CarParkDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_CAR_PARK = "carPark";
+    private static final String EXTRA_AVAILABLE_LOT = "availableLot";
+
+    private Account account;
+    private PubNub pubNub;
+    private int availableLot;
 
     @BindView(R.id.textview_carparkdetail_name)
     TextView tvName;
+    @BindView(R.id.textview_carparkdetail_available_lot)
+    TextView tvAvailableLot;
     @BindView(R.id.textview_carparkdetail_address)
     TextView tvAddress;
     @BindView(R.id.textview_carparkdetail_phone)
@@ -48,9 +70,10 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     private CarPark carPark;
 
-    public static Intent createIntent(Context context, @NonNull CarPark carPark) {
+    public static Intent createIntent(Context context, @NonNull CarPark carPark, int avaialbleLot) {
         Intent intent = new Intent(context, CarParkDetailActivity.class);
         intent.putExtra(EXTRA_CAR_PARK, carPark);
+        intent.putExtra(EXTRA_AVAILABLE_LOT, avaialbleLot);
 
         return intent;
     }
@@ -62,19 +85,30 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
         initiateFields();
         initiateViews();
+        initiatePubnub();
     }
 
     private void initiateViews() {
         ButterKnife.bind(this);
         tvName.setText(carPark.getName());
+        String availableText = getString(R.string.carparkdetail_text_available)
+                + String.valueOf(availableLot);
+        tvAvailableLot.setText(availableText);
         tvAddress.setText(carPark.getAddress());
         tvPhone.setText(carPark.getPhone());
         tvEmail.setText(carPark.getEmail());
         tvDescription.setText(carPark.getDescription());
+
+        if (account == null) {
+            btnReserve.setClickable(false);
+            btnReserve.setAlpha(0.3f);
+        }
     }
 
     private void initiateFields() {
         carPark = (CarPark) getIntent().getSerializableExtra(EXTRA_CAR_PARK);
+        account = AccountHelper.get(this);
+        availableLot = getIntent().getIntExtra(EXTRA_AVAILABLE_LOT, -1);
     }
 
     @OnClick(R.id.button_carparkdetail_call)
@@ -112,7 +146,8 @@ public class CarParkDetailActivity extends AppCompatActivity {
     private void reserveParkingLot() {
         PubNub pubNub = PubNubHelper.getPubNub();
         ControlPubnubPackage message = new ControlPubnubPackage();
-        message.setCommand("test");
+        message.setUsername(account.getUsername());
+        message.setCommand("reserve");
         message.setDeviceName("Detector 1");
         message.setHubName(carPark.getName());
         pubNub.publish()
@@ -133,5 +168,73 @@ public class CarParkDetailActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void initiatePubnub() {
+        pubNub = PubNubHelper.getPubNub();
+
+        pubNub.addListener(new SubscribeCallback() {
+            @Override
+            public void status(PubNub pubnub, PNStatus status) {
+
+            }
+
+            @Override
+            public void message(PubNub pubnub, final PNMessageResult message) {
+                String channel = message.getChannel();
+                if (channel.equals("realtime map")) {
+                    JsonObject json = message.getMessage().getAsJsonObject();
+                    String hubName = json.get("hub_name").getAsString();
+                    final int availableLot = json.get("available").getAsInt();
+                    if (hubName.equals(carPark.getName())) {
+                        if (availableLot == 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    btnReserve.setClickable(false);
+                                    btnReserve.setAlpha(0.3f);
+                                    String availableText =
+                                            getString(R.string.carparkdetail_text_available)
+                                                    + String.valueOf(availableLot);
+                                    tvAvailableLot.setText(availableText);
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    btnReserve.setClickable(true);
+                                    btnReserve.setAlpha(1f);
+                                    String availableText =
+                                            getString(R.string.carparkdetail_text_available)
+                                                    + String.valueOf(availableLot);
+                                    tvAvailableLot.setText(availableText);
+                                }
+                            });
+                        }
+                    }
+
+                } else if (channel.equals("mobile")) {
+                    String json = message.getMessage().toString();
+                    Gson gson = new Gson();
+                    MobilePubnubPackage data = gson.fromJson(json, MobilePubnubPackage.class);
+                    if (data.getUsername().equals(account.getUsername())) {
+                        NotificationManager notificationManager =
+                                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        Notification notification = new Notification.Builder(CarParkDetailActivity.this)
+                                .setContentTitle("Reserve Parking Lot of " + data.getHubName())
+                                .setSmallIcon(R.drawable.user_nav_select_range_icon)
+                                .setContentText("Your reserved lot is " + data.getLotName())
+                                .build();
+                        notificationManager.notify(0, notification);
+                    }
+                }
+            }
+
+            @Override
+            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+            }
+        });
     }
 }

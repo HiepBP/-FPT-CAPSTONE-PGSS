@@ -32,20 +32,26 @@ class PubnubMessage:
 
     _message = "Target: {}, Command: {}, Data: {}"
     
-    def __init__(self, command, target, data):
+    def __init__(self, command, target, data, username):
         self.command = command
         self.target = target
         self.data = data
+        self.username = username
     def __str__(self):
         return self._message.format(self.target, self.command, self.data)
 
 class ParkingLot:
 
-    def __init__(self, sensor_address, indicator_address, barrier_address, information_address):
-        self.sensor_address = sensor_address
-        self.indicator_address = indicator_address
-        self.barrier_address = barrier_address
-        self.information_address = information_address
+    def __init__(self, sensor_name, indicator_name, barrier_name, information_name):
+        self.sensor_name = sensor_name
+        self.indicator_name = indicator_name
+        self.barrier_name = barrier_name
+        self.information_name = information_name
+        self.available = True
+        self.reserved = False
+
+    def set_available(self, available):
+        self.available = available
 
 
 
