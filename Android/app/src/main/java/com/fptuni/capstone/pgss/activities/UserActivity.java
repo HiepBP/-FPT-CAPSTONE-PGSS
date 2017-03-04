@@ -170,6 +170,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // TODO: navigation drawer list view click
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.nav_user_reserved_list:
+                // TODO: navigation reserved list view click
+                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.nav_user_save_parking:
                 // TODO: navigation drawer save parking click
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
