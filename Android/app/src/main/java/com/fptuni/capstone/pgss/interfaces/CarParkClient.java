@@ -7,6 +7,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by TrungTNM on 2/15/2017.
@@ -18,5 +19,13 @@ public interface CarParkClient {
             @Path("lat") double lat,
             @Path("lon") double lon,
             @Path("numberOfCarPark") int numberOfCarPark
+    );
+
+    @GET("/api/CarParks/GetCoordinateNearestCarParkByRange/{lat}/{lon}/{numberOfCarPark}")
+    Call<GetCoordinatePackage> getCoordinateNearestCarParkByRange(
+            @Path("lat") double lat,
+            @Path("lon") double lon,
+            @Path("numberOfCarPark") int numberOfCarPark,
+            @Query("range") double range
     );
 }

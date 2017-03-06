@@ -48,6 +48,9 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -74,10 +77,13 @@ import retrofit2.Response;
 
 public class UserActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    private static final int MAP_ZOOM_TO = 15;
+
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap map;
-    private Location currentLocation;
+    private LatLng currentLocation;
+    private PlaceAutocompleteFragment autocompleteFragment;
 
     private GoogleApiClient googleApiClient;
 
@@ -89,6 +95,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private NavigationView navigationMenu;
     private ActionBarDrawerToggle drawerToggle;
+
+    private double searchRange;
+    private int numberOfCar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +127,23 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.fragment_user_map);
         mapFragment.getMapAsync(this);
 
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager()
+                .findFragmentById(R.id.fragment_user_autocomplete_search);
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                LatLng latLng = place.getLatLng();
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+            }
+
+            @Override
+            public void onError(Status status) {
+            }
+        });
+
         markerMap = new HashMap<>();
+        currentLocation = new LatLng(0, 0);
 
         initiatePubnub();
 
@@ -148,6 +173,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             tvUsername.setText(R.string.user_guest);
         }
+
+        searchRange = 2;
+        numberOfCar = 10;
     }
 
     private void setupDrawerContent() {
@@ -321,9 +349,22 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                if (ActivityCompat.checkSelfPermission(UserActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(UserActivity.this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return true;
+                }
+                Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                map.animateCamera(CameraUpdateFactory.zoomTo(50));
+                map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
                 return true;
             }
         });
@@ -339,6 +380,17 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark,
                         data.getAvailableLot());
                 startActivity(intent);
+            }
+        });
+        map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                LatLng latLng = map.getCameraPosition().target;
+                if (latLng.longitude != currentLocation.longitude
+                        && latLng.latitude != currentLocation.latitude) {
+                    currentLocation = latLng;
+                    getCarParkData(currentLocation.latitude, currentLocation.longitude);
+                }
             }
         });
     }
@@ -378,21 +430,20 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
-        currentLocation = location;
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.zoomTo(50));
-        getCarParkData(latitude, longitude);
-
+        map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
     }
 
     private void getCarParkData(double lat, double lon) {
         CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
         Call<GetCoordinatePackage> call =
-                client.getCoordinateNearestCarPark(lat, lon, 20);
+                client.getCoordinateNearestCarParkByRange(lat, lon, numberOfCar, searchRange);
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
             public void onResponse(final Call<GetCoordinatePackage> call,
                                    Response<GetCoordinatePackage> response) {
+                markerMap.clear();
+                map.clear();
                 List<CarParkWithGeo> list = response.body().getResult();
                 for (final CarParkWithGeo data : list) {
                     final Geo geo = data.getGeo();
