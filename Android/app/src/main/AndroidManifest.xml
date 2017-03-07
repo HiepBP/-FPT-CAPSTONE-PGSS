@@ -60,9 +60,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.CarParkDetailActivity"
-            android:parentActivityName=".activities.UserActivity">
-
-        </activity>
+            android:parentActivityName=".activities.UserActivity" />
+        <activity
+            android:name=".activities.CarParkListActivity"
+            android:parentActivityName=".activities.UserActivity" />
     </application>
 
 </manifest>

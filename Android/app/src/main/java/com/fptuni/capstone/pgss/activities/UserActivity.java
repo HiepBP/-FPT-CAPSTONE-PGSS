@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
+import com.fptuni.capstone.pgss.adapters.CarParkListAdapter;
 import com.fptuni.capstone.pgss.adapters.UserInfoWindowAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
@@ -190,14 +191,15 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onDrawerItemClick(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.nav_user_map_view:
                 // TODO: navigation drawer map view click
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_user_list_view:
-                // TODO: navigation drawer list view click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                intent = CarParkListActivity.createIntent(this, currentLocation);
+                startActivity(intent);
                 break;
             case R.id.nav_user_reserved_list:
                 // TODO: navigation reserved list view click
@@ -236,7 +238,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_user_log_out:
-                Intent intent = new Intent(this, LoginActivity.class);
+                intent = new Intent(this, LoginActivity.class);
                 AccountHelper.clear(this);
                 startActivity(intent);
                 finish();
