@@ -203,7 +203,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.nav_user_reserved_list:
                 // TODO: navigation reserved list view click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                intent = new Intent(this, TransactionActivity.class);
+                startActivity(intent);
                 break;
             case R.id.nav_user_save_parking:
                 // TODO: navigation drawer save parking click
@@ -561,6 +562,4 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
-
 }

@@ -64,6 +64,9 @@
         <activity
             android:name=".activities.CarParkListActivity"
             android:parentActivityName=".activities.UserActivity" />
+        <activity
+            android:name=".activities.TransactionActivity"
+            android:parentActivityName=".activities.UserActivity" />
     </application>
 
 </manifest>
