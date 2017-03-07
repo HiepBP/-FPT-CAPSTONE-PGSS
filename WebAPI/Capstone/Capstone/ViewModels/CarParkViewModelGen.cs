@@ -24,6 +24,7 @@ namespace Capstone.ViewModels
     			public virtual string Lat { get; set; }
     			public virtual string Lon { get; set; }
     			public virtual bool Active { get; set; }
+    			public virtual string AspNetUserId { get; set; }
     	
     	public CarParkViewModel() : base() { }
     	public CarParkViewModel(Capstone.Models.Entities.CarPark entity) : base(entity) { }

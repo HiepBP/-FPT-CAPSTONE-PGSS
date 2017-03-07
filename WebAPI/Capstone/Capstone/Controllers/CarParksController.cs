@@ -189,12 +189,14 @@ namespace Capstone.Controllers
         }
 
         [HttpGet]
-        [Route("api/CarParks/GetCoordinateNearestCarParkByRange/{lat}/{lon}/{numberOfCarPark}")]
+        [Route("api/CarParks/GetCoordinateNearestCarParkByRange/{lat}/{lon}/{range}")]
         [ResponseType(typeof(List<CarParkGeoJson>))]
         public IHttpActionResult GetCoordinateNearestCarParkByRange(double lat, double lon, double range)
         {
             CarParkApi carParkApi = new CarParkApi();
             var coord = new GeoCoordinate(lat, lon);
+            //change from kilometers to meters
+            range = range * 1000;
             try
             {
                 var listCarPark = carParkApi.GetCoordinatesWithEmptyAmount();
