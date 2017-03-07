@@ -84,6 +84,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap map;
     private LatLng currentLocation;
     private PlaceAutocompleteFragment autocompleteFragment;
+    private boolean refreshCarParkData;
 
     private GoogleApiClient googleApiClient;
 
@@ -382,6 +383,12 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
             }
         });
+        map.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int reason) {
+                refreshCarParkData = reason != GoogleMap.OnCameraMoveStartedListener.REASON_API_ANIMATION;
+            }
+        });
         map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
@@ -389,7 +396,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (latLng.longitude != currentLocation.longitude
                         && latLng.latitude != currentLocation.latitude) {
                     currentLocation = latLng;
-                    getCarParkData(currentLocation.latitude, currentLocation.longitude);
+                    if (refreshCarParkData) {
+                        getCarParkData(currentLocation.latitude, currentLocation.longitude);
+                    }
                 }
             }
         });
@@ -405,6 +414,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i("UserActivity", "onConnected");
         map.clear();
         locationSettingRequest();
+        if (currentLocation != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+            map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+        }
     }
 
     private void getCurrentLocation() {
