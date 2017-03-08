@@ -3,12 +3,10 @@ package com.fptuni.capstone.pgss.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkListAdapter;
@@ -33,7 +31,7 @@ public class CarParkListActivity extends AppCompatActivity {
     private static final String EXTRA_CURRENT_LOCATION_LAT = "currentLocationLat";
     private static final String EXTRA_CURRENT_LOCATION_LON = "currentLocationLon";
 
-    @BindView(R.id.recyclerview_car_park_list)
+    @BindView(R.id.recyclerview_carparklist_list)
     RecyclerView rvCarParkList;
 
     private LatLng currentPostion;

@@ -202,7 +202,6 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
                 break;
             case R.id.nav_user_reserved_list:
-                // TODO: navigation reserved list view click
                 intent = new Intent(this, TransactionActivity.class);
                 startActivity(intent);
                 break;

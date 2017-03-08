@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.Transaction;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,7 +62,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                 KEY_TRANSACTION_ID + " INTEGER PRIMARY KEY, " +
                 KEY_TRANSACTION_USERNAME + " TEXT, " +
                 KEY_TRANSACTION_CAR_PARK_ID + " INTEGER, " +
-                KEY_TRANSACTION_DATE + " TEXT, " +
+                KEY_TRANSACTION_DATE + " INTEGER, " +
                 KEY_TRANSACTION_STATUS + " TEXT, " +
                 KEY_TRANSACTION_AMOUNT + " REAL" +
                 ")";
@@ -89,7 +91,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
             values.put(KEY_TRANSACTION_AMOUNT, transaction.getAmount());
-            values.put(KEY_TRANSACTION_DATE, simpleDateFormat.format(transaction.getDate()));
+            values.put(KEY_TRANSACTION_DATE, transaction.getDate().getTime());
             values.put(KEY_TRANSACTION_STATUS, transaction.getStatus());
 
             db.insertOrThrow(TABLE_TRANSACTION, null, values);
@@ -111,7 +113,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
             values.put(KEY_TRANSACTION_AMOUNT, transaction.getAmount());
-            values.put(KEY_TRANSACTION_DATE, String.valueOf(transaction.getDate()));
+            values.put(KEY_TRANSACTION_DATE, transaction.getDate().getTime());
             values.put(KEY_TRANSACTION_STATUS, transaction.getStatus());
 
             int rows = db.update(TABLE_TRANSACTION, values,
@@ -121,7 +123,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             }
             db.setTransactionSuccessful();
         } catch (Exception e) {
-
+            Log.d("Test DB", e.getMessage());
         } finally {
             db.endTransaction();
         }
@@ -142,17 +144,17 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                     transaction.setCarParkId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_CAR_PARK_ID)));
                     transaction.setUsername(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_USERNAME)));
                     transaction.setStatus(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_STATUS)));
-                    transaction.setAmount(cursor.getDouble(cursor.getColumnIndex(KEY_TRANSACTION_AMOUNT)));
-                    SimpleDateFormat simpleDateFormat =
-                            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZZZZ");
-                    transaction.setDate(simpleDateFormat.parse(
-                            cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_DATE))));
+                    transaction
+                            .setAmount(cursor.getDouble(cursor.getColumnIndex(KEY_TRANSACTION_AMOUNT)));
+                    transaction
+                            .setDate(new Date(cursor
+                                    .getLong(cursor.getColumnIndex(KEY_TRANSACTION_DATE))));
 
                     transactions.add(transaction);
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-
+            Log.d("Test DB", e.getMessage());
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
