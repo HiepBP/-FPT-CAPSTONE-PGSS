@@ -5,11 +5,8 @@ using System.Web;
 
 namespace Capstone.ViewModels
 {
-    public partial class ParkingLotViewModel
+    public class TransactionCustomViewModel : TransactionViewModel
     {
-    }
-
-    public class ParkingLotWithItemViewModel : ParkingLotViewModel
-    {
+        ParkingLotViewModel ParkingLot { get; set; }
     }
 }

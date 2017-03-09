@@ -20,6 +20,7 @@ namespace Capstone.ViewModels
     			public virtual decimal Amount { get; set; }
     			public virtual int Status { get; set; }
     			public virtual int CarParkId { get; set; }
+    			public virtual int ParkingLotId { get; set; }
     			public virtual string AspNetUserId { get; set; }
     	
     	public TransactionViewModel() : base() { }

@@ -98,24 +98,13 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <Property Name="Active" Type="bit" Nullable="false" />
           <Property Name="AspNetUserId" Type="nvarchar" MaxLength="128" />
         </EntityType>
-        <EntityType Name="Item">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Address" Type="varbinary" MaxLength="16" Nullable="false" />
-          <Property Name="Type" Type="int" Nullable="false" />
-          <Property Name="Status" Type="int" Nullable="false" />
-          <Property Name="ParkingLotId" Type="int" Nullable="false" />
-          <Property Name="CarParkId" Type="int" Nullable="false" />
-        </EntityType>
         <EntityType Name="ParkingLot">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Address" Type="varbinary" MaxLength="16" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="AreaId" Type="int" />
           <Property Name="CarParkId" Type="int" Nullable="false" />
@@ -130,6 +119,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <Property Name="Amount" Type="money" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="CarParkId" Type="int" Nullable="false" />
+          <Property Name="ParkingLotId" Type="int" Nullable="false" />
           <Property Name="AspNetUserId" Type="nvarchar" MaxLength="128" Nullable="false" />
         </EntityType>
         <Association Name="FK_Area_Area1">
@@ -260,18 +250,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Item_ParkingLot">
-          <End Role="ParkingLot" Type="Self.ParkingLot" Multiplicity="1" />
-          <End Role="Item" Type="Self.Item" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ParkingLot">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Item">
-              <PropertyRef Name="ParkingLotId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_ParkingLot_Area">
           <End Role="Area" Type="Self.Area" Multiplicity="0..1" />
           <End Role="ParkingLot" Type="Self.ParkingLot" Multiplicity="*" />
@@ -308,6 +286,18 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Transaction_ParkingLot">
+          <End Role="ParkingLot" Type="Self.ParkingLot" Multiplicity="1" />
+          <End Role="Transaction" Type="Self.Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ParkingLot">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Transaction">
+              <PropertyRef Name="ParkingLotId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="PGSSModelStoreContainer">
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
@@ -316,7 +306,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CarPark" EntityType="Self.CarPark" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Item" EntityType="Self.Item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ParkingLot" EntityType="Self.ParkingLot" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Transaction" EntityType="Self.Transaction" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BookingHistory" EntityType="Self.BookingHistory" store:Type="Tables" store:Schema="dbo">
@@ -368,10 +357,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
             <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
           </AssociationSet>
-          <AssociationSet Name="FK_Item_ParkingLot" Association="Self.FK_Item_ParkingLot">
-            <End Role="ParkingLot" EntitySet="ParkingLot" />
-            <End Role="Item" EntitySet="Item" />
-          </AssociationSet>
           <AssociationSet Name="FK_ParkingLot_Area" Association="Self.FK_ParkingLot_Area">
             <End Role="Area" EntitySet="Area" />
             <End Role="ParkingLot" EntitySet="ParkingLot" />
@@ -382,6 +367,10 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           </AssociationSet>
           <AssociationSet Name="FK_Transaction_CarPark" Association="Self.FK_Transaction_CarPark">
             <End Role="CarPark" EntitySet="CarPark" />
+            <End Role="Transaction" EntitySet="Transaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_ParkingLot" Association="Self.FK_Transaction_ParkingLot">
+            <End Role="ParkingLot" EntitySet="ParkingLot" />
             <End Role="Transaction" EntitySet="Transaction" />
           </AssociationSet>
         </EntityContainer>
@@ -396,7 +385,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <EntitySet Name="AspNetUserLogins" EntityType="PGSSModel.AspNetUserLogin" />
           <EntitySet Name="AspNetUsers" EntityType="PGSSModel.AspNetUser" />
           <EntitySet Name="CarParks" EntityType="PGSSModel.CarPark" />
-          <EntitySet Name="Items" EntityType="PGSSModel.Item" />
           <EntitySet Name="ParkingLots" EntityType="PGSSModel.ParkingLot" />
           <EntitySet Name="Transactions" EntityType="PGSSModel.Transaction" />
           <EntitySet Name="BookingHistories" EntityType="PGSSModel.BookingHistory" />
@@ -440,13 +428,13 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             <End Role="CarPark" EntitySet="CarParks" />
             <End Role="Transaction" EntitySet="Transactions" />
           </AssociationSet>
-          <AssociationSet Name="FK_Item_ParkingLot" Association="PGSSModel.FK_Item_ParkingLot">
-            <End Role="ParkingLot" EntitySet="ParkingLots" />
-            <End Role="Item" EntitySet="Items" />
-          </AssociationSet>
           <AssociationSet Name="FK_BookingHistory_ParkingLot" Association="PGSSModel.FK_BookingHistory_ParkingLot">
             <End Role="ParkingLot" EntitySet="ParkingLots" />
             <End Role="BookingHistory" EntitySet="BookingHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Transaction_ParkingLot" Association="PGSSModel.FK_Transaction_ParkingLot">
+            <End Role="ParkingLot" EntitySet="ParkingLots" />
+            <End Role="Transaction" EntitySet="Transactions" />
           </AssociationSet>
           <AssociationSet Name="AspNetUserRoles" Association="PGSSModel.AspNetUserRoles">
             <End Role="AspNetRole" EntitySet="AspNetRoles" />
@@ -540,32 +528,20 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <NavigationProperty Name="BookingHistories" Relationship="PGSSModel.FK_BookingHistory_CarPark" FromRole="CarPark" ToRole="BookingHistory" />
           <NavigationProperty Name="Transactions" Relationship="PGSSModel.FK_Transaction_CarPark" FromRole="CarPark" ToRole="Transaction" />
         </EntityType>
-        <EntityType Name="Item">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Address" Type="Binary" Nullable="false" MaxLength="16" FixedLength="false" />
-          <Property Name="Type" Type="Int32" Nullable="false" />
-          <Property Name="Status" Type="Int32" Nullable="false" />
-          <Property Name="ParkingLotId" Type="Int32" Nullable="false" />
-          <Property Name="CarParkId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="ParkingLot" Relationship="PGSSModel.FK_Item_ParkingLot" FromRole="Item" ToRole="ParkingLot" />
-        </EntityType>
         <EntityType Name="ParkingLot">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Address" Type="Binary" Nullable="false" MaxLength="16" FixedLength="false" />
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="AreaId" Type="Int32" />
           <Property Name="CarParkId" Type="Int32" Nullable="false" />
           <Property Name="Active" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Area" Relationship="PGSSModel.FK_ParkingLot_Area" FromRole="ParkingLot" ToRole="Area" />
-          <NavigationProperty Name="Items" Relationship="PGSSModel.FK_Item_ParkingLot" FromRole="ParkingLot" ToRole="Item" />
           <NavigationProperty Name="BookingHistories" Relationship="PGSSModel.FK_BookingHistory_ParkingLot" FromRole="ParkingLot" ToRole="BookingHistory" />
+          <NavigationProperty Name="Transactions" Relationship="PGSSModel.FK_Transaction_ParkingLot" FromRole="ParkingLot" ToRole="Transaction" />
         </EntityType>
         <EntityType Name="Transaction">
           <Key>
@@ -576,9 +552,11 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
           <Property Name="Amount" Type="Decimal" Nullable="false" Precision="19" Scale="4" />
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="CarParkId" Type="Int32" Nullable="false" />
+          <Property Name="ParkingLotId" Type="Int32" Nullable="false" />
           <Property Name="AspNetUserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="AspNetUser" Relationship="PGSSModel.FK_Transaction_AspNetUsers" FromRole="Transaction" ToRole="AspNetUser" />
           <NavigationProperty Name="CarPark" Relationship="PGSSModel.FK_Transaction_CarPark" FromRole="Transaction" ToRole="CarPark" />
+          <NavigationProperty Name="ParkingLot" Relationship="PGSSModel.FK_Transaction_ParkingLot" FromRole="Transaction" ToRole="ParkingLot" />
         </EntityType>
         <EntityType Name="BookingHistory">
           <Key>
@@ -720,18 +698,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Item_ParkingLot">
-          <End Type="PGSSModel.ParkingLot" Role="ParkingLot" Multiplicity="1" />
-          <End Type="PGSSModel.Item" Role="Item" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ParkingLot">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="Item">
-              <PropertyRef Name="ParkingLotId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BookingHistory_ParkingLot">
           <End Type="PGSSModel.ParkingLot" Role="ParkingLot" Multiplicity="0..1" />
           <End Type="PGSSModel.BookingHistory" Role="BookingHistory" Multiplicity="*" />
@@ -740,6 +706,18 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="BookingHistory">
+              <PropertyRef Name="ParkingLotId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Transaction_ParkingLot">
+          <End Type="PGSSModel.ParkingLot" Role="ParkingLot" Multiplicity="1" />
+          <End Type="PGSSModel.Transaction" Role="Transaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ParkingLot">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Transaction">
               <PropertyRef Name="ParkingLotId" />
             </Dependent>
           </ReferentialConstraint>
@@ -828,19 +806,6 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Items">
-            <EntityTypeMapping TypeName="PGSSModel.Item">
-              <MappingFragment StoreEntitySet="Item">
-                <ScalarProperty Name="CarParkId" ColumnName="CarParkId" />
-                <ScalarProperty Name="ParkingLotId" ColumnName="ParkingLotId" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Type" ColumnName="Type" />
-                <ScalarProperty Name="Address" ColumnName="Address" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ParkingLots">
             <EntityTypeMapping TypeName="PGSSModel.ParkingLot">
               <MappingFragment StoreEntitySet="ParkingLot">
@@ -848,6 +813,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
                 <ScalarProperty Name="CarParkId" ColumnName="CarParkId" />
                 <ScalarProperty Name="AreaId" ColumnName="AreaId" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
@@ -857,6 +823,7 @@ warning 6002: The table/view 'CapstonePGSS.dbo.BookingHistory' does not have a p
             <EntityTypeMapping TypeName="PGSSModel.Transaction">
               <MappingFragment StoreEntitySet="Transaction">
                 <ScalarProperty Name="AspNetUserId" ColumnName="AspNetUserId" />
+                <ScalarProperty Name="ParkingLotId" ColumnName="ParkingLotId" />
                 <ScalarProperty Name="CarParkId" ColumnName="CarParkId" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
                 <ScalarProperty Name="Amount" ColumnName="Amount" />

@@ -170,6 +170,7 @@ namespace Capstone.Controllers
                     Carpark = q.CarPark,
                     EmptyAmount = q.EmptyAmount,
                     Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
+                    Distance = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)).GetDistanceTo(coord),
                 })
                     .OrderBy(q => q.Geo.GetDistanceTo(coord))
                     .Take(numberOfCarPark);
@@ -205,6 +206,7 @@ namespace Capstone.Controllers
                     Carpark = q.CarPark,
                     EmptyAmount = q.EmptyAmount,
                     Geo = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)),
+                    Distance = new GeoCoordinate(double.Parse(q.CarPark.Lat), double.Parse(q.CarPark.Lon)).GetDistanceTo(coord),
                 })
                     .Where(q => q.Geo.GetDistanceTo(coord) <= range);
                 return Json(new
@@ -229,6 +231,7 @@ namespace Capstone.Controllers
             public CarParkViewModel CarPark { get; set; }
             public int EmptyAmount { get; set; }
             public GeoCoordinate Geo { get; set; }
+            public double Distance { get; set; }
         }
     }
 }

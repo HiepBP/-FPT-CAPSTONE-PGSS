@@ -22,6 +22,7 @@ namespace Capstone
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
             Capstone.ApiEndpoint.Entry(this.AdditionalMapperConfig);
         }
 
@@ -29,6 +30,7 @@ namespace Capstone
         {
             config.CreateMap<CarParkWithAmountEntities, CarParkWithAmount>();
             config.CreateMap<ParkingLot, ParkingLotWithItemViewModel>();
+            config.CreateMap<Transaction, TransactionCustomViewModel>();
         }
     }
 }

@@ -17,6 +17,7 @@ namespace Capstone.ViewModels
     	
     			public virtual int Id { get; set; }
     			public virtual string Name { get; set; }
+    			public virtual byte[] Address { get; set; }
     			public virtual int Status { get; set; }
     			public virtual Nullable<int> AreaId { get; set; }
     			public virtual int CarParkId { get; set; }

@@ -29,4 +29,11 @@ namespace Capstone.Models
         Active = 1,
     }
 
+    public enum TransactionStatus
+    {
+        Reserved = 0,
+        Finished = 1,
+        Canceled = 2,
+    }
+
 }

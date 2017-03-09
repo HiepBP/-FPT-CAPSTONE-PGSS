@@ -31,7 +31,6 @@ namespace Capstone.Models.Entities
         public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
         public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
         public virtual DbSet<CarPark> CarParks { get; set; }
-        public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<ParkingLot> ParkingLots { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<BookingHistory> BookingHistories { get; set; }

@@ -17,12 +17,13 @@ namespace Capstone.Models.Entities
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ParkingLot()
         {
-            this.Items = new HashSet<Item>();
             this.BookingHistories = new HashSet<BookingHistory>();
+            this.Transactions = new HashSet<Transaction>();
         }
     
         public int Id { get; set; }
         public string Name { get; set; }
+        public byte[] Address { get; set; }
         public int Status { get; set; }
         public Nullable<int> AreaId { get; set; }
         public int CarParkId { get; set; }
@@ -30,8 +31,8 @@ namespace Capstone.Models.Entities
     
         public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Item> Items { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookingHistory> BookingHistories { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }
