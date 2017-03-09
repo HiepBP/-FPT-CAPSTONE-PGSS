@@ -1,13 +1,15 @@
 package com.fptuni.capstone.pgss.activities;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,14 +22,11 @@ import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
-import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Marker;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
@@ -37,6 +36,8 @@ import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+
+import java.text.DecimalFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +54,8 @@ public class CarParkDetailActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.textview_carparkdetail_name)
     TextView tvName;
+    @BindView(R.id.textview_carparkdetail_distance)
+    TextView tvDistanceAway;
     @BindView(R.id.textview_carparkdetail_available_lot)
     TextView tvAvailableLot;
     @BindView(R.id.textview_carparkdetail_address)
@@ -65,8 +68,8 @@ public class CarParkDetailActivity extends AppCompatActivity {
     TextView tvDescription;
     @BindView(R.id.button_carparkdetail_call)
     Button btnCall;
-    @BindView(R.id.button_carparkdetail_save)
-    Button btnSave;
+    @BindView(R.id.button_carparkdetail_route)
+    Button btnRoute;
     @BindView(R.id.button_carparkdetail_reserve)
     Button btnReserve;
 
@@ -104,9 +107,11 @@ public class CarParkDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setToolbarBackground();
         tvName.setText(carPark.getName());
         String availableText = getString(R.string.carparkdetail_text_available)
                 + String.valueOf(carPark.getAvailableLot());
+        tvDistanceAway.setText(getDistanceString(carPark.getAwayDistance()));
         tvAvailableLot.setText(availableText);
         tvAddress.setText(carPark.getAddress());
         tvPhone.setText(carPark.getPhone());
@@ -119,6 +124,20 @@ public class CarParkDetailActivity extends AppCompatActivity {
         }
     }
 
+    private void setToolbarBackground() {
+        int availableLot = carPark.getAvailableLot();
+        int color;
+        if (isBetween(availableLot, 0, 0)) {
+            color = getResources().getColor(R.color.colorShortAvailable);
+        } else if (isBetween(availableLot, 1, 10)) {
+            color = getResources().getColor(R.color.colorAverageAvailable);
+        } else {
+            color = getResources().getColor(R.color.colorPlentifulAvailable);
+        }
+        toolbar.setBackgroundColor(color);
+    }
+
+
     private void initiateFields() {
         carPark = (CarPark) getIntent().getSerializableExtra(EXTRA_CAR_PARK);
         account = AccountHelper.get(this);
@@ -126,14 +145,30 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_carparkdetail_call)
     protected void onCallButtonClick(View view) {
-        // TODO: on call button click
-        Toast.makeText(this, "Call button click", Toast.LENGTH_SHORT).show();
+        String uri = "tel:" + carPark.getPhone();
+        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(Uri.decode(uri)));
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        startActivity(intent);
     }
 
-    @OnClick(R.id.button_carparkdetail_save)
-    protected void onSaveButtonClick(View view) {
-        // TODO: on save button click
-        Toast.makeText(this, "Save button click", Toast.LENGTH_SHORT).show();
+    @OnClick(R.id.button_carparkdetail_route)
+    protected void onRouteButtonClick(View view) {
+        String uri = "google.navigation:q=" +
+                carPark.getLat() + "," +
+                carPark.getLon();
+        Uri directionUri = Uri.parse(Uri.decode(uri));
+        Intent intent = new Intent(Intent.ACTION_VIEW, directionUri);
+        intent.setPackage("com.google.android.apps.maps");
+        startActivity(intent);
     }
 
     @OnClick(R.id.button_carparkdetail_reserve)
@@ -249,5 +284,14 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private boolean isBetween(int x, int lower, int upper) {
+        return lower <= x && x <= upper;
+    }
+
+    private String getDistanceString(double distance) {
+        DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
+        return distanceInKmFormat.format(distance / 1000) + "Kms. away";
     }
 }

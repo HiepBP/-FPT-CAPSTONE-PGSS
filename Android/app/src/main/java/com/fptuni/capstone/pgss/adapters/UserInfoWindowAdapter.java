@@ -1,5 +1,6 @@
 package com.fptuni.capstone.pgss.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -9,6 +10,11 @@ import com.fptuni.capstone.pgss.models.CarPark;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
+import java.text.DecimalFormat;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by TrungTNM on 2/26/2017.
  */
@@ -16,13 +22,16 @@ import com.google.android.gms.maps.model.Marker;
 public class UserInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     private View contentView;
-    private TextView tvCarParkName;
-    private TextView tvCarParkAddress;
+    @BindView(R.id.textview_user_car_park_name)
+    TextView tvCarParkName;
+    @BindView(R.id.textview_user_car_park_address)
+    TextView tvCarParkAddress;
+    @BindView(R.id.textview_user_car_park_away)
+    TextView tvAwayDistance;
 
     public UserInfoWindowAdapter(LayoutInflater inflater) {
         contentView = inflater.inflate(R.layout.infowindow_user, null);
-        tvCarParkName = (TextView) contentView.findViewById(R.id.textview_user_car_park_name);
-        tvCarParkAddress = (TextView) contentView.findViewById(R.id.textview_user_car_park_address);
+        ButterKnife.bind(this, contentView);
     }
 
     @Override
@@ -35,6 +44,12 @@ public class UserInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         CarPark carPark = (CarPark) marker.getTag();
         tvCarParkName.setText(carPark.getName());
         tvCarParkAddress.setText(carPark.getAddress());
+        tvAwayDistance.setText(getDistanceString(carPark.getAwayDistance()));
         return contentView;
+    }
+
+    private String getDistanceString(double distance) {
+        DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
+        return distanceInKmFormat.format(distance / 1000) + "Kms. away";
     }
 }
