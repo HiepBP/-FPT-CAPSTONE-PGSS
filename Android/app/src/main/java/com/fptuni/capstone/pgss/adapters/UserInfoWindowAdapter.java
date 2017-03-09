@@ -6,7 +6,6 @@ import android.widget.TextView;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
@@ -33,8 +32,7 @@ public class UserInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
-        CarPark carPark = data.getCarPark();
+        CarPark carPark = (CarPark) marker.getTag();
         tvCarParkName.setText(carPark.getName());
         tvCarParkAddress.setText(carPark.getAddress());
         return contentView;

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.models.CarPark;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -24,6 +25,7 @@ public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.
 
     private List<CarPark> carParks;
     private Context context;
+    private OnItemClickListener listener;
 
     public CarParkListAdapter(Context context, List<CarPark> carParks) {
         this.carParks = carParks;
@@ -56,22 +58,73 @@ public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.
         return carParks.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.textview_carparklist_name)
         TextView tvName;
         @BindView(R.id.textview_carparklist_address)
         TextView tvAddress;
+        @BindView(R.id.textview_carparklist_distance)
+        TextView tvDistance;
+        @BindView(R.id.textview_carparklist_available_lot)
+        TextView tvAvailableLot;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(itemView, position);
+                        }
+                    }
+                }
+            });
         }
 
-        public void bind(CarPark carPark) {
+        void bind(CarPark carPark) {
             tvName.setText(carPark.getName());
             tvAddress.setText(carPark.getAddress());
+            tvDistance.setText(getDistanceString(carPark.getAwayDistance()));
+            tvAvailableLot.setText(String.valueOf(carPark.getAvailableLot()));
+            tvAvailableLot.setTextColor(getAvailableColor(carPark.getAvailableLot()));
         }
+
+        private int getAvailableColor(int availableLot) {
+            int id;
+            if (isBetween(availableLot, 0, 0)) {
+                id = R.color.colorShortAvailable;
+            } else if (isBetween(availableLot, 1, 10)) {
+                id = R.color.colorAverageAvailable;
+            } else {
+                id = R.color.colorPlentifulAvailable;
+            }
+
+            Context context = getContext();
+            return context.getResources().getColor(id);
+        }
+
+        private String getDistanceString(double distance) {
+            Context context = getContext();
+            DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
+            return distanceInKmFormat.format(distance / 1000) +
+                    context.getString(R.string.carparklist_text_distance);
+        }
+
+        private boolean isBetween(int x, int lower, int upper) {
+            return lower <= x && x <= upper;
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position);
     }
 }

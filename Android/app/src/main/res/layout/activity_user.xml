@@ -12,7 +12,7 @@
 
         <!-- The ActionBar displayed at the top -->
         <include
-            layout="@layout/toolbar_user"
+            layout="@layout/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

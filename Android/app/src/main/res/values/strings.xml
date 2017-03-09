@@ -49,5 +49,7 @@
     <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification and invoice via app.</string>
     <string name="user_reserved_list_title">Reserved Lots List</string>
 
+    <!-- Strings related to car park list -->
+    <string name="carparklist_text_distance">Kms. Away from You</string>
 
 </resources>

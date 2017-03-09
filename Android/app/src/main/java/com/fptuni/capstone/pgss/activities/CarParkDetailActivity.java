@@ -11,6 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -43,12 +45,12 @@ import butterknife.OnClick;
 public class CarParkDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_CAR_PARK = "carPark";
-    private static final String EXTRA_AVAILABLE_LOT = "availableLot";
 
     private Account account;
     private PubNub pubNub;
-    private int availableLot;
 
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     @BindView(R.id.textview_carparkdetail_name)
     TextView tvName;
     @BindView(R.id.textview_carparkdetail_available_lot)
@@ -70,10 +72,9 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     private CarPark carPark;
 
-    public static Intent createIntent(Context context, @NonNull CarPark carPark, int avaialbleLot) {
+    public static Intent createIntent(Context context, @NonNull CarPark carPark) {
         Intent intent = new Intent(context, CarParkDetailActivity.class);
         intent.putExtra(EXTRA_CAR_PARK, carPark);
-        intent.putExtra(EXTRA_AVAILABLE_LOT, avaialbleLot);
 
         return intent;
     }
@@ -88,11 +89,24 @@ public class CarParkDetailActivity extends AppCompatActivity {
         initiatePubnub();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initiateViews() {
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         tvName.setText(carPark.getName());
         String availableText = getString(R.string.carparkdetail_text_available)
-                + String.valueOf(availableLot);
+                + String.valueOf(carPark.getAvailableLot());
         tvAvailableLot.setText(availableText);
         tvAddress.setText(carPark.getAddress());
         tvPhone.setText(carPark.getPhone());
@@ -108,7 +122,6 @@ public class CarParkDetailActivity extends AppCompatActivity {
     private void initiateFields() {
         carPark = (CarPark) getIntent().getSerializableExtra(EXTRA_CAR_PARK);
         account = AccountHelper.get(this);
-        availableLot = getIntent().getIntExtra(EXTRA_AVAILABLE_LOT, -1);
     }
 
     @OnClick(R.id.button_carparkdetail_call)

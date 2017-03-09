@@ -1,20 +1,24 @@
-package com.fptuni.capstone.pgss.models;
+package com.fptuni.capstone.pgss.network;
 
+import com.fptuni.capstone.pgss.models.CarPark;
+import com.fptuni.capstone.pgss.models.Geo;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by TrungTNM on 2/15/2017.
  */
 
-public class CarParkWithGeo {
+public class CarParkPackage {
     @SerializedName("Carpark")
     private CarPark carPark;
     @SerializedName("EmptyAmount")
     private int availableLot;
+    @SerializedName("Distance")
+    private double distance;
     @SerializedName("Geo")
     private Geo geo;
 
-    public CarParkWithGeo() {
+    public CarParkPackage() {
     }
 
     public CarPark getCarPark() {
@@ -39,5 +43,13 @@ public class CarParkWithGeo {
 
     public void setAvailableLot(int availableLot) {
         this.availableLot = availableLot;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

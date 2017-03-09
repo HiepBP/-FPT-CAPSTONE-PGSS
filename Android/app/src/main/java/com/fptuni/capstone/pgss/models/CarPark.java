@@ -27,6 +27,9 @@ public class CarPark implements Serializable {
     private String lon;
     @SerializedName("Active")
     private boolean active;
+    private int availableLot;
+    private double awayDistance;
+
 
     public CarPark() {
     }
@@ -101,5 +104,21 @@ public class CarPark implements Serializable {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getAvailableLot() {
+        return availableLot;
+    }
+
+    public void setAvailableLot(int availableLot) {
+        this.availableLot = availableLot;
+    }
+
+    public double getAwayDistance() {
+        return awayDistance;
+    }
+
+    public void setAwayDistance(double awayDistance) {
+        this.awayDistance = awayDistance;
     }
 }

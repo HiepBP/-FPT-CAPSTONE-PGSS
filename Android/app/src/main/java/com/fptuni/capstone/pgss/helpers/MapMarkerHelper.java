@@ -25,9 +25,9 @@ public class MapMarkerHelper {
 
         int drawableId;
 
-        if (isBetween(availableLot, 0, 10)) {
+        if (isBetween(availableLot, 0, 0)) {
             drawableId = R.drawable.map_parking_marker_red;
-        } else if (isBetween(availableLot, 11, 30)) {
+        } else if (isBetween(availableLot, 1, 10)) {
             drawableId = R.drawable.map_parking_marker_yellow;
         } else {
             drawableId = R.drawable.map_parking_marker_green;

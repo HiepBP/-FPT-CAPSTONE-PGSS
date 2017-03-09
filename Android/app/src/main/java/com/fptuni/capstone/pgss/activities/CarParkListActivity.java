@@ -7,12 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkListAdapter;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.models.CarParkWithGeo;
+import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.maps.model.LatLng;
@@ -73,6 +74,14 @@ public class CarParkListActivity extends AppCompatActivity {
         numberOfCar = 10;
         carParks = new ArrayList<>();
         adapter = new CarParkListAdapter(this, carParks);
+        adapter.setOnItemClickListener(new CarParkListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
+                CarPark carPark = carParks.get(position);
+                Intent intent = CarParkDetailActivity.createIntent(CarParkListActivity.this, carPark);
+                startActivity(intent);
+            }
+        });
     }
 
     private void getCarParkData(double lat, double lon) {
@@ -81,12 +90,14 @@ public class CarParkListActivity extends AppCompatActivity {
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
             public void onResponse(Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
-                List<CarParkWithGeo> result = response.body().getResult();
+                List<CarParkPackage> result = response.body().getResult();
                 int curSize = carParks.size();
                 carParks.clear();
                 adapter.notifyItemRangeRemoved(0, curSize);
-                for (CarParkWithGeo data : result) {
+                for (CarParkPackage data : result) {
                     CarPark carPark = data.getCarPark();
+                    carPark.setAvailableLot(data.getAvailableLot());
+                    carPark.setAwayDistance(data.getDistance());
                     carParks.add(carPark);
                 }
                 adapter.notifyItemRangeInserted(0, carParks.size());

@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
-import com.fptuni.capstone.pgss.adapters.CarParkListAdapter;
 import com.fptuni.capstone.pgss.adapters.UserInfoWindowAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
@@ -33,7 +32,7 @@ import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.models.CarParkWithGeo;
+import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.models.Geo;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
@@ -292,8 +291,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
-                                data.setAvailableLot(availableLot);
+                                CarPark carPark = (CarPark) marker.getTag();
+                                carPark.setAvailableLot(availableLot);
                                 marker.setIcon(BitmapDescriptorFactory
                                         .fromBitmap(MapMarkerHelper
                                                 .getParkingMarker(getBaseContext(), availableLot)));
@@ -378,10 +377,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onInfoWindowClick(Marker marker) {
                 // TODO: show car park detail page
                 marker.hideInfoWindow();
-                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
-                CarPark carPark = data.getCarPark();
-                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark,
-                        data.getAvailableLot());
+                CarPark carPark = (CarPark) marker.getTag();
+                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark);
                 startActivity(intent);
             }
         });
@@ -459,10 +456,12 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                    Response<GetCoordinatePackage> response) {
                 markerMap.clear();
                 map.clear();
-                List<CarParkWithGeo> list = response.body().getResult();
-                for (final CarParkWithGeo data : list) {
+                List<CarParkPackage> list = response.body().getResult();
+                for (CarParkPackage data : list) {
                     final Geo geo = data.getGeo();
                     final CarPark carPark = data.getCarPark();
+                    carPark.setAvailableLot(data.getAvailableLot());
+                    carPark.setAwayDistance(data.getDistance());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -472,8 +471,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     .title(carPark.getName()));
                             marker.setIcon(BitmapDescriptorFactory
                                     .fromBitmap(MapMarkerHelper
-                                            .getParkingMarker(getBaseContext(), data.getAvailableLot())));
-                            marker.setTag(data);
+                                            .getParkingMarker(getBaseContext(), carPark.getAvailableLot())));
+                            marker.setTag(carPark);
                             markerMap.put(carPark.getName(), marker);
                         }
                     });
@@ -531,13 +530,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(@NonNull LocationSettingsResult result) {
-                Log.i("UserActivity", "onResult");
                 Status status = result.getStatus();
                 LocationSettingsStates state = result.getLocationSettingsStates();
-                Log.i("UserActivity", status.getStatusMessage());
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        Log.i("UserActivity", "on success");
                         getCurrentLocation();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
