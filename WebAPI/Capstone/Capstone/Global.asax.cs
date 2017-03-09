@@ -31,6 +31,7 @@ namespace Capstone
             config.CreateMap<CarParkWithAmountEntities, CarParkWithAmount>();
             config.CreateMap<ParkingLot, ParkingLotWithItemViewModel>();
             config.CreateMap<Transaction, TransactionCustomViewModel>();
+                //.ForMember(q => q.ParkingLot, opt => opt.MapFrom(q => q.ParkingLot));
         }
     }
 }

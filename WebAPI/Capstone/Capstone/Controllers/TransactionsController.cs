@@ -1,4 +1,5 @@
 ﻿using Capstone.Sdk;
+using Capstone.ViewModels;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using System.Web.Security;
 
 namespace Capstone.Controllers
@@ -16,6 +18,7 @@ namespace Capstone.Controllers
     {
         [HttpPost]
         [Route("api/Transactions/GetTransactionByUsername")]
+        [ResponseType(typeof(List<TransactionCustomViewModel>))]
         public async Task<IHttpActionResult> GetTransactionByUsername(string username)
         {
             try

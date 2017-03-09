@@ -7,6 +7,6 @@ namespace Capstone.ViewModels
 {
     public class TransactionCustomViewModel : TransactionViewModel
     {
-        ParkingLotViewModel ParkingLot { get; set; }
+        public ParkingLotViewModel ParkingLot { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Capstone.Sdk
         public IEnumerable<TransactionCustomViewModel> GetTransactionByUserId(string userId)
         {
             var transactions = this.BaseService.GetTransactionByUserId(userId);
-            var result = transactions.ProjectTo<TransactionCustomViewModel>(this.AutoMapperConfig);
+            var result = transactions.ProjectTo<TransactionCustomViewModel>(this.AutoMapperConfig).AsEnumerable();
             return result;
         }
     }
