@@ -32,8 +32,8 @@ import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.models.Geo;
+import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
@@ -82,7 +82,11 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap map;
+    private LatLng centerLocation;
     private LatLng currentLocation;
+    private LatLng placeLocation;
+    private boolean fromYou;
+    private String placeName;
     private PlaceAutocompleteFragment autocompleteFragment;
     private boolean refreshCarParkData;
 
@@ -108,6 +112,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         ButterKnife.bind(this);
 
         initiateInstance();
+        googleApiClient.connect();
+
     }
 
     @Override
@@ -136,6 +142,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LatLng latLng = place.getLatLng();
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+                fromYou = false;
+                placeName = place.getName().toString();
+                placeLocation = latLng;
             }
 
             @Override
@@ -144,7 +153,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         markerMap = new HashMap<>();
+        centerLocation = new LatLng(0, 0);
         currentLocation = new LatLng(0, 0);
+        placeLocation = new LatLng(0, 0);
+        fromYou = true;
 
         initiatePubnub();
 
@@ -197,7 +209,11 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_user_list_view:
-                intent = CarParkListActivity.createIntent(this, currentLocation);
+                if (fromYou) {
+                    intent = CarParkListActivity.createIntent(this, currentLocation, "You");
+                } else {
+                    intent = CarParkListActivity.createIntent(this, placeLocation, placeName);
+                }
                 startActivity(intent);
                 break;
             case R.id.nav_user_reserved_list:
@@ -252,14 +268,20 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onStart() {
-        googleApiClient.connect();
+//        googleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        googleApiClient.disconnect();
+//        googleApiClient.disconnect();
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        googleApiClient.disconnect();
     }
 
     @Override
@@ -365,8 +387,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                currentLocation = latLng;
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+                fromYou = true;
                 return true;
             }
         });
@@ -392,12 +416,11 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onCameraIdle() {
                 LatLng latLng = map.getCameraPosition().target;
-                if (latLng.longitude != currentLocation.longitude
-                        && latLng.latitude != currentLocation.latitude) {
-                    currentLocation = latLng;
-                    if (refreshCarParkData) {
-                        getCarParkData(currentLocation.latitude, currentLocation.longitude);
-                    }
+                if (latLng.longitude != centerLocation.longitude
+                        && latLng.latitude != centerLocation.latitude
+                        && refreshCarParkData) {
+                    centerLocation = latLng;
+                    getCarParkData(centerLocation.latitude, centerLocation.longitude);
                 }
             }
         });
@@ -413,8 +436,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i("UserActivity", "onConnected");
         map.clear();
         locationSettingRequest();
-        if (currentLocation != null) {
-            map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+        if (centerLocation != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLng(centerLocation));
             map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
         }
     }
@@ -442,6 +465,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
+        currentLocation = latLng;
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
     }
@@ -461,7 +485,19 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                     final Geo geo = data.getGeo();
                     final CarPark carPark = data.getCarPark();
                     carPark.setAvailableLot(data.getAvailableLot());
-                    carPark.setAwayDistance(data.getDistance());
+                    if (fromYou) {
+                        float[] results = new float[3];
+                        Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
+                                geo.getLatitude(), geo.getLongitude(), results);
+                        carPark.setAwayDistance(results[0]);
+                        carPark.setFromTarget("You");
+                    } else {
+                        float[] results = new float[3];
+                        Location.distanceBetween(placeLocation.latitude, placeLocation.longitude,
+                                geo.getLatitude(), geo.getLongitude(), results);
+                        carPark.setAwayDistance(results[0]);
+                        carPark.setFromTarget(placeName);
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

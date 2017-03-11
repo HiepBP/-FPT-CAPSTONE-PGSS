@@ -93,7 +93,7 @@ public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.
         void bind(CarPark carPark) {
             tvName.setText(carPark.getName());
             tvAddress.setText(carPark.getAddress());
-            tvDistance.setText(getDistanceString(carPark.getAwayDistance()));
+            tvDistance.setText(getDistanceString(carPark.getAwayDistance(), carPark.getFromTarget()));
             tvAvailableLot.setText(String.valueOf(carPark.getAvailableLot()));
             tvAvailableLot.setTextColor(getAvailableColor(carPark.getAvailableLot()));
         }
@@ -112,11 +112,12 @@ public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.
             return context.getResources().getColor(id);
         }
 
-        private String getDistanceString(double distance) {
+        private String getDistanceString(double distance, String target) {
             Context context = getContext();
             DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
             return distanceInKmFormat.format(distance / 1000) +
-                    context.getString(R.string.carparklist_text_distance);
+                    context.getString(R.string.carparklist_text_distance) + " " +
+                    target;
         }
 
         private boolean isBetween(int x, int lower, int upper) {

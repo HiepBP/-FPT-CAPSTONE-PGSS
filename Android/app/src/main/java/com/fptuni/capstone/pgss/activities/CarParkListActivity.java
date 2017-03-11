@@ -31,6 +31,7 @@ public class CarParkListActivity extends AppCompatActivity {
 
     private static final String EXTRA_CURRENT_LOCATION_LAT = "currentLocationLat";
     private static final String EXTRA_CURRENT_LOCATION_LON = "currentLocationLon";
+    private static final String EXTRA_FROM_TARGET = "fromTarget";
 
     @BindView(R.id.recyclerview_carparklist_list)
     RecyclerView rvCarParkList;
@@ -38,13 +39,15 @@ public class CarParkListActivity extends AppCompatActivity {
     private LatLng currentPostion;
     private CarParkListAdapter adapter;
     private List<CarPark> carParks;
+    private String target;
 
     private int numberOfCar;
 
-    public static Intent createIntent(Context context, @NonNull LatLng currentLocation) {
+    public static Intent createIntent(Context context, @NonNull LatLng currentLocation, String target) {
         Intent intent = new Intent(context, CarParkListActivity.class);
         intent.putExtra(EXTRA_CURRENT_LOCATION_LAT, currentLocation.latitude);
         intent.putExtra(EXTRA_CURRENT_LOCATION_LON, currentLocation.longitude);
+        intent.putExtra(EXTRA_FROM_TARGET, target);
 
         return intent;
     }
@@ -70,6 +73,7 @@ public class CarParkListActivity extends AppCompatActivity {
         double lat = getIntent().getDoubleExtra(EXTRA_CURRENT_LOCATION_LAT, 0);
         double lon = getIntent().getDoubleExtra(EXTRA_CURRENT_LOCATION_LON, 0);
         currentPostion = new LatLng(lat, lon);
+        target = getIntent().getStringExtra(EXTRA_FROM_TARGET);
 
         numberOfCar = 10;
         carParks = new ArrayList<>();
@@ -98,6 +102,7 @@ public class CarParkListActivity extends AppCompatActivity {
                     CarPark carPark = data.getCarPark();
                     carPark.setAvailableLot(data.getAvailableLot());
                     carPark.setAwayDistance(data.getDistance());
+                    carPark.setFromTarget(target);
                     carParks.add(carPark);
                 }
                 adapter.notifyItemRangeInserted(0, carParks.size());
