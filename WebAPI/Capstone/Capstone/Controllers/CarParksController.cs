@@ -1,20 +1,23 @@
 ﻿using Capstone.Sdk;
 using Capstone.ViewModels;
+using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
 using System.Device.Location;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
 namespace Capstone.Controllers
 {
+    [RoutePrefix("api/CarParks")]
     public class CarParksController : ApiController
     {
         [HttpGet]
-        [Route("api/CarParks/GetActive")]
+        [Route("GetActive")]
         public IHttpActionResult GetActive()
         {
             try
@@ -102,7 +105,7 @@ namespace Capstone.Controllers
         }
 
         [HttpGet]
-        [Route("api/CarParks/GetEmptyAmount")]
+        [Route("GetEmptyAmount")]
         public IHttpActionResult GetEmptyAmount(int id)
         {
             CarParkApi carParkApi = new CarParkApi();
@@ -126,7 +129,7 @@ namespace Capstone.Controllers
         }
 
         [HttpGet]
-        [Route("api/CarParks/GetCoordinateCarPark")]
+        [Route("GetCoordinateCarPark")]
         public IHttpActionResult GetCoordinateCarPark()
         {
             CarParkApi carParkApi = new CarParkApi();
@@ -156,7 +159,7 @@ namespace Capstone.Controllers
         /// <param name="numberOfCarPark">Number of car park you want to get</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("api/CarParks/GetCoordinateNearestCarPark/{lat}/{lon}/{numberOfCarPark}")]
+        [Route("GetCoordinateNearestCarPark/{lat}/{lon}/{numberOfCarPark}")]
         [ResponseType(typeof(List<CarParkGeoJson>))]
         public IHttpActionResult GetCoordinateNearestCarPark(double lat, double lon, int numberOfCarPark)
         {
@@ -190,7 +193,7 @@ namespace Capstone.Controllers
         }
 
         [HttpGet]
-        [Route("api/CarParks/GetCoordinateNearestCarParkByRange/{lat}/{lon}/{range}")]
+        [Route("GetCoordinateNearestCarParkByRange/{lat}/{lon}/{range}")]
         [ResponseType(typeof(List<CarParkGeoJson>))]
         public IHttpActionResult GetCoordinateNearestCarParkByRange(double lat, double lon, double range)
         {
@@ -224,7 +227,32 @@ namespace Capstone.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("GetCarParksByUsername/{username}")]
+        [ResponseType(typeof(List<TransactionCustomViewModel>))]
+        public async Task<IHttpActionResult> GetCarParksByUsername(string username)
+        {
+            try
+            {
+                var carPartkApi = new CarParkApi();
+                var UserManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                var user = await UserManager.FindByNameAsync(username);
+                var userId = user.Id;
+                var listCarPark = carPartkApi.GetCarParksByUserId(userId);
+                return Json(new
+                {
+                    result = listCarPark,
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
 
         private class CarParkGeoJson
         {

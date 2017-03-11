@@ -9,6 +9,8 @@ namespace Capstone.Models.Entities.Services
     {
         int GetEmptyAmount(int carParkId);
         IQueryable<CarParkWithAmountEntities> GetCoordinatesWithEmptyAmount();
+        IQueryable<CarPark> GetCarParksByUserId(string userId);
+
     }
 
     public partial class CarParkService
@@ -39,6 +41,12 @@ namespace Capstone.Models.Entities.Services
                 .Sum(x => x.EmptyAmount),
             });
             return carPark;
+        }
+
+        public IQueryable<CarPark> GetCarParksByUserId(string userId)
+        {
+            var carParks = this.GetActive(q => q.AspNetUserId == userId);
+            return carParks;
         }
 
     }

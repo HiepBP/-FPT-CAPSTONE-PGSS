@@ -19,5 +19,11 @@ namespace Capstone.Sdk
             var result = this.BaseService.GetCoordinatesWithEmptyAmount().ProjectTo<CarParkWithAmount>(this.AutoMapperConfig).ToList();
             return result;
         }
+
+        public IEnumerable<CarParkViewModel> GetCarParksByUserId(string userId)
+        {
+            var result = this.BaseService.GetCarParksByUserId(userId).ProjectTo<CarParkViewModel>(this.AutoMapperConfig).ToList();
+            return result;
+        }
     }
 }

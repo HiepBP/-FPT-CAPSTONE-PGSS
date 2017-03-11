@@ -89,6 +89,30 @@ namespace Capstone.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        [Route("GetAreasByCarParkid/{carParkId}")]
+        [ResponseType(typeof(int))]
+        public IHttpActionResult GetAreasByCarParkid(int carParkId)
+        {
+            try
+            {
+                var areaApi = new AreaApi();
+                var listArea = areaApi.GetAreaByCarParkId(carParkId);
+                return Json(new
+                {
+                    result = listArea,
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
     }
 
     public class AreaWithEmptySlot

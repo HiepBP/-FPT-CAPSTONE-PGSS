@@ -36,5 +36,29 @@ namespace Capstone.Controllers
                 });
             }
         }
+
+        [HttpGet]
+        [Route("GetParkingLotsByAreaId/{areaId}")]
+        [ResponseType(typeof(List<ParkingLotWithItemViewModel>))]
+        public IHttpActionResult GetParkingLotsByAreaId(int areaId)
+        {
+            try
+            {
+                ParkingLotApi parkingLotApi = new ParkingLotApi();
+                var listParkingLot = parkingLotApi.GetParkingLotsByAreaId(areaId);
+                return Json(new
+                {
+                    result = listParkingLot,
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
     }
 }
