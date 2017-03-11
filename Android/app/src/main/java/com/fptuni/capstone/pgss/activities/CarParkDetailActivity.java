@@ -22,12 +22,19 @@ import android.widget.Toast;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
+import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
 import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
+import com.fptuni.capstone.pgss.network.CommandPackage;
 import com.fptuni.capstone.pgss.network.ControlPubnubPackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
+import com.fptuni.capstone.pgss.network.NotificationPackage;
+import com.fptuni.capstone.pgss.network.RealtimeMapPackage;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
@@ -192,15 +199,13 @@ public class CarParkDetailActivity extends AppCompatActivity {
     }
 
     private void reserveParkingLot() {
-        PubNub pubNub = PubNubHelper.getPubNub();
-        ControlPubnubPackage message = new ControlPubnubPackage();
-        message.setUsername(account.getUsername());
-        message.setCommand("reserve");
-        message.setDeviceName("Detector 1");
-        message.setHubName(carPark.getName());
+        CommandPackage commandPackage = new CommandPackage();
+        commandPackage.setCarParkId(carPark.getId());
+        commandPackage.setUsername(account.getUsername());
+        commandPackage.setCommand(CommandPackage.COMMAND_RESERVE);
         pubNub.publish()
-                .channel("control")
-                .message(message)
+                .channel(PubNubHelper.CHANNEL_USER)
+                .message(commandPackage)
                 .usePOST(true)
                 .async(new PNCallback<PNPublishResult>() {
                     @Override
@@ -216,6 +221,30 @@ public class CarParkDetailActivity extends AppCompatActivity {
                         }
                     }
                 });
+//        PubNub pubNub = PubNubHelper.getPubNub();
+//        ControlPubnubPackage message = new ControlPubnubPackage();
+//        message.setUsername(account.getUsername());
+//        message.setCommand("reserve");
+//        message.setDeviceName("Detector 1");
+//        message.setHubName(carPark.getName());
+//        pubNub.publish()
+//                .channel("control")
+//                .message(message)
+//                .usePOST(true)
+//                .async(new PNCallback<PNPublishResult>() {
+//                    @Override
+//                    public void onResponse(PNPublishResult result, PNStatus status) {
+//                        if (status.isError()) {
+//                            Toast.makeText(CarParkDetailActivity.this,
+//                                    R.string.carparkdetail_reserve_dialog_failed, Toast.LENGTH_SHORT)
+//                                    .show();
+//                        } else {
+//                            Toast.makeText(CarParkDetailActivity.this,
+//                                    R.string.carparkdetail_reserve_dialog_successful, Toast.LENGTH_SHORT)
+//                                    .show();
+//                        }
+//                    }
+//                });
     }
 
     private void initiatePubnub() {
@@ -230,51 +259,38 @@ public class CarParkDetailActivity extends AppCompatActivity {
             @Override
             public void message(PubNub pubnub, final PNMessageResult message) {
                 String channel = message.getChannel();
-                if (channel.equals("realtime map")) {
-                    JsonObject json = message.getMessage().getAsJsonObject();
-                    String hubName = json.get("hub_name").getAsString();
-                    final int availableLot = json.get("available").getAsInt();
-                    if (hubName.equals(carPark.getName())) {
-                        if (availableLot == 0) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    btnReserve.setClickable(false);
-                                    btnReserve.setAlpha(0.3f);
-                                    String availableText =
-                                            getString(R.string.carparkdetail_text_available)
-                                                    + String.valueOf(availableLot);
-                                    tvAvailableLot.setText(availableText);
-                                }
-                            });
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    btnReserve.setClickable(true);
-                                    btnReserve.setAlpha(1f);
-                                    String availableText =
-                                            getString(R.string.carparkdetail_text_available)
-                                                    + String.valueOf(availableLot);
-                                    tvAvailableLot.setText(availableText);
-                                }
-                            });
-                        }
-                    }
-
-                } else if (channel.equals("mobile")) {
-                    String json = message.getMessage().toString();
+                if (channel.equals(PubNubHelper.CHANNEL_REALTIME_MAP)) {
+                    JsonElement json = message.getMessage();
                     Gson gson = new Gson();
-                    MobilePubnubPackage data = gson.fromJson(json, MobilePubnubPackage.class);
-                    if (data.getUsername().equals(account.getUsername())) {
-                        NotificationManager notificationManager =
+                    final RealtimeMapPackage mapPackage = gson.fromJson(json, RealtimeMapPackage.class);
+                    Integer id = mapPackage.getId();
+                    if (carPark.getId() == id) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                carPark.setAvailableLot(mapPackage.getAvailableLot());
+                                String availableText = getString(R.string.carparkdetail_text_available)
+                                        + String.valueOf(carPark.getAvailableLot());
+                                tvAvailableLot.setText(availableText);
+                            }
+                        });
+                    }
+                } else if (channel.equals(PubNubHelper.CHANNEL_NOTIFICATION)) {
+                    JsonElement json = message.getMessage();
+                    Gson gson = new Gson();
+                    Account account = AccountHelper.get(CarParkDetailActivity.this);
+                    NotificationPackage notiPackage = gson.fromJson(json, NotificationPackage.class);
+                    if (account.getUsername().equals(notiPackage.getUsername())) {
+                        NotificationManager notiManager =
                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         Notification notification = new Notification.Builder(CarParkDetailActivity.this)
-                                .setContentTitle("Reserve Parking Lot of " + data.getHubName())
+                                .setContentTitle("Reserve Parking Lot of " +
+                                        notiPackage.getCarParkName())
                                 .setSmallIcon(R.drawable.user_nav_select_range_icon)
-                                .setContentText("Your reserved lot is " + data.getLotName())
+                                .setContentText("Your reserved parking lot is " +
+                                        notiPackage.getLotName())
                                 .build();
-                        notificationManager.notify(0, notification);
+                        notiManager.notify(0, notification);
                     }
                 }
             }

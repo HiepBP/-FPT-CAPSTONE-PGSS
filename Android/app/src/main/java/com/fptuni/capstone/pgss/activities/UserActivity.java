@@ -36,6 +36,8 @@ import com.fptuni.capstone.pgss.models.Geo;
 import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
+import com.fptuni.capstone.pgss.network.NotificationPackage;
+import com.fptuni.capstone.pgss.network.RealtimeMapPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -60,6 +62,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -92,7 +95,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleApiClient googleApiClient;
 
-    private HashMap<String, Marker> markerMap;
+    private HashMap<Integer, Marker> markerMap;
 
     PubNub pubNub;
 
@@ -157,8 +160,6 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         currentLocation = new LatLng(0, 0);
         placeLocation = new LatLng(0, 0);
         fromYou = true;
-
-        initiatePubnub();
 
         // Create an instance of GoogleAPIClient.
         if (googleApiClient == null) {
@@ -269,12 +270,14 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onStart() {
 //        googleApiClient.connect();
+        initiatePubnub();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
 //        googleApiClient.disconnect();
+        pubNub.unsubscribeAll();
         super.onStop();
     }
 
@@ -304,37 +307,41 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void message(PubNub pubnub, final PNMessageResult message) {
                 String channel = message.getChannel();
-                if (channel.equals("realtime map")) {
-                    JsonObject json = message.getMessage().getAsJsonObject();
-                    String hubName = json.get("hub_name").getAsString();
-                    final int availableLot = json.get("available").getAsInt();
-                    if (markerMap.containsKey(hubName)) {
-                        final Marker marker = markerMap.get(hubName);
+                if (channel.equals(PubNubHelper.CHANNEL_REALTIME_MAP)) {
+                    JsonElement json = message.getMessage();
+                    Gson gson = new Gson();
+                    final RealtimeMapPackage mapPackage = gson.fromJson(json, RealtimeMapPackage.class);
+                    Integer id = mapPackage.getId();
+                    if (markerMap.containsKey(id)) {
+                        final Marker marker = markerMap.get(id);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 CarPark carPark = (CarPark) marker.getTag();
-                                carPark.setAvailableLot(availableLot);
+                                carPark.setAvailableLot(mapPackage.getAvailableLot());
                                 marker.setIcon(BitmapDescriptorFactory
                                         .fromBitmap(MapMarkerHelper
-                                                .getParkingMarker(getBaseContext(), availableLot)));
+                                                .getParkingMarker(getBaseContext(),
+                                                        mapPackage.getAvailableLot())));
                             }
                         });
                     }
-                } else if (channel.equals("mobile")) {
-                    String json = message.getMessage().toString();
+                } else if (channel.equals(PubNubHelper.CHANNEL_NOTIFICATION)) {
+                    JsonElement json = message.getMessage();
                     Gson gson = new Gson();
-                    MobilePubnubPackage data = gson.fromJson(json, MobilePubnubPackage.class);
                     Account account = AccountHelper.get(UserActivity.this);
-                    if (data.getUsername().equals(account.getUsername())) {
-                        NotificationManager notificationManager =
+                    NotificationPackage notiPackage = gson.fromJson(json, NotificationPackage.class);
+                    if (account.getUsername().equals(notiPackage.getUsername())) {
+                        NotificationManager notiManager =
                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         Notification notification = new Notification.Builder(UserActivity.this)
-                                .setContentTitle("Reserve Parking Lot of " + data.getHubName())
+                                .setContentTitle("Reserve Parking Lot of " +
+                                        notiPackage.getCarParkName())
                                 .setSmallIcon(R.drawable.user_nav_select_range_icon)
-                                .setContentText("Your reserved parking lot is " + data.getLotName())
+                                .setContentText("Your reserved parking lot is " +
+                                        notiPackage.getLotName())
                                 .build();
-                        notificationManager.notify(0, notification);
+                        notiManager.notify(0, notification);
                     }
                 }
             }
@@ -509,7 +516,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     .fromBitmap(MapMarkerHelper
                                             .getParkingMarker(getBaseContext(), carPark.getAvailableLot())));
                             marker.setTag(carPark);
-                            markerMap.put(carPark.getName(), marker);
+                            markerMap.put(carPark.getId(), marker);
                         }
                     });
                 }
