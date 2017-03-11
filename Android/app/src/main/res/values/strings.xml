@@ -49,7 +49,7 @@
     <string name="carparkdetail_reserve_dialog_message">Are you sure you want to reserve a parking lot in this parking car?</string>
     <string name="carparkdetail_reserve_dialog_failed">An error has occurred! Please try again.</string>
     <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification and invoice via app.</string>
-    <string name="carparkdetail_text_distance">Kms. radius away</string>
+    <string name="carparkdetail_text_distance">Kms. radius away from</string>
 
     <!-- Strings related to car park list -->
     <string name="carparklist_text_distance">Kms. radius away from </string>

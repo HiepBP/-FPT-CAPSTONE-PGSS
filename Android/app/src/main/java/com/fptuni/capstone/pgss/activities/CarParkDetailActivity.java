@@ -111,7 +111,7 @@ public class CarParkDetailActivity extends AppCompatActivity {
         tvName.setText(carPark.getName());
         String availableText = getString(R.string.carparkdetail_text_available)
                 + String.valueOf(carPark.getAvailableLot());
-        tvDistanceAway.setText(getDistanceString(carPark.getAwayDistance()));
+        tvDistanceAway.setText(getDistanceString(carPark.getAwayDistance(), carPark.getFromTarget()));
         tvAvailableLot.setText(availableText);
         tvAddress.setText(carPark.getAddress());
         tvPhone.setText(carPark.getPhone());
@@ -290,8 +290,10 @@ public class CarParkDetailActivity extends AppCompatActivity {
         return lower <= x && x <= upper;
     }
 
-    private String getDistanceString(double distance) {
+    private String getDistanceString(double distance, String target) {
         DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
-        return distanceInKmFormat.format(distance / 1000) + "Kms. away";
+        return distanceInKmFormat.format(distance / 1000) +
+                getResources().getString(R.string.carparkdetail_text_distance) + " " +
+                target;
     }
 }
