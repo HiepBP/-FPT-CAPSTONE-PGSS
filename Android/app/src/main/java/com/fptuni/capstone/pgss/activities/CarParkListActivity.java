@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.fptuni.capstone.pgss.R;
@@ -35,6 +37,8 @@ public class CarParkListActivity extends AppCompatActivity {
 
     @BindView(R.id.recyclerview_carparklist_list)
     RecyclerView rvCarParkList;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     private LatLng currentPostion;
     private CarParkListAdapter adapter;
@@ -65,6 +69,9 @@ public class CarParkListActivity extends AppCompatActivity {
     private void initiateViews() {
         ButterKnife.bind(this);
 
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         rvCarParkList.setAdapter(adapter);
         rvCarParkList.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -86,6 +93,16 @@ public class CarParkListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void getCarParkData(double lat, double lon) {
