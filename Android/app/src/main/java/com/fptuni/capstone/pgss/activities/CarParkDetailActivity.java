@@ -221,30 +221,6 @@ public class CarParkDetailActivity extends AppCompatActivity {
                         }
                     }
                 });
-//        PubNub pubNub = PubNubHelper.getPubNub();
-//        ControlPubnubPackage message = new ControlPubnubPackage();
-//        message.setUsername(account.getUsername());
-//        message.setCommand("reserve");
-//        message.setDeviceName("Detector 1");
-//        message.setHubName(carPark.getName());
-//        pubNub.publish()
-//                .channel("control")
-//                .message(message)
-//                .usePOST(true)
-//                .async(new PNCallback<PNPublishResult>() {
-//                    @Override
-//                    public void onResponse(PNPublishResult result, PNStatus status) {
-//                        if (status.isError()) {
-//                            Toast.makeText(CarParkDetailActivity.this,
-//                                    R.string.carparkdetail_reserve_dialog_failed, Toast.LENGTH_SHORT)
-//                                    .show();
-//                        } else {
-//                            Toast.makeText(CarParkDetailActivity.this,
-//                                    R.string.carparkdetail_reserve_dialog_successful, Toast.LENGTH_SHORT)
-//                                    .show();
-//                        }
-//                    }
-//                });
     }
 
     private void initiatePubnub() {

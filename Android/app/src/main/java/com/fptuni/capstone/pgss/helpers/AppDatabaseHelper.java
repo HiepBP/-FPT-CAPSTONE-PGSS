@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.fptuni.capstone.pgss.models.Account;
+import com.fptuni.capstone.pgss.models.ParkingLot;
 import com.fptuni.capstone.pgss.models.Transaction;
 
 import java.text.SimpleDateFormat;
@@ -25,7 +26,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "PGSS.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Table Names
     private static final String TABLE_TRANSACTION = "transactions";
@@ -36,6 +37,8 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_TRANSACTION_DATE = "date";
     private static final String KEY_TRANSACTION_STATUS = "status";
     private static final String KEY_TRANSACTION_CAR_PARK_ID = "carParkId";
+    private static final String KEY_TRANSACTION_LOT_ID = "lotId";
+    private static final String KEY_TRANSACTION_LOT_NAME = "lotName";
     private static final String KEY_TRANSACTION_AMOUNT = "amount";
 
     public static synchronized AppDatabaseHelper getInstance(Context context) {
@@ -62,6 +65,8 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                 KEY_TRANSACTION_ID + " INTEGER PRIMARY KEY, " +
                 KEY_TRANSACTION_USERNAME + " TEXT, " +
                 KEY_TRANSACTION_CAR_PARK_ID + " INTEGER, " +
+                KEY_TRANSACTION_LOT_ID + " INTEGER, " +
+                KEY_TRANSACTION_LOT_NAME + " TEXT, " +
                 KEY_TRANSACTION_DATE + " INTEGER, " +
                 KEY_TRANSACTION_STATUS + " TEXT, " +
                 KEY_TRANSACTION_AMOUNT + " REAL" +
@@ -84,9 +89,6 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-            SimpleDateFormat simpleDateFormat =
-                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZZZZ");
-
             ContentValues values = new ContentValues();
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
@@ -112,6 +114,8 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_TRANSACTION_ID, transaction.getId());
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
+            values.put(KEY_TRANSACTION_LOT_ID, transaction.getLotId());
+            values.put(KEY_TRANSACTION_LOT_NAME, transaction.getLot().getName());
             values.put(KEY_TRANSACTION_AMOUNT, transaction.getAmount());
             values.put(KEY_TRANSACTION_DATE, transaction.getDate().getTime());
             values.put(KEY_TRANSACTION_STATUS, transaction.getStatus());
@@ -123,7 +127,6 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             }
             db.setTransactionSuccessful();
         } catch (Exception e) {
-            Log.d("Test DB", e.getMessage());
         } finally {
             db.endTransaction();
         }
@@ -143,18 +146,21 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                     transaction.setId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_ID)));
                     transaction.setCarParkId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_CAR_PARK_ID)));
                     transaction.setUsername(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_USERNAME)));
-                    transaction.setStatus(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_STATUS)));
+                    transaction.setStatus(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_STATUS)));
                     transaction
                             .setAmount(cursor.getDouble(cursor.getColumnIndex(KEY_TRANSACTION_AMOUNT)));
                     transaction
                             .setDate(new Date(cursor
                                     .getLong(cursor.getColumnIndex(KEY_TRANSACTION_DATE))));
+                    transaction.setLotId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_LOT_ID)));
+                    ParkingLot lot = new ParkingLot();
+                    lot.setName(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_LOT_NAME)));
+                    transaction.setLot(lot);
 
                     transactions.add(transaction);
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.d("Test DB", e.getMessage());
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();

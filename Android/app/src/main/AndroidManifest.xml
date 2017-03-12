@@ -68,7 +68,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.TransactionActivity"
-            android:parentActivityName=".activities.UserActivity" />
+            android:parentActivityName=".activities.UserActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

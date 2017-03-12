@@ -2,6 +2,7 @@ package com.fptuni.capstone.pgss.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.models.Transaction;
+import com.fptuni.capstone.pgss.models.TransactionStatus;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +27,7 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
 
     private List<Transaction> transactions;
     private Context context;
+    private OnItemClickListener listener;
 
     public TransactionListAdapter(Context context, List<Transaction> transactions) {
         this.transactions = transactions;
@@ -57,32 +60,64 @@ public class TransactionListAdapter extends RecyclerView.Adapter<TransactionList
         return transactions.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         private static final String DATE_FORMAT = "EEE, MMM d, ''yy";
 
+        @BindView(R.id.textview_transaction_address)
+        TextView tvAddress;
         @BindView(R.id.textview_transaction_date)
         TextView tvDate;
-        @BindView(R.id.textview_transaction_car_park_name)
-        TextView tvCarParkName;
         @BindView(R.id.textview_transaction_status)
         TextView tvStatus;
+        @BindView(R.id.textview_transaction_amount)
+        TextView tvAmount;
+        @BindView(R.id.textview_transaction_lot_name)
+        TextView tvLotName;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int positon = getAdapterPosition();
+                        if (positon != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(itemView, positon);
+                        }
+                    }
+                }
+            });
         }
 
-        public void bind(Transaction transaction) {
+        void bind(Transaction transaction) {
             tvDate.setText(getFormatedDate(transaction.getDate()));
-            tvCarParkName.setText(String.valueOf(transaction.getCarParkId()));
-            tvStatus.setText(transaction.getStatus());
+            tvStatus.setText(TransactionStatus.getById(transaction.getStatus()).getName());
+            tvAmount.setText(Html.fromHtml(getAmountText(transaction.getAmount())));
+            tvLotName.setText(Html.fromHtml(getLotNameText(transaction.getLot().getName())));
+        }
+
+        private String getLotNameText(String lotName) {
+            return " " + lotName;
+        }
+
+        private String getAmountText(double amount) {
+            return " " + String.valueOf(amount);
         }
 
         private String getFormatedDate(Date date) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
             return dateFormat.format(date);
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position);
     }
 }

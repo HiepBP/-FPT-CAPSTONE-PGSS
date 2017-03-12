@@ -55,4 +55,14 @@
     <string name="carparklist_text_distance">Kms. radius away from </string>
     <string name="carparkdetail_button_route">Route</string>
 
+    <!-- Strings related to transaction list -->
+    <string name="transaction_text_lot_name">
+        <u>Lot :</u>
+    </string>
+    <string name="transaction_text_amount">
+        <u>Amount :</u>
+    </string>
+    <string name="transaction_dialog_button_cancel">Cancel</string>
+    <string name="transaction_dialog_button_check_in">Check In</string>
+
 </resources>

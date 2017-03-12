@@ -1,5 +1,7 @@
 package com.fptuni.capstone.pgss.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 /**
@@ -7,12 +9,21 @@ import java.util.Date;
  */
 
 public class Transaction {
+    @SerializedName("Id")
     private int id;
     private String username;
+    @SerializedName("CarParkId")
     private int carParkId;
+    @SerializedName("ParkingLotId")
+    private int lotId;
+    @SerializedName("TransactionDate")
     private Date date;
-    private String status;
+    @SerializedName("Status")
+    private int status;
+    @SerializedName("Amount")
     private double amount;
+    @SerializedName("ParkingLot")
+    private ParkingLot lot;
 
     public Transaction() {
     }
@@ -41,6 +52,14 @@ public class Transaction {
         this.carParkId = carParkId;
     }
 
+    public int getLotId() {
+        return lotId;
+    }
+
+    public void setLotId(int lotId) {
+        this.lotId = lotId;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -49,11 +68,11 @@ public class Transaction {
         this.date = date;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
@@ -63,5 +82,13 @@ public class Transaction {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public ParkingLot getLot() {
+        return lot;
+    }
+
+    public void setLot(ParkingLot lot) {
+        this.lot = lot;
     }
 }
