@@ -33,9 +33,8 @@ import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.Geo;
-import com.fptuni.capstone.pgss.network.CarParkPackage;
+import com.fptuni.capstone.pgss.network.CarParkAdvancePackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
-import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
 import com.fptuni.capstone.pgss.network.NotificationPackage;
 import com.fptuni.capstone.pgss.network.RealtimeMapPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
@@ -63,7 +62,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNStatus;
@@ -116,7 +114,6 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         initiateInstance();
         googleApiClient.connect();
-
     }
 
     @Override
@@ -261,9 +258,6 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             default:
         }
-
-        item.setChecked(true);
-        setTitle(item.getTitle());
         drawerLayout.closeDrawers();
     }
 
@@ -487,8 +481,8 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                    Response<GetCoordinatePackage> response) {
                 markerMap.clear();
                 map.clear();
-                List<CarParkPackage> list = response.body().getResult();
-                for (CarParkPackage data : list) {
+                List<CarParkAdvancePackage> list = response.body().getResult();
+                for (CarParkAdvancePackage data : list) {
                     final Geo geo = data.getGeo();
                     final CarPark carPark = data.getCarPark();
                     carPark.setAvailableLot(data.getAvailableLot());

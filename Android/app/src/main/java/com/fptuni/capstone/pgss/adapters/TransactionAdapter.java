@@ -23,13 +23,13 @@ import butterknife.ButterKnife;
  * Created by TrungTNM on 3/9/2017.
  */
 
-public class TransactionListAdapter extends RecyclerView.Adapter<TransactionListAdapter.ViewHolder> {
+public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
     private List<Transaction> transactions;
     private Context context;
     private OnItemClickListener listener;
 
-    public TransactionListAdapter(Context context, List<Transaction> transactions) {
+    public TransactionAdapter(Context context, List<Transaction> transactions) {
         this.transactions = transactions;
         this.context = context;
     }

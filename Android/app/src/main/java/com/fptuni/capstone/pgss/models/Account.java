@@ -7,6 +7,10 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class Account {
+
+    public static final String ROLE_USER = "ActiveUser";
+    public static final String ROLE_MANAGER = "Manager";
+
     @SerializedName("Email")
     private String email;
     @SerializedName("Username")
@@ -17,6 +21,7 @@ public class Account {
     private String password;
     @SerializedName("ConfirmPassword")
     private String confirmPassword;
+    private String role;
 
     public Account() {
     }
@@ -64,5 +69,13 @@ public class Account {
 
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

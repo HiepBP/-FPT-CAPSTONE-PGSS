@@ -21,12 +21,15 @@ public class MainActivity extends AppCompatActivity {
         // TODO: splash screen
 
         Account account = AccountHelper.get(this);
-        Intent intent;
+        Intent intent = new Intent(this, LoginActivity.class);
         if (account == null) {
             intent = new Intent(this, LoginActivity.class);
         } else {
-            // TODO: load activity based on account role
-            intent = new Intent(this, UserActivity.class);
+            if (account.getRole().equals(Account.ROLE_USER)) {
+                intent = new Intent(this, UserActivity.class);
+            } else if (account.getRole().equals(Account.ROLE_MANAGER)) {
+                intent = new Intent(this, ManagerActivity.class);
+            }
         }
         startActivity(intent);
         finish();

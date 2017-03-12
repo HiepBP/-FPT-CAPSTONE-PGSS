@@ -1,5 +1,6 @@
 package com.fptuni.capstone.pgss.interfaces;
 
+import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 
 import java.util.List;
@@ -27,5 +28,10 @@ public interface CarParkClient {
             @Path("lon") double lon,
             @Path("numberOfCarPark") int numberOfCarPark,
             @Query("range") double range
+    );
+
+    @GET("/api/CarParks/GetCarParksByUsername/{username}")
+    Call<CarParkPackage> getCarParkByUsername(
+            @Path("username") String username
     );
 }

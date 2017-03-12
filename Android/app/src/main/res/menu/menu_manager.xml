@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_manager_log_out"
+            android:icon="@drawable/user_nav_log_out_icon"
+            android:title="@string/user_log_out_title" />
+    </group>
+</menu>

@@ -60,9 +60,16 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<AccountPackage> call, Response<AccountPackage> response) {
                 final AccountPackage result = response.body();
                 if (result.isSuccess()) {
+                    String role = result.getObjs().get(0);
+                    account.setRole(role);
                     AccountHelper.save(LoginActivity.this, account);
-                    // TODO: load Activity based on account role
-                    Intent intent = new Intent(LoginActivity.this, UserActivity.class);
+                    Intent intent = null;
+                    if (role.equals(Account.ROLE_MANAGER)) {
+                        intent = new Intent(LoginActivity.this, ManagerActivity.class);
+                    } else if (role.equals(Account.ROLE_USER)) {
+
+                        intent = new Intent(LoginActivity.this, UserActivity.class);
+                    }
                     startActivity(intent);
                     finish();
                 } else {

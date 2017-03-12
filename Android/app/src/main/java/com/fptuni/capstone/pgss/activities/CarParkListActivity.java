@@ -12,10 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.fptuni.capstone.pgss.R;
-import com.fptuni.capstone.pgss.adapters.CarParkListAdapter;
+import com.fptuni.capstone.pgss.adapters.CarParkAdvanceAdapter;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.network.CarParkPackage;
+import com.fptuni.capstone.pgss.network.CarParkAdvancePackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,7 +41,7 @@ public class CarParkListActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private LatLng currentPostion;
-    private CarParkListAdapter adapter;
+    private CarParkAdvanceAdapter adapter;
     private List<CarPark> carParks;
     private String target;
 
@@ -84,8 +84,8 @@ public class CarParkListActivity extends AppCompatActivity {
 
         numberOfCar = 10;
         carParks = new ArrayList<>();
-        adapter = new CarParkListAdapter(this, carParks);
-        adapter.setOnItemClickListener(new CarParkListAdapter.OnItemClickListener() {
+        adapter = new CarParkAdvanceAdapter(this, carParks);
+        adapter.setOnItemClickListener(new CarParkAdvanceAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
                 CarPark carPark = carParks.get(position);
@@ -111,11 +111,11 @@ public class CarParkListActivity extends AppCompatActivity {
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
             public void onResponse(Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
-                List<CarParkPackage> result = response.body().getResult();
+                List<CarParkAdvancePackage> result = response.body().getResult();
                 int curSize = carParks.size();
                 carParks.clear();
                 adapter.notifyItemRangeRemoved(0, curSize);
-                for (CarParkPackage data : result) {
+                for (CarParkAdvancePackage data : result) {
                     CarPark carPark = data.getCarPark();
                     carPark.setAvailableLot(data.getAvailableLot());
                     carPark.setAwayDistance(data.getDistance());

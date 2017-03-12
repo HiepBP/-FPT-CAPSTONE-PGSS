@@ -10,18 +10,18 @@ import java.util.List;
 
 public class GetCoordinatePackage {
     @SerializedName("result")
-    private List<CarParkPackage> result;
+    private List<CarParkAdvancePackage> result;
     @SerializedName("success")
     private boolean success;
 
     public GetCoordinatePackage() {
     }
 
-    public List<CarParkPackage> getResult() {
+    public List<CarParkAdvancePackage> getResult() {
         return result;
     }
 
-    public void setResult(List<CarParkPackage> result) {
+    public void setResult(List<CarParkAdvancePackage> result) {
         this.result = result;
     }
 

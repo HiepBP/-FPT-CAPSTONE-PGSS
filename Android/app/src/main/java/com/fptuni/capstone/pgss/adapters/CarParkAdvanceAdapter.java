@@ -2,7 +2,6 @@ package com.fptuni.capstone.pgss.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +20,13 @@ import butterknife.ButterKnife;
  * Created by TrungTNM on 3/7/2017.
  */
 
-public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.ViewHolder> {
+public class CarParkAdvanceAdapter extends RecyclerView.Adapter<CarParkAdvanceAdapter.ViewHolder> {
 
     private List<CarPark> carParks;
     private Context context;
     private OnItemClickListener listener;
 
-    public CarParkListAdapter(Context context, List<CarPark> carParks) {
+    public CarParkAdvanceAdapter(Context context, List<CarPark> carParks) {
         this.carParks = carParks;
         this.context = context;
     }
@@ -41,7 +40,7 @@ public class CarParkListAdapter extends RecyclerView.Adapter<CarParkListAdapter.
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View carParkView = inflater.inflate(R.layout.item_car_park_list, parent, false);
+        View carParkView = inflater.inflate(R.layout.item_carparklist, parent, false);
 
         return new ViewHolder(carParkView);
     }

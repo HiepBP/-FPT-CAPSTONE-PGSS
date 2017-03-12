@@ -5,14 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.fptuni.capstone.pgss.R;
-import com.fptuni.capstone.pgss.adapters.TransactionListAdapter;
+import com.fptuni.capstone.pgss.adapters.TransactionAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.AppDatabaseHelper;
 import com.fptuni.capstone.pgss.helpers.InternetHelper;
@@ -24,7 +23,6 @@ import com.fptuni.capstone.pgss.network.TransactionPackage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -36,7 +34,7 @@ import retrofit2.Response;
 public class TransactionActivity extends AppCompatActivity {
 
     private List<Transaction> transactions;
-    private TransactionListAdapter adapter;
+    private TransactionAdapter adapter;
 
     @BindView(R.id.recyclerview_transaction_list)
     RecyclerView rvTransactionList;
@@ -93,8 +91,8 @@ public class TransactionActivity extends AppCompatActivity {
 
     private void initiateFields() {
         transactions = new ArrayList<>();
-        adapter = new TransactionListAdapter(this, transactions);
-        adapter.setOnItemClickListener(new TransactionListAdapter.OnItemClickListener() {
+        adapter = new TransactionAdapter(this, transactions);
+        adapter.setOnItemClickListener(new TransactionAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
                 Transaction transaction = transactions.get(position);

@@ -1,6 +1,6 @@
 package com.fptuni.capstone.pgss.network;
 
-import com.fptuni.capstone.pgss.models.CarPark;
+import com.fptuni.capstone.pgss.models.ParkingLot;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -9,20 +9,20 @@ import java.util.List;
  * Created by TrungTNM on 3/12/2017.
  */
 
-public class CarParkPackage {
+public class ParkingLotPackage {
     @SerializedName("result")
-    private List<CarPark> result;
+    private List<ParkingLot> result;
     @SerializedName("success")
     private boolean success;
 
-    public CarParkPackage() {
+    public ParkingLotPackage() {
     }
 
-    public List<CarPark> getResult() {
+    public List<ParkingLot> getResult() {
         return result;
     }
 
-    public void setResult(List<CarPark> result) {
+    public void setResult(List<ParkingLot> result) {
         this.result = result;
     }
 
