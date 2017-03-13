@@ -14,10 +14,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkAdapter;
-import com.fptuni.capstone.pgss.adapters.CarParkAdvanceAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.Account;
@@ -44,6 +47,15 @@ public class ManagerActivity extends AppCompatActivity {
     NavigationView navigationView;
     @BindView(R.id.recyclerview_manager_car_park_list)
     RecyclerView rvCarParkList;
+
+    // Car Park Dialog
+    private MaterialDialog dialog;
+    private EditText etName;
+    private EditText etPhone;
+    private EditText etEmail;
+    private EditText etAddress;
+    private EditText etDescription;
+    private CarPark focusedCarPark;
 
     private ActionBarDrawerToggle drawerToggle;
     private CarParkAdapter adapter;
@@ -89,6 +101,18 @@ public class ManagerActivity extends AppCompatActivity {
                 Intent intent = AreaListActivity.createIntent(ManagerActivity.this, carPark.getId());
                 startActivity(intent);
             }
+
+            @Override
+            public void onItemLongClick(View itemView, int position) {
+                focusedCarPark = carParks.get(position);
+                etName.setText(focusedCarPark.getName());
+                etPhone.setText(focusedCarPark.getPhone());
+                etEmail.setText(focusedCarPark.getEmail());
+                etAddress.setText(focusedCarPark.getAddress());
+                etDescription.setText(focusedCarPark.getDescription());
+
+                dialog.show();
+            }
         });
     }
 
@@ -108,8 +132,31 @@ public class ManagerActivity extends AppCompatActivity {
 
         rvCarParkList.setAdapter(adapter);
         rvCarParkList.setLayoutManager(new LinearLayoutManager(this));
-    }
 
+        // dialog
+        dialog = new MaterialDialog.Builder(this)
+                .title(R.string.dialogcarpark_title)
+                .customView(R.layout.dialog_car_park, true)
+                .positiveText(R.string.dialogcarpark_positive_text)
+                .negativeText(R.string.dialogcarpark_negative_text)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        focusedCarPark.setName(etName.getText().toString());
+                        focusedCarPark.setPhone(etPhone.getText().toString());
+                        focusedCarPark.setEmail(etEmail.getText().toString());
+                        focusedCarPark.setDescription(etDescription.getText().toString());
+                        updateCarPark();
+                    }
+                })
+                .build();
+        View customView = dialog.getCustomView();
+        etName = (EditText) customView.findViewById(R.id.edittext_dialogcarpark_name);
+        etPhone = (EditText) customView.findViewById(R.id.edittext_dialogcarpark_phone);
+        etEmail = (EditText) customView.findViewById(R.id.edittext_dialogcarpark_email);
+        etAddress = (EditText) customView.findViewById(R.id.edittext_dialogcarpark_address);
+        etDescription = (EditText) customView.findViewById(R.id.edittext_dialogcarpark_description);
+    }
 
     private void onDrawerItemClick(MenuItem item) {
         Intent intent;
@@ -124,6 +171,7 @@ public class ManagerActivity extends AppCompatActivity {
         }
         drawerLayout.closeDrawers();
     }
+
 
     private void getCarParkData() {
         Account account = AccountHelper.get(this);
@@ -144,5 +192,10 @@ public class ManagerActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void updateCarPark() {
+        //TODO: update car park api
+        Toast.makeText(this, focusedCarPark.getName(), Toast.LENGTH_SHORT).show();
     }
 }

@@ -65,4 +65,26 @@
     <string name="transaction_dialog_button_cancel">Cancel</string>
     <string name="transaction_dialog_button_check_in">Check In</string>
 
+    <!-- Strings related to car park dialog -->
+    <string name="dialogcarpark_title">Car Park Detail</string>
+    <string name="dialogcarpark_positive_text">Update</string>
+    <string name="dialogcarpark_negative_text">Cancel</string>
+    <string name="dialogcarpark_name">Name</string>
+    <string name="dialogcarpark_phone">Phone</string>
+    <string name="dialogcarpark_email">Email</string>
+    <string name="dialogcarpark_address">Address</string>
+    <string name="dialogcarpark_description">Description</string>
+
+    <!-- Strings related to area dialog -->
+    <string name="dialogarea_title">Area Detail</string>
+    <string name="dialogarea_positive_text">Update</string>
+    <string name="dialogarea_negative_text">Cancel</string>
+    <string name="dialogarea_name">Name</string>
+
+    <!-- Strings related to parking lot dialog -->
+    <string name="dialogparkinglot_title">Area Detail</string>
+    <string name="dialogparkinglot_positive_text">Update</string>
+    <string name="dialogparkinglot_negative_text">Cancel</string>
+    <string name="dialogparkinglot_name">Name</string>
+
 </resources>

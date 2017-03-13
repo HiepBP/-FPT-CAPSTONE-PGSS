@@ -83,6 +83,19 @@ public class CarParkAdapter extends RecyclerView.Adapter<CarParkAdapter.ViewHold
                     }
                 }
             });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemLongClick(itemView, position);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
 
         void bind(CarPark carPark) {
@@ -113,5 +126,7 @@ public class CarParkAdapter extends RecyclerView.Adapter<CarParkAdapter.ViewHold
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position);
+
+        void onItemLongClick(View itemView, int position);
     }
 }

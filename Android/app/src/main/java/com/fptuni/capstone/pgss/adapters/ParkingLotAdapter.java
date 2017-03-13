@@ -79,6 +79,18 @@ public class ParkingLotAdapter extends RecyclerView.Adapter<ParkingLotAdapter.Vi
                     }
                 }
             });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemLongClick(itemView, position);
+                        }
+                    }
+                    return false;
+                }
+            });
         }
 
         void bind(ParkingLot lot) {
@@ -88,5 +100,7 @@ public class ParkingLotAdapter extends RecyclerView.Adapter<ParkingLotAdapter.Vi
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position);
+
+        void onItemLongClick(View itemView, int position);
     }
 }

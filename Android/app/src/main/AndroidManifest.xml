@@ -73,8 +73,12 @@
         <activity
             android:name=".activities.ManagerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.AreaListActivity" />
-        <activity android:name=".activities.ParkingLotListActivity"></activity>
+        <activity
+            android:name=".activities.AreaListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.ParkingLotListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

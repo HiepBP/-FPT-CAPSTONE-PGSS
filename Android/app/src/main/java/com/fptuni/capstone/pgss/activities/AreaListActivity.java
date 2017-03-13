@@ -2,13 +2,18 @@ package com.fptuni.capstone.pgss.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.AreaAdapter;
 import com.fptuni.capstone.pgss.interfaces.AreaClient;
@@ -33,6 +38,11 @@ public class AreaListActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.recyclerview_arealist)
     RecyclerView rvArea;
+
+    // Area Dialog
+    private MaterialDialog dialog;
+    private EditText etName;
+    private Area focusedArea;
 
     private int carParkId;
     private List<Area> areas;
@@ -66,6 +76,13 @@ public class AreaListActivity extends AppCompatActivity {
                 Intent intent = ParkingLotListActivity.createIntent(AreaListActivity.this, area.getId());
                 startActivity(intent);
             }
+
+            @Override
+            public void onItemLongClick(View itemView, int position) {
+                focusedArea = areas.get(position);
+                etName.setText(focusedArea.getName());
+                dialog.show();
+            }
         });
     }
 
@@ -73,6 +90,23 @@ public class AreaListActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         rvArea.setAdapter(adapter);
         rvArea.setLayoutManager(new LinearLayoutManager(this));
+
+        // Custom dialog
+        dialog = new MaterialDialog.Builder(this)
+                .title(R.string.dialogarea_title)
+                .positiveText(R.string.dialogarea_positive_text)
+                .negativeText(R.string.dialogcarpark_negative_text)
+                .customView(R.layout.dialog_area, true)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        focusedArea.setName(etName.getText().toString());
+                        updateArea();
+                    }
+                })
+                .build();
+        View customView = dialog.getCustomView();
+        etName = (EditText) customView.findViewById(R.id.edittext_dialogarea_name);
     }
 
     private void getAreaData() {
@@ -96,5 +130,10 @@ public class AreaListActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void updateArea() {
+        //TODO: update area
+        Toast.makeText(this, focusedArea.getName(), Toast.LENGTH_SHORT).show();
     }
 }
