@@ -14,6 +14,8 @@ public class Transaction {
     private String username;
     @SerializedName("CarParkId")
     private int carParkId;
+    @SerializedName("CarPark")
+    private CarPark carPark;
     @SerializedName("ParkingLotId")
     private int lotId;
     @SerializedName("TransactionDate")
@@ -90,5 +92,13 @@ public class Transaction {
 
     public void setLot(ParkingLot lot) {
         this.lot = lot;
+    }
+
+    public CarPark getCarPark() {
+        return carPark;
+    }
+
+    public void setCarPark(CarPark carPark) {
+        this.carPark = carPark;
     }
 }

@@ -97,6 +97,7 @@ public class CarParkDetailActivity extends AppCompatActivity {
         initiateFields();
         initiateViews();
         initiatePubnub();
+        setTitle(R.string.carparkdetail_title);
     }
 
     @Override

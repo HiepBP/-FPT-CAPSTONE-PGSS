@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,6 +100,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
+    private ProgressBar toolbarProgress;
     private NavigationView navigationMenu;
     private ActionBarDrawerToggle drawerToggle;
 
@@ -169,6 +171,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Drawer
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbarProgress = (ProgressBar) findViewById(R.id.toolbar_progress);
         setSupportActionBar(toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout_user);
         navigationMenu = (NavigationView) findViewById(R.id.navigationview_user);
@@ -471,7 +474,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
     }
 
-    private void getCarParkData(double lat, double lon) {
+    private void getCarParkData(final double lat, final double lon) {
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
         CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
         Call<GetCoordinatePackage> call =
                 client.getCoordinateNearestCarParkByRange(lat, lon, numberOfCar, searchRange);
@@ -479,6 +485,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onResponse(final Call<GetCoordinatePackage> call,
                                    Response<GetCoordinatePackage> response) {
+                if (toolbarProgress.isShown()) {
+                    toolbarProgress.setVisibility(View.INVISIBLE);
+                }
                 markerMap.clear();
                 map.clear();
                 List<CarParkAdvancePackage> list = response.body().getResult();
@@ -518,7 +527,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onFailure(Call<GetCoordinatePackage> call, Throwable t) {
-
+                getCarParkData(lat, lon);
             }
         });
     }

@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.fptuni.capstone.pgss.models.Account;
+import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.ParkingLot;
 import com.fptuni.capstone.pgss.models.Transaction;
 
@@ -37,6 +38,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_TRANSACTION_DATE = "date";
     private static final String KEY_TRANSACTION_STATUS = "status";
     private static final String KEY_TRANSACTION_CAR_PARK_ID = "carParkId";
+    private static final String KEY_TRANSACTION_CAR_PARK_NAME = "carParkName";
     private static final String KEY_TRANSACTION_LOT_ID = "lotId";
     private static final String KEY_TRANSACTION_LOT_NAME = "lotName";
     private static final String KEY_TRANSACTION_AMOUNT = "amount";
@@ -65,6 +67,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                 KEY_TRANSACTION_ID + " INTEGER PRIMARY KEY, " +
                 KEY_TRANSACTION_USERNAME + " TEXT, " +
                 KEY_TRANSACTION_CAR_PARK_ID + " INTEGER, " +
+                KEY_TRANSACTION_CAR_PARK_NAME + " TEXT, " +
                 KEY_TRANSACTION_LOT_ID + " INTEGER, " +
                 KEY_TRANSACTION_LOT_NAME + " TEXT, " +
                 KEY_TRANSACTION_DATE + " INTEGER, " +
@@ -92,6 +95,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
+            values.put(KEY_TRANSACTION_CAR_PARK_NAME, transaction.getCarPark().getName());
             values.put(KEY_TRANSACTION_AMOUNT, transaction.getAmount());
             values.put(KEY_TRANSACTION_DATE, transaction.getDate().getTime());
             values.put(KEY_TRANSACTION_STATUS, transaction.getStatus());
@@ -114,6 +118,7 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_TRANSACTION_ID, transaction.getId());
             values.put(KEY_TRANSACTION_USERNAME, transaction.getUsername());
             values.put(KEY_TRANSACTION_CAR_PARK_ID, transaction.getCarParkId());
+            values.put(KEY_TRANSACTION_CAR_PARK_NAME, transaction.getCarPark().getName());
             values.put(KEY_TRANSACTION_LOT_ID, transaction.getLotId());
             values.put(KEY_TRANSACTION_LOT_NAME, transaction.getLot().getName());
             values.put(KEY_TRANSACTION_AMOUNT, transaction.getAmount());
@@ -145,6 +150,9 @@ public class AppDatabaseHelper extends SQLiteOpenHelper {
                     Transaction transaction = new Transaction();
                     transaction.setId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_ID)));
                     transaction.setCarParkId(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_CAR_PARK_ID)));
+                    CarPark carPark = new CarPark();
+                    carPark.setName(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_CAR_PARK_NAME)));
+                    transaction.setCarPark(carPark);
                     transaction.setUsername(cursor.getString(cursor.getColumnIndex(KEY_TRANSACTION_USERNAME)));
                     transaction.setStatus(cursor.getInt(cursor.getColumnIndex(KEY_TRANSACTION_STATUS)));
                     transaction

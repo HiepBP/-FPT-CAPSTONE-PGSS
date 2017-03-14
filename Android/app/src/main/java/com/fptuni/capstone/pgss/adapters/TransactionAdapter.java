@@ -97,6 +97,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         }
 
         void bind(Transaction transaction) {
+            tvAddress.setText(transaction.getCarPark().getAddress());
             tvDate.setText(getFormatedDate(transaction.getDate()));
             tvStatus.setText(TransactionStatus.getById(transaction.getStatus()).getName());
             tvAmount.setText(Html.fromHtml(getAmountText(transaction.getAmount())));

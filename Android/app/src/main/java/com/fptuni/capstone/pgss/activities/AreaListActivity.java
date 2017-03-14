@@ -8,12 +8,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.internal.MDButton;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.AreaAdapter;
 import com.fptuni.capstone.pgss.interfaces.AreaClient;
@@ -33,9 +38,12 @@ import retrofit2.Response;
 public class AreaListActivity extends AppCompatActivity {
 
     private static final String EXTRA_CAR_PARK_ID = "carParkId";
+    private static final String EXTRA_CAR_PARK_NAME = "carParkName";
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.toolbar_progress)
+    ProgressBar toolbarProgress;
     @BindView(R.id.recyclerview_arealist)
     RecyclerView rvArea;
 
@@ -43,14 +51,17 @@ public class AreaListActivity extends AppCompatActivity {
     private MaterialDialog dialog;
     private EditText etName;
     private Area focusedArea;
+    private MDButton btnPositive;
 
     private int carParkId;
+    private String carParkName;
     private List<Area> areas;
     private AreaAdapter adapter;
 
-    public static Intent createIntent(Context context, int carParkId) {
+    public static Intent createIntent(Context context, int carParkId, String carParkName) {
         Intent intent = new Intent(context, AreaListActivity.class);
         intent.putExtra(EXTRA_CAR_PARK_ID, carParkId);
+        intent.putExtra(EXTRA_CAR_PARK_NAME, carParkName);
 
         return intent;
     }
@@ -63,17 +74,33 @@ public class AreaListActivity extends AppCompatActivity {
         initiateFields();
         initiateViews();
         getAreaData();
+        String title = getResources().getString(R.string.area_title) + " " + carParkName;
+        setTitle(title);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void initiateFields() {
         carParkId = getIntent().getIntExtra(EXTRA_CAR_PARK_ID, -1);
+        carParkName = getIntent().getStringExtra(EXTRA_CAR_PARK_NAME);
+
         areas = new ArrayList<>();
         adapter = new AreaAdapter(this, areas);
         adapter.setOnItemClickListener(new AreaAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
                 Area area = areas.get(position);
-                Intent intent = ParkingLotListActivity.createIntent(AreaListActivity.this, area.getId());
+                Intent intent = ParkingLotListActivity.createIntent(AreaListActivity.this, area.getId(),
+                        area.getName());
                 startActivity(intent);
             }
 
@@ -81,6 +108,7 @@ public class AreaListActivity extends AppCompatActivity {
             public void onItemLongClick(View itemView, int position) {
                 focusedArea = areas.get(position);
                 etName.setText(focusedArea.getName());
+                btnPositive.setEnabled(false);
                 dialog.show();
             }
         });
@@ -88,6 +116,10 @@ public class AreaListActivity extends AppCompatActivity {
 
     private void initiateViews() {
         ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         rvArea.setAdapter(adapter);
         rvArea.setLayoutManager(new LinearLayoutManager(this));
 
@@ -107,6 +139,23 @@ public class AreaListActivity extends AppCompatActivity {
                 .build();
         View customView = dialog.getCustomView();
         etName = (EditText) customView.findViewById(R.id.edittext_dialogarea_name);
+        btnPositive = dialog.getActionButton(DialogAction.POSITIVE);
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnPositive.setEnabled(s.toString().trim().length() > 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void getAreaData() {
@@ -127,7 +176,7 @@ public class AreaListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<AreaPackage> call, Throwable t) {
-
+                getAreaData();
             }
         });
     }

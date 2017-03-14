@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkAdvanceAdapter;
@@ -39,6 +40,8 @@ public class CarParkListActivity extends AppCompatActivity {
     RecyclerView rvCarParkList;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.toolbar_progress)
+    ProgressBar toolbarProgress;
 
     private LatLng currentPostion;
     private CarParkAdvanceAdapter adapter;
@@ -63,6 +66,8 @@ public class CarParkListActivity extends AppCompatActivity {
 
         initiateFields();
         initiateViews();
+        String title = getResources().getString(R.string.carparklist_title) + " " + target;
+        setTitle(title);
         getCarParkData(currentPostion.latitude, currentPostion.longitude);
     }
 
@@ -105,12 +110,16 @@ public class CarParkListActivity extends AppCompatActivity {
         }
     }
 
-    private void getCarParkData(double lat, double lon) {
+    private void getCarParkData(final double lat, final double lon) {
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
         CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
         Call<GetCoordinatePackage> call = client.getCoordinateNearestCarPark(lat, lon, numberOfCar);
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
             public void onResponse(Call<GetCoordinatePackage> call, Response<GetCoordinatePackage> response) {
+                toolbarProgress.setVisibility(View.INVISIBLE);
                 List<CarParkAdvancePackage> result = response.body().getResult();
                 int curSize = carParks.size();
                 carParks.clear();
@@ -127,7 +136,7 @@ public class CarParkListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<GetCoordinatePackage> call, Throwable t) {
-
+                getCarParkData(lat, lon);
             }
         });
     }

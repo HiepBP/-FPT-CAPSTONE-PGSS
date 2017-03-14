@@ -7,13 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.internal.MDButton;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.ParkingLotAdapter;
 import com.fptuni.capstone.pgss.interfaces.ParkingLotClient;
@@ -34,9 +40,12 @@ import retrofit2.Response;
 public class ParkingLotListActivity extends AppCompatActivity {
 
     public static final String EXTRA_AREA_ID = "areaId";
+    public static final String EXTRA_AREA_NAME = "areaName";
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.toolbar_progress)
+    ProgressBar toolbarProgress;
     @BindView(R.id.recyclerview_parkinglotlist)
     RecyclerView rvParkingLot;
 
@@ -44,14 +53,18 @@ public class ParkingLotListActivity extends AppCompatActivity {
     private MaterialDialog dialog;
     private EditText etName;
     private ParkingLot focusedLot;
+    private SwitchCompat scActive;
+    private MDButton btnPositive;
 
     private int areaId;
+    private String areaName;
     private List<ParkingLot> lots;
     private ParkingLotAdapter adapter;
 
-    public static Intent createIntent(Context context, int areaId) {
+    public static Intent createIntent(Context context, int areaId, String areaName) {
         Intent intent = new Intent(context, ParkingLotListActivity.class);
         intent.putExtra(EXTRA_AREA_ID, areaId);
+        intent.putExtra(EXTRA_AREA_NAME, areaName);
 
         return intent;
     }
@@ -64,10 +77,25 @@ public class ParkingLotListActivity extends AppCompatActivity {
         initiateFields();
         initiateViews();
         getParkingLotData();
+        String title = getResources().getString(R.string.parkinglot_title) + " " + areaName;
+        setTitle(title);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void initiateFields() {
         areaId = getIntent().getIntExtra(EXTRA_AREA_ID, -1);
+        areaName = getIntent().getStringExtra(EXTRA_AREA_NAME);
+
         lots = new ArrayList<>();
         adapter = new ParkingLotAdapter(this, lots);
         adapter.setOnItemClickListener(new ParkingLotAdapter.OnItemClickListener() {
@@ -80,6 +108,7 @@ public class ParkingLotListActivity extends AppCompatActivity {
             public void onItemLongClick(View itemView, int position) {
                 focusedLot = lots.get(position);
                 etName.setText(focusedLot.getName());
+                btnPositive.setEnabled(false);
                 dialog.show();
             }
         });
@@ -87,6 +116,10 @@ public class ParkingLotListActivity extends AppCompatActivity {
 
     private void initiateViews() {
         ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         rvParkingLot.setAdapter(adapter);
         rvParkingLot.setLayoutManager(new LinearLayoutManager(this));
 
@@ -106,9 +139,30 @@ public class ParkingLotListActivity extends AppCompatActivity {
                 .build();
         View customView = dialog.getCustomView();
         etName = (EditText) customView.findViewById(R.id.edittext_dialogparkinglot_name);
+        scActive = (SwitchCompat) customView.findViewById(R.id.switchcompat_dialogparkinglot_active);
+        btnPositive = dialog.getActionButton(DialogAction.POSITIVE);
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnPositive.setEnabled(s.toString().trim().length() > 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void getParkingLotData() {
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
         ParkingLotClient client = ServiceGenerator.createService(ParkingLotClient.class);
         if (areaId < 0) {
             return;
@@ -117,6 +171,9 @@ public class ParkingLotListActivity extends AppCompatActivity {
         call.enqueue(new Callback<ParkingLotPackage>() {
             @Override
             public void onResponse(Call<ParkingLotPackage> call, Response<ParkingLotPackage> response) {
+                if (toolbarProgress.isShown()) {
+                    toolbarProgress.setVisibility(View.INVISIBLE);
+                }
                 ParkingLotPackage result = response.body();
                 if (result.isSuccess()) {
                     lots.addAll(result.getResult());
@@ -126,7 +183,7 @@ public class ParkingLotListActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ParkingLotPackage> call, Throwable t) {
-
+                getParkingLotData();
             }
         });
     }

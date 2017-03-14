@@ -11,6 +11,8 @@
     <string name="login_password">Password</string>
     <string name="login_username">Username</string>
     <string name="login_sign_in_guest">Sign In as Guest</string>
+    <string name="login_progress_title">Please wait..</string>
+    <string name="login_progress_content">Logining...</string>
 
     <!-- Strings related to register -->
     <string name="register_email">Email</string>
@@ -41,6 +43,7 @@
     <string name="user_reserved_list_title">Reserved Lots List</string>
 
     <!-- Strings related to car park detail -->
+    <string name="carparkdetail_title">Car Park Details</string>
     <string name="carparkdetail_text_available">Spaces Available :</string>
     <string name="carparkdetail_button_call">Call</string>
     <string name="carparkdetail_button_save">Save</string>
@@ -52,18 +55,21 @@
     <string name="carparkdetail_text_distance">Kms. radius away from</string>
 
     <!-- Strings related to car park list -->
+    <string name="carparklist_title">Near</string>
     <string name="carparklist_text_distance">Kms. radius away from </string>
     <string name="carparkdetail_button_route">Route</string>
 
     <!-- Strings related to transaction list -->
+    <string name="transaction_title">Transaction List</string>
     <string name="transaction_text_lot_name">
         <u>Lot :</u>
     </string>
     <string name="transaction_text_amount">
         <u>Amount :</u>
     </string>
-    <string name="transaction_dialog_button_cancel">Cancel</string>
-    <string name="transaction_dialog_button_check_in">Check In</string>
+    <string name="transaction_dialog_button_negative">Cancel</string>
+    <string name="transaction_dialog_butotn_neutral">Nothing</string>
+    <string name="transaction_dialog_button_positive">Check In</string>
 
     <!-- Strings related to car park dialog -->
     <string name="dialogcarpark_title">Car Park Detail</string>
@@ -75,16 +81,27 @@
     <string name="dialogcarpark_address">Address</string>
     <string name="dialogcarpark_description">Description</string>
 
+    <!-- Strings related to manager -->
+    <string name="manager_title">Own Car Parks</string>
+
+    <!-- Strings related to area -->
+    <string name="area_title">Areas in</string>
+
     <!-- Strings related to area dialog -->
     <string name="dialogarea_title">Area Detail</string>
     <string name="dialogarea_positive_text">Update</string>
     <string name="dialogarea_negative_text">Cancel</string>
     <string name="dialogarea_name">Name</string>
+    <string name="dialogarea_active">Active</string>
+
+    <!-- Strings related to parking lot -->
+    <string name="parkinglot_title">Lots in</string>
 
     <!-- Strings related to parking lot dialog -->
     <string name="dialogparkinglot_title">Area Detail</string>
     <string name="dialogparkinglot_positive_text">Update</string>
     <string name="dialogparkinglot_negative_text">Cancel</string>
     <string name="dialogparkinglot_name">Name</string>
+    <string name="dialogparkinglot_active">Active</string>
 
 </resources>
