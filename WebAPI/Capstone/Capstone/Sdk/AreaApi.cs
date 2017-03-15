@@ -10,10 +10,10 @@ namespace Capstone.Sdk
 {
     public partial class AreaApi
     {
-        public IEnumerable<AreaViewModel> GetAreaByCarParkId(int carParkId)
+        public IEnumerable<AreaCustomViewModel> GetAreaByCarParkId(int carParkId)
         {
             return this.BaseService.GetAreaByCarParkId(carParkId)
-                .ProjectTo<AreaViewModel>(this.AutoMapperConfig)
+                .ProjectTo<AreaCustomViewModel>(this.AutoMapperConfig)
                 .ToList();
         }
 

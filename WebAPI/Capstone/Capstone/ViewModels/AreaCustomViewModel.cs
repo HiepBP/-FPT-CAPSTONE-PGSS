@@ -11,4 +11,9 @@ namespace Capstone.ViewModels
         public string Name { get; set; }
         public int Status { get; set; }
     }
+
+    public class AreaCustomViewModel : AreaViewModel
+    {
+        public bool UpdateAvailable { get; set; }
+    }
 }

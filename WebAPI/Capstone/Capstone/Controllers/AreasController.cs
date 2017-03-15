@@ -136,7 +136,7 @@ namespace Capstone.Controllers
 
         [HttpGet]
         [Route("GetAreasByCarParkid/{carParkId}")]
-        [ResponseType(typeof(int))]
+        [ResponseType(typeof(List<AreaCustomViewModel>))]
         public IHttpActionResult GetAreasByCarParkid(int carParkId)
         {
             try
