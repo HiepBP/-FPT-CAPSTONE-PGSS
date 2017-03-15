@@ -25,15 +25,21 @@ namespace Capstone.Sdk
         public void UpdateName(ParkingLotUpdateViewModel model)
         {
             var entity = this.BaseService.Get(model.Id);
-            entity.Name = model.Name;
-            this.BaseService.Update(entity);
+            if (entity != null)
+            {
+                entity.Name = model.Name;
+                this.BaseService.Update(entity);
+            }
         }
 
         public void UpdateStatus(ParkingLotUpdateViewModel model)
         {
             var entity = this.BaseService.Get(model.Id);
-            entity.Status = model.Status;
-            this.BaseService.Update(entity);
+            if (entity != null)
+            {
+                entity.Status = model.Status;
+                this.BaseService.Update(entity);
+            }
         }
 
         public void UpdateStatus(IEnumerable<ParkingLot> parkingLots, int status)

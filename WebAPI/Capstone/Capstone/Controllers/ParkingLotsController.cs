@@ -107,5 +107,32 @@ namespace Capstone.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        [Route("UpdateMultiStatus")]
+        public IHttpActionResult UpdateMultiStatus(IEnumerable<ParkingLotUpdateViewModel> model)
+        {
+            try
+            {
+                var parkingLotApi = new ParkingLotApi();
+                foreach (var item in model)
+                {
+                    parkingLotApi.UpdateStatus(item);
+                }
+                return Json(new ResultModel
+                {
+                    message = "Cập nhập thành công",
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResultModel
+                {
+                    message = "Có lỗi xảy ra, vui lòng liên hệ admin",
+                    success = false,
+                });
+            }
+        }
     }
 }

@@ -20,23 +20,33 @@ namespace Capstone.Sdk
         public void UpdateName(AreaUpdateViewModel model)
         {
             var entity = this.BaseService.Get(model.Id);
-            entity.Name = model.Name;
-            this.BaseService.Update(entity);
+            if (entity != null)
+            {
+                entity.Name = model.Name;
+                this.BaseService.Update(entity);
+            }
         }
 
         public bool UpdateStatus(AreaUpdateViewModel model)
         {
             var entity = this.BaseService.Get(model.Id);
-            var parkingLotApi = new ParkingLotApi();
-            if (entity.EmptyAmount < entity.ParkingLots.Count())
+            if (entity != null)
             {
-                return false;
+                var parkingLotApi = new ParkingLotApi();
+                if (entity.EmptyAmount < entity.ParkingLots.Count())
+                {
+                    return false;
+                }
+                else
+                {
+                    entity.Status = model.Status;
+                    parkingLotApi.UpdateStatus(entity.ParkingLots, model.Status);
+                    return true;
+                }
             }
             else
             {
-                entity.Status = model.Status;
-                parkingLotApi.UpdateStatus(entity.ParkingLots, model.Status);
-                return true;
+                return false;
             }
         }
     }
