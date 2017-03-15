@@ -1,4 +1,5 @@
 ﻿using AutoMapper.QueryableExtensions;
+using Capstone.Models.Entities;
 using Capstone.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,25 @@ namespace Capstone.Sdk
         {
             var result = this.BaseService.GetParkingLotsByAreaId(areaId).ProjectTo<ParkingLotViewModel>(this.AutoMapperConfig).AsEnumerable();
             return result;
+        }
+
+        public void UpdateName(ParkingLotUpdateViewModel model)
+        {
+            var entity = this.BaseService.Get(model.Id);
+            entity.Name = model.Name;
+            this.BaseService.Update(entity);
+        }
+
+        public void UpdateStatus(ParkingLotUpdateViewModel model)
+        {
+            var entity = this.BaseService.Get(model.Id);
+            entity.Status = model.Status;
+            this.BaseService.Update(entity);
+        }
+
+        public void UpdateStatus(IEnumerable<ParkingLot> parkingLots, int status)
+        {
+            this.BaseService.UpdateStatus(parkingLots, status);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Capstone.ViewModels
 {
-    public class ParkingLotUpdateViewModel
+    public class AreaUpdateViewModel
     {
         public int Id { get; set; }
         public string Name { get; set; }

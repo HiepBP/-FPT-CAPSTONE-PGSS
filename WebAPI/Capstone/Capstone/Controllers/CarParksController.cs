@@ -254,6 +254,28 @@ namespace Capstone.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Update")]
+        public IHttpActionResult Update(CarParkUpdateViewModel model)
+        {
+            try
+            {
+                var carParkApi = new CarParkApi();
+                carParkApi.Update(model);
+                return Json(new
+                {
+                    success = true,
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
+
         private class CarParkGeoJson
         {
             public CarParkViewModel CarPark { get; set; }

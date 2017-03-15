@@ -14,10 +14,39 @@ using System.Web.Security;
 
 namespace Capstone.Controllers
 {
+    [RoutePrefix("api/Transactions")]
     public class TransactionsController : ApiController
     {
         [HttpPost]
-        [Route("api/Transactions/GetTransactionByUsername")]
+        [Route("CreateTransaction")]
+        public async Task<IHttpActionResult> CreateTransaction(TransactionCreateViewModel model)
+        {
+            try
+            {
+                var transactionApi = new TransactionApi();
+                var UserManager = Request.GetOwinContext().GetUserManager<ApplicationUserManager>();
+                var user = await UserManager.FindByNameAsync(model.Username);
+                var userId = user.Id;
+                model.TransactionDate = DateTime.Now;
+                model.AspNetUserId = userId;
+                 var id = transactionApi.CreateTransaction(model);
+                return Json(new
+                {
+                    result = id,
+                    success = true,
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("GetTransactionByUsername")]
         [ResponseType(typeof(List<TransactionCustomViewModel>))]
         public async Task<IHttpActionResult> GetTransactionByUsername(string username)
         {

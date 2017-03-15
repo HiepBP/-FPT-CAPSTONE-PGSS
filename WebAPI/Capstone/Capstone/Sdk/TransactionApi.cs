@@ -15,6 +15,13 @@ namespace Capstone.Sdk
             var result = transactions.ProjectTo<TransactionCustomViewModel>(this.AutoMapperConfig).AsEnumerable();
             return result;
         }
+
+        public int CreateTransaction(TransactionViewModel model)
+        {
+            var entity = model.ToEntity();
+            this.BaseService.Create(entity);
+            return entity.Id;
+        }
     }
 
 

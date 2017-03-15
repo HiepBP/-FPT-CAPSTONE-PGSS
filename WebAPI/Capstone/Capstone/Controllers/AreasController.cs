@@ -1,4 +1,6 @@
-﻿using Capstone.Sdk;
+﻿using Capstone.Models;
+using Capstone.Sdk;
+using Capstone.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,6 +92,48 @@ namespace Capstone.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model">Contain areaId and number of empty slot</param>
+        /// <returns>true/false</returns>
+        [HttpPost]
+        [Route("UpdateNumberOfEmptySlotMultiArea")]
+        public IHttpActionResult UpdateNumberOfEmptySlotMultiArea(IEnumerable<AreaWithEmptySlot> model)
+        {
+            try
+            {
+                var areaApi = new AreaApi();
+                foreach (var item in model)
+                {
+                    var area = areaApi.Get(item.AreaId);
+                    if (area == null || area.Active == false)
+                    {
+                        
+                    }
+                    else
+                    {
+                        area.EmptyAmount = item.EmptyNumber;
+                        areaApi.Edit(item.AreaId, area);
+                    }
+                }
+
+                return Json(new ResultModel
+                {
+                    message = "Cập nhật thành công",
+                    success = true,
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
+
         [HttpGet]
         [Route("GetAreasByCarParkid/{carParkId}")]
         [ResponseType(typeof(int))]
@@ -109,6 +153,63 @@ namespace Capstone.Controllers
             {
                 return Json(new
                 {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateName")]
+        public IHttpActionResult UpdateName(AreaUpdateViewModel model)
+        {
+            try
+            {
+                var areaApi = new AreaApi();
+                areaApi.UpdateName(model);
+                return Json(new
+                {
+                    success = true,
+                });
+            }
+            catch(Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateStatus")]
+        public IHttpActionResult UpdateStatus(AreaUpdateViewModel model)
+        {
+            try
+            {
+                var areaApi = new AreaApi();
+                var result = areaApi.UpdateStatus(model);
+                if (result)
+                {
+                    return Json(new ResultModel
+                    {
+                        message = "Cập nhập thành công",
+                        success = true,
+                    });
+                }
+                else
+                {
+                    return Json(new ResultModel
+                    {
+                        message = "Có chỗ đậu đang sử dụng, vui lòng cập nhật sau",
+                        success = false,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResultModel
+                {
+                    message = "Có lỗi xảy ra, vui lòng liên hệ admin",
                     success = false,
                 });
             }

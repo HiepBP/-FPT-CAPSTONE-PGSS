@@ -9,6 +9,7 @@ namespace Capstone.Models.Entities.Services
     {
         IQueryable<ParkingLot> GetParkingLotsByCarParkId(int carParkId);
         IQueryable<ParkingLot> GetParkingLotsByAreaId(int areaId);
+        void UpdateStatus(IEnumerable<ParkingLot> parkingLots, int status);
     }
 
     public partial class ParkingLotService
@@ -23,6 +24,15 @@ namespace Capstone.Models.Entities.Services
         {
             var result = this.GetActive(q => q.AreaId == areaId);
             return result;
+        }
+
+        public void UpdateStatus(IEnumerable<ParkingLot> parkingLots, int status)
+        {
+            foreach (var item in parkingLots)
+            {
+                item.Status = status;
+                this.Update(item);
+            }
         }
     }
 }

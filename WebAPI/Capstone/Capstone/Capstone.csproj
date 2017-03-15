@@ -463,6 +463,7 @@
       <DependentUpon>Sdk.tt</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\AreaCustomViewModel.cs" />
     <Compile Include="ViewModels\AreaViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
@@ -484,7 +485,7 @@
     <Compile Include="ViewModels\CarParkViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\CarParkWithAmount.cs" />
+    <Compile Include="ViewModels\CarParkCustomViewModel.cs" />
     <Compile Include="ViewModels\ParkingLotViewModel.cs" />
     <Compile Include="ViewModels\ParkingLotViewModelGen.cs">
       <DependentUpon>ViewModel.tt</DependentUpon>

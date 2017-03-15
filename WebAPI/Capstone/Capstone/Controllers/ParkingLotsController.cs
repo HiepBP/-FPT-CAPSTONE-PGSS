@@ -1,4 +1,5 @@
-﻿using Capstone.Sdk;
+﻿using Capstone.Models;
+using Capstone.Sdk;
 using Capstone.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,22 +16,22 @@ namespace Capstone.Controllers
     {
         [HttpGet]
         [Route("GetParkingLotsByCarParkId/{carParkId}")]
-        [ResponseType(typeof(List<ParkingLotWithItemViewModel>))]
+        [ResponseType(typeof(List<ParkingLotViewModel>))]
         public IHttpActionResult GetParkingLotsByCarParkId(int carParkId)
         {
             try
             {
                 ParkingLotApi parkingLotApi = new ParkingLotApi();
                 var listParkingLot = parkingLotApi.GetParkingLotsByCarParkId(carParkId);
-                return Json(new
+                return Json(new ResultModel
                 {
-                    result = listParkingLot,
+                    obj = listParkingLot,
                     success = true,
                 });
             }
             catch (Exception ex)
             {
-                return Json(new
+                return Json(new ResultModel
                 {
                     success = false,
                 });
@@ -39,23 +40,69 @@ namespace Capstone.Controllers
 
         [HttpGet]
         [Route("GetParkingLotsByAreaId/{areaId}")]
-        [ResponseType(typeof(List<ParkingLotWithItemViewModel>))]
+        [ResponseType(typeof(List<ParkingLotViewModel>))]
         public IHttpActionResult GetParkingLotsByAreaId(int areaId)
         {
             try
             {
                 ParkingLotApi parkingLotApi = new ParkingLotApi();
                 var listParkingLot = parkingLotApi.GetParkingLotsByAreaId(areaId);
-                return Json(new
+                return Json(new ResultModel
                 {
-                    result = listParkingLot,
+                    obj = listParkingLot,
                     success = true,
                 });
             }
             catch (Exception ex)
             {
-                return Json(new
+                return Json(new ResultModel
                 {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateName")]
+        public IHttpActionResult UpdateName(ParkingLotUpdateViewModel model)
+        {
+            try
+            {
+                var parkingLotApi = new ParkingLotApi();
+                parkingLotApi.UpdateName(model);
+                return Json(new ResultModel
+                {
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResultModel
+                {
+                    success = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateStatus")]
+        public IHttpActionResult UpdateStatus(ParkingLotUpdateViewModel model)
+        {
+            try
+            {
+                var parkingLotApi = new ParkingLotApi();
+                parkingLotApi.UpdateStatus(model);
+                return Json(new ResultModel
+                {
+                    message = "Cập nhập thành công",
+                    success = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResultModel
+                {
+                    message = "Có lỗi xảy ra, vui lòng liên hệ admin",
                     success = false,
                 });
             }

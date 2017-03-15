@@ -6,34 +6,37 @@ using System.Web;
 namespace Capstone.Models
 {
     /// <summary>
-    /// Empty: Chưa có xe
-    /// InUse: Đang có xe
+    /// Deactive: Chưa có xe
+    /// Active: Bị khóa bởi manager
     /// Reserved: Đã được đặt
+    /// Nonavailable: Đã có xe
     /// </summary>
     public enum ParkingLotStatus
     {
-        Empty = 0,
-        InUse = 1,
+        Deactive = 0,
+        Active = 1,
         Reserved = 2,
+        Nonavailable = 3,
     }
 
     /// <summary>
     /// Trường Status này khác với trường Active, trường Active để xóa một area
     /// Trường Status để manager có thể set Area đó được sử dụng hay tạm thời đóng
-    /// - Suspend: Tạm đóng
+    /// - Deactive: Tạm đóng bởi manager
     /// - Active: Được sử dủng
     /// </summary>
     public enum AreaStatus
     {
-        Suspend = 0,
+        Deactive = 0,
         Active = 1,
     }
 
     public enum TransactionStatus
     {
-        Reserved = 0,
-        Finished = 1,
-        Canceled = 2,
+        Pending = 0,
+        Reserved = 1,
+        Finished = 2,
+        Canceled = 3,
     }
 
 }

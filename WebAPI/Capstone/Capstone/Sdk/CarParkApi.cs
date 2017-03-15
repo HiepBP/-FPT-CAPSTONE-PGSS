@@ -25,5 +25,17 @@ namespace Capstone.Sdk
             var result = this.BaseService.GetCarParksByUserId(userId).ProjectTo<CarParkViewModel>(this.AutoMapperConfig).ToList();
             return result;
         }
+
+        public void Update(CarParkUpdateViewModel model)
+        {
+            var entity = this.BaseService.Get(model.Id);
+            {
+                entity.Name = model.Name;
+                entity.Description = model.Description;
+                entity.Email = model.Email;
+                entity.Phone = model.Phone;
+            }
+            this.BaseService.Update(entity);
+        }
     }
 }
