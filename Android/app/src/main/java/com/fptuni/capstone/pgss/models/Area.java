@@ -13,8 +13,20 @@ public class Area {
     private String name;
     @SerializedName("EmptyAmount")
     private int emptyAmount;
+    @SerializedName("UpdateAvailable")
+    private boolean updateAvailable;
+    @SerializedName("Status")
+    private int status;
 
     public Area() {
+    }
+
+    public Area(Area area) {
+        id = area.getId();
+        name = area.getName();
+        emptyAmount = area.getEmptyAmount();
+        updateAvailable = area.isUpdateAvailable();
+        status = area.getStatus();
     }
 
     public int getId() {
@@ -39,5 +51,21 @@ public class Area {
 
     public void setEmptyAmount(int emptyAmount) {
         this.emptyAmount = emptyAmount;
+    }
+
+    public boolean isUpdateAvailable() {
+        return updateAvailable;
+    }
+
+    public void setUpdateAvailable(boolean updateAvailable) {
+        this.updateAvailable = updateAvailable;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

@@ -1,20 +1,20 @@
 package com.fptuni.capstone.pgss.models;
 
 /**
- * Created by TrungTNM on 3/12/2017.
+ * Created by TrungTNM on 3/15/2017.
  */
 
-public enum TransactionStatus {
-    Pending(0, "Pending"),
-    Reserved(1, "Reserved"),
-    Finished(2, "Finished"),
-    Canceled(3, "Canceled"),
+public enum ParkingLotStatus {
+    Deactive(0, "Deactive"),
+    Active(1, "Active"),
+    Reserved(2, "Reserved"),
+    Nonavailable(3, "Non-available"),
     Unknown(4, "Unknown");
 
     private String name;
     private int id;
 
-    private TransactionStatus(int id, String name) {
+    private ParkingLotStatus(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -27,8 +27,8 @@ public enum TransactionStatus {
         return name;
     }
 
-    public static TransactionStatus getById(int id) {
-        for (TransactionStatus status : values()) {
+    public static ParkingLotStatus getById(int id) {
+        for (ParkingLotStatus status : values()) {
             if (status.id == id) {
                 return status;
             }

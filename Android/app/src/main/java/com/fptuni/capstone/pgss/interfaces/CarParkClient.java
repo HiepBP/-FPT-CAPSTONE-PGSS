@@ -1,12 +1,15 @@
 package com.fptuni.capstone.pgss.interfaces;
 
+import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
 
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -33,5 +36,10 @@ public interface CarParkClient {
     @GET("/api/CarParks/GetCarParksByUsername/{username}")
     Call<CarParkPackage> getCarParkByUsername(
             @Path("username") String username
+    );
+
+    @POST("/api/CarParks/Update")
+    Call<CarParkPackage> update(
+            @Body CarPark carPark
     );
 }

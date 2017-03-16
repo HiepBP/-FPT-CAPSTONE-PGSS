@@ -30,5 +30,11 @@
 
         </android.support.design.widget.TextInputLayout>
 
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switchcompat_dialogarea_active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialogarea_active" />
+
     </LinearLayout>
 </ScrollView>

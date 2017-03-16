@@ -207,6 +207,9 @@ public class ManagerActivity extends AppCompatActivity {
 
 
     private void getCarParkData() {
+        int oldSize = carParks.size();
+        carParks.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
         if (!toolbarProgress.isShown()) {
             toolbarProgress.setVisibility(View.VISIBLE);
         }
@@ -234,7 +237,28 @@ public class ManagerActivity extends AppCompatActivity {
     }
 
     private void updateCarPark() {
-        //TODO: update car park api
-        Toast.makeText(this, focusedCarPark.getName(), Toast.LENGTH_SHORT).show();
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
+        Account account = AccountHelper.get(this);
+        CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
+        Call<CarParkPackage> call = client.update(focusedCarPark);
+        call.enqueue(new Callback<CarParkPackage>() {
+            @Override
+            public void onResponse(Call<CarParkPackage> call, Response<CarParkPackage> response) {
+                if (toolbarProgress.isShown()) {
+                    toolbarProgress.setVisibility(View.INVISIBLE);
+                }
+                CarParkPackage result = response.body();
+                if (result.isSuccess()) {
+                    getCarParkData();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CarParkPackage> call, Throwable t) {
+                updateCarPark();
+            }
+        });
     }
 }

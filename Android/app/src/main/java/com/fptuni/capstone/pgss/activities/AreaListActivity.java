@@ -7,11 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -23,6 +25,7 @@ import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.AreaAdapter;
 import com.fptuni.capstone.pgss.interfaces.AreaClient;
 import com.fptuni.capstone.pgss.models.Area;
+import com.fptuni.capstone.pgss.models.AreaStatus;
 import com.fptuni.capstone.pgss.network.AreaPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 
@@ -50,6 +53,7 @@ public class AreaListActivity extends AppCompatActivity {
     // Area Dialog
     private MaterialDialog dialog;
     private EditText etName;
+    private SwitchCompat scActive;
     private Area focusedArea;
     private MDButton btnPositive;
 
@@ -109,6 +113,16 @@ public class AreaListActivity extends AppCompatActivity {
                 focusedArea = areas.get(position);
                 etName.setText(focusedArea.getName());
                 btnPositive.setEnabled(false);
+                if (focusedArea.isUpdateAvailable()) {
+                    scActive.setEnabled(true);
+                    if (focusedArea.getStatus() == AreaStatus.Active.getId()) {
+                        scActive.setChecked(true);
+                    } else if (focusedArea.getStatus() == AreaStatus.Deactive.getId()) {
+                        scActive.setChecked(false);
+                    }
+                } else {
+                    scActive.setEnabled(false);
+                }
                 dialog.show();
             }
         });
@@ -132,13 +146,22 @@ public class AreaListActivity extends AppCompatActivity {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        focusedArea.setName(etName.getText().toString());
-                        updateArea();
+                        Area area = new Area(focusedArea);
+                        area.setName(etName.getText().toString());
+                        if (scActive.isEnabled()) {
+                            if (scActive.isChecked()) {
+                                area.setStatus(AreaStatus.Active.getId());
+                            } else {
+                                area.setStatus(AreaStatus.Deactive.getId());
+                            }
+                        }
+                        updateArea(area);
                     }
                 })
                 .build();
         View customView = dialog.getCustomView();
         etName = (EditText) customView.findViewById(R.id.edittext_dialogarea_name);
+        scActive = (SwitchCompat) customView.findViewById(R.id.switchcompat_dialogarea_active);
         btnPositive = dialog.getActionButton(DialogAction.POSITIVE);
         etName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -156,9 +179,21 @@ public class AreaListActivity extends AppCompatActivity {
 
             }
         });
+        scActive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                btnPositive.setEnabled(true);
+            }
+        });
     }
 
     private void getAreaData() {
+        int oldSize = areas.size();
+        areas.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
         AreaClient client = ServiceGenerator.createService(AreaClient.class);
         if (carParkId < 0) {
             return;
@@ -167,6 +202,9 @@ public class AreaListActivity extends AppCompatActivity {
         call.enqueue(new Callback<AreaPackage>() {
             @Override
             public void onResponse(Call<AreaPackage> call, Response<AreaPackage> response) {
+                if (toolbarProgress.isShown()) {
+                    toolbarProgress.setVisibility(View.INVISIBLE);
+                }
                 AreaPackage result = response.body();
                 if (result.isSuccess()) {
                     areas.addAll(result.getResult());
@@ -181,8 +219,56 @@ public class AreaListActivity extends AppCompatActivity {
         });
     }
 
-    private void updateArea() {
-        //TODO: update area
-        Toast.makeText(this, focusedArea.getName(), Toast.LENGTH_SHORT).show();
+    private void updateArea(Area area) {
+        if (!area.getName().equals(focusedArea.getName())) {
+            updateAreaName(area);
+        }
+        if (area.getStatus() != focusedArea.getStatus()) {
+            updateAreaStatus(area);
+        }
+    }
+
+    private void updateAreaStatus(final Area area) {
+        AreaClient client = ServiceGenerator.createService(AreaClient.class);
+        if (carParkId < 0) {
+            return;
+        }
+        Call<AreaPackage> call = client.updateStatus(area);
+        call.enqueue(new Callback<AreaPackage>() {
+            @Override
+            public void onResponse(Call<AreaPackage> call, final Response<AreaPackage> response) {
+                final AreaPackage result = response.body();
+                if (result.isSuccess()) {
+                    getAreaData();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AreaPackage> call, Throwable t) {
+                updateAreaStatus(area);
+            }
+        });
+    }
+
+    private void updateAreaName(final Area area) {
+        AreaClient client = ServiceGenerator.createService(AreaClient.class);
+        if (carParkId < 0) {
+            return;
+        }
+        Call<AreaPackage> call = client.updateName(area);
+        call.enqueue(new Callback<AreaPackage>() {
+            @Override
+            public void onResponse(Call<AreaPackage> call, final Response<AreaPackage> response) {
+                final AreaPackage result = response.body();
+                if (result.isSuccess()) {
+                    getAreaData();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AreaPackage> call, Throwable t) {
+                updateAreaName(area);
+            }
+        });
     }
 }

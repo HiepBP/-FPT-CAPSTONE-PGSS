@@ -11,8 +11,16 @@ public class ParkingLot {
     private int id;
     @SerializedName("Name")
     private String name;
+    @SerializedName("Status")
+    private int status;
 
     public ParkingLot() {
+    }
+
+    public ParkingLot(ParkingLot lot) {
+        id = lot.getId();
+        name = lot.getName();
+        status = lot.getStatus();
     }
 
     public int getId() {
@@ -29,5 +37,13 @@ public class ParkingLot {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

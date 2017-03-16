@@ -36,5 +36,10 @@
             android:layout_height="wrap_content"
             android:text="@string/dialogparkinglot_active" />
 
+        <TextView
+            android:id="@+id/textview_dialogparkinglot_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </ScrollView>
