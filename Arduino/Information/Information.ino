@@ -151,10 +151,13 @@ void setup()
 	Serial.println(F("Start communication with RF24"));
 	// Setup rf radio
 	radio.begin();
+  radio.setPALevel(RF24_PA_MAX);
+  radio.setDataRate(RF24_250KBPS);
 	radio.enableDynamicPayloads();
-	radio.setRetries(5, 15);
-	radio.openWritingPipe(rfUtil.getPipeAddress(1));
+	radio.openWritingPipe(rfUtil.getPipeAddress(3));
 	radio.openReadingPipe(1, rfUtil.getPipeAddress(2));
+  radio.setAutoAck(false);
+  radio.disableCRC();
 	radio.startListening();
 	radio.printDetails();
 	// Create ack payload
@@ -172,7 +175,7 @@ void loop()
 			}
 			radio.read(receive_payload, payloadSize);
 
-			// Spew it
+			// Spew it 
 			Serial.print(F("Got message size="));
 			Serial.println(payloadSize);
 			Serial.print(F("Value= "));
