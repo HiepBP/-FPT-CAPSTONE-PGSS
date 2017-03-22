@@ -49,9 +49,10 @@
     <string name="carparkdetail_button_save">Save</string>
     <string name="carparkdetail_button_reserve">Reserve</string>
     <string name="carparkdetail_reserve_dialog_title">Reserve Parking Lot</string>
-    <string name="carparkdetail_reserve_dialog_message">Are you sure you want to reserve a parking lot in this parking car?</string>
+    <string name="carparkdetail_reserve_dialog_message_time">Please select the duration of your reservation</string>
+    <string name="carparkdetail_reserve_dialog_message">Your reservation will cost</string>
     <string name="carparkdetail_reserve_dialog_failed">An error has occurred! Please try again.</string>
-    <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification and invoice via app.</string>
+    <string name="carparkdetail_reserve_dialog_successful">Your reserving request was sent successfully! \n After your reserving has been approved, you will receive a notification via app.</string>
     <string name="carparkdetail_text_distance">Kms. radius away from</string>
 
     <!-- Strings related to car park list -->
@@ -70,6 +71,8 @@
     <string name="transaction_dialog_button_negative">Cancel</string>
     <string name="transaction_dialog_butotn_neutral">Nothing</string>
     <string name="transaction_dialog_button_positive">Check In</string>
+    <string name="transaction_dialog_failed">An error has occurred! Please try again.</string>
+    <string name="transaction_dialog_successful">Your request was sent successfully!</string>
 
     <!-- Strings related to car park dialog -->
     <string name="dialogcarpark_title">Car Park Detail</string>

@@ -185,33 +185,37 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_carparkdetail_reserve)
     protected void onReserveButtonClick(View view) {
-        final List<Integer> hours = new ArrayList<>();
-        hours.add(1);
-        hours.add(2);
-        hours.add(3);
-        hours.add(4);
-        hours.add(5);
-        final int hour;
+        final List<String> durations = new ArrayList<>();
+        for (int i = 1; i <=6; i++) {
+            String text = String.valueOf(i) + "hour";
+            if (i > 1) {
+                text = text + "s";
+            }
+            durations.add(text);
+        }
         new MaterialDialog.Builder(this)
-                .title("Reserve Parking Lot")
-                .items(hours)
+                .title(R.string.carparkdetail_reserve_dialog_title)
+                .content(R.string.carparkdetail_reserve_dialog_message_time)
+                .items(durations)
                 .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                        finalConfirm(Integer.valueOf(text.toString()));
+                        finalConfirm(which+1);
                         return true;
                     }
                 })
-                .positiveText("Choice")
+                .positiveText("OK")
                 .show();
 
     }
 
     private void finalConfirm(final int duration) {
         final int amount = carPark.getFee() * duration;
+        String message = getString(R.string.carparkdetail_reserve_dialog_message) + " "
+                + String.valueOf(amount) + "VND";
         new AlertDialog.Builder(this)
                 .setTitle(R.string.carparkdetail_reserve_dialog_title)
-                .setMessage("This fucking shit will cost " + String.valueOf(amount))
+                .setMessage(message)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

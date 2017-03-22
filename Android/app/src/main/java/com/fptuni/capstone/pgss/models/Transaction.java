@@ -20,6 +20,8 @@ public class Transaction {
     private int lotId;
     @SerializedName("TransactionDate")
     private Date date;
+    @SerializedName("EndTime")
+    private Date endTime;
     @SerializedName("Status")
     private int status;
     @SerializedName("Amount")
@@ -100,5 +102,13 @@ public class Transaction {
 
     public void setCarPark(CarPark carPark) {
         this.carPark = carPark;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

@@ -130,6 +130,16 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (fromYou) {
+            getCarParkData(currentLocation.latitude, currentLocation.longitude);
+        } else {
+            getCarParkData(placeLocation.latitude, placeLocation.longitude);
+        }
+    }
+
     private void initiateInstance() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

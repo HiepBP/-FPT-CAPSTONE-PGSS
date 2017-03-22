@@ -18,11 +18,18 @@ import com.fptuni.capstone.pgss.adapters.TransactionAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.AppDatabaseHelper;
 import com.fptuni.capstone.pgss.helpers.InternetHelper;
+import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.TransactionClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.Transaction;
+import com.fptuni.capstone.pgss.models.TransactionStatus;
+import com.fptuni.capstone.pgss.network.CommandPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.fptuni.capstone.pgss.network.TransactionPackage;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,14 +90,17 @@ public class TransactionActivity extends AppCompatActivity {
         adapter = new TransactionAdapter(this, transactions);
         adapter.setOnItemClickListener(new TransactionAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View itemView, int position) {
-                Transaction transaction = transactions.get(position);
-                //TODO: only pending or reserved transaction can be click
+            public void onItemClick(View itemView, final int position) {
+                final Transaction transaction = transactions.get(position);
+                if (transaction.getStatus() == TransactionStatus.Finished.getId() ||
+                        transaction.getStatus() == TransactionStatus.Canceled.getId()) {
+                    return;
+                }
                 SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a, MMM d, ''yy");
                 String content = "Reservation of lot " +
                         transaction.getLot().getName() + " at " +
-                        "ADDRESS" + " when " +
-                        dateFormat.format(transaction.getDate());
+                        transaction.getCarPark().getAddress() + " until " +
+                        dateFormat.format(transaction.getEndTime());
 
                 new MaterialDialog.Builder(TransactionActivity.this)
                         .content(content)
@@ -98,17 +108,13 @@ public class TransactionActivity extends AppCompatActivity {
                         .onPositive(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                //TODO: update transaction to finished
-                                Toast.makeText(TransactionActivity.this, "Check In clicked",
-                                        Toast.LENGTH_SHORT).show();
+                                checkInTransaction(transaction, position);
                             }
                         })
                         .onNegative(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                //TODO: update transaction to cancel
-                                Toast.makeText(TransactionActivity.this, "Cancel clicked",
-                                        Toast.LENGTH_SHORT).show();
+                                cancelTransaction(transaction, position);
                             }
                         })
                         .negativeText(R.string.transaction_dialog_button_negative)
@@ -118,13 +124,77 @@ public class TransactionActivity extends AppCompatActivity {
 
                             }
                         })
-                        .neutralText(R.string.transaction_dialog_butotn_neutral)
                         .show();
             }
         });
     }
 
+    private void cancelTransaction(final Transaction transaction, final int position) {
+        PubNub pubNub = PubNubHelper.getPubNub();
+        Account account = AccountHelper.get(this);
+        CommandPackage commandPackage = new CommandPackage();
+        commandPackage.setTransactionId(transaction.getId());
+        commandPackage.setCarParkId(transaction.getCarParkId());
+        commandPackage.setLotId(transaction.getLotId());
+        commandPackage.setUsername(account.getUsername());
+        commandPackage.setCommand(CommandPackage.COMMAND_CANCEL);
+        pubNub.publish()
+                .channel(PubNubHelper.CHANNEL_USER)
+                .message(commandPackage)
+                .usePOST(true)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        if (status.isError()) {
+                            Toast.makeText(TransactionActivity.this,
+                                    R.string.carparkdetail_reserve_dialog_failed, Toast.LENGTH_SHORT)
+                                    .show();
+                        } else {
+                            Toast.makeText(TransactionActivity.this,
+                                    R.string.carparkdetail_reserve_dialog_successful, Toast.LENGTH_SHORT)
+                                    .show();
+                            transaction.setStatus(TransactionStatus.Canceled.getId());
+                            adapter.notifyItemChanged(position);
+                        }
+                    }
+                });
+    }
+
+    private void checkInTransaction(final Transaction transaction, final int position) {
+        PubNub pubNub = PubNubHelper.getPubNub();
+        Account account = AccountHelper.get(this);
+        CommandPackage commandPackage = new CommandPackage();
+        commandPackage.setTransactionId(transaction.getId());
+        commandPackage.setCarParkId(transaction.getCarParkId());
+        commandPackage.setLotId(transaction.getLotId());
+        commandPackage.setUsername(account.getUsername());
+        commandPackage.setCommand(CommandPackage.COMMAND_CHECK_IN);
+        pubNub.publish()
+                .channel(PubNubHelper.CHANNEL_USER)
+                .message(commandPackage)
+                .usePOST(true)
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        if (status.isError()) {
+                            Toast.makeText(TransactionActivity.this,
+                                    R.string.carparkdetail_reserve_dialog_failed, Toast.LENGTH_SHORT)
+                                    .show();
+                        } else {
+                            Toast.makeText(TransactionActivity.this,
+                                    R.string.carparkdetail_reserve_dialog_successful, Toast.LENGTH_SHORT)
+                                    .show();
+                            transaction.setStatus(TransactionStatus.Finished.getId());
+                            adapter.notifyItemChanged(position);
+                        }
+                    }
+                });
+    }
+
     private void getTransactionData() {
+        int oldSize = transactions.size();
+        transactions.clear();
+        adapter.notifyItemRangeRemoved(0, oldSize);
         if (InternetHelper.isConnected(this)) {
             if (!toolbarProgress.isShown()) {
                 toolbarProgress.setVisibility(View.VISIBLE);

@@ -21,6 +21,10 @@ public class CommandPackage {
     private int duration;
     @SerializedName("amount")
     private int amount;
+    @SerializedName("lot_id")
+    private int lotId;
+    @SerializedName("transaction_id")
+    private int transactionId;
 
     public CommandPackage() {
     }
@@ -63,5 +67,21 @@ public class CommandPackage {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public int getLotId() {
+        return lotId;
+    }
+
+    public void setLotId(int lotId) {
+        this.lotId = lotId;
+    }
+
+    public int getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
     }
 }
