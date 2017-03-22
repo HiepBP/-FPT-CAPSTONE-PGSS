@@ -25,6 +25,8 @@ public class CarPark implements Serializable {
     private String lat;
     @SerializedName("Lon")
     private String lon;
+    @SerializedName("Fee")
+    private int fee;
     @SerializedName("Active")
     private boolean active;
     private int availableLot;
@@ -129,5 +131,13 @@ public class CarPark implements Serializable {
 
     public void setFromTarget(String fromTarget) {
         this.fromTarget = fromTarget;
+    }
+
+    public int getFee() {
+        return fee;
+    }
+
+    public void setFee(int fee) {
+        this.fee = fee;
     }
 }

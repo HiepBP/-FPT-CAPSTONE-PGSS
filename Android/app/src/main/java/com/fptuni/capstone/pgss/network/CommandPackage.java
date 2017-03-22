@@ -17,6 +17,10 @@ public class CommandPackage {
     private int carParkId;
     @SerializedName("command")
     private String command;
+    @SerializedName("duration")
+    private int duration;
+    @SerializedName("amount")
+    private int amount;
 
     public CommandPackage() {
     }
@@ -43,5 +47,21 @@ public class CommandPackage {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

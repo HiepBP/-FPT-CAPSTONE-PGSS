@@ -3,6 +3,7 @@ package com.fptuni.capstone.pgss.activities;
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.helpers.MapMarkerHelper;
@@ -45,6 +47,8 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -181,13 +185,37 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_carparkdetail_reserve)
     protected void onReserveButtonClick(View view) {
+        final List<Integer> hours = new ArrayList<>();
+        hours.add(1);
+        hours.add(2);
+        hours.add(3);
+        hours.add(4);
+        hours.add(5);
+        final int hour;
+        new MaterialDialog.Builder(this)
+                .title("Reserve Parking Lot")
+                .items(hours)
+                .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        finalConfirm(Integer.valueOf(text.toString()));
+                        return true;
+                    }
+                })
+                .positiveText("Choice")
+                .show();
+
+    }
+
+    private void finalConfirm(final int duration) {
+        final int amount = carPark.getFee() * duration;
         new AlertDialog.Builder(this)
                 .setTitle(R.string.carparkdetail_reserve_dialog_title)
-                .setMessage(R.string.carparkdetail_reserve_dialog_message)
+                .setMessage("This fucking shit will cost " + String.valueOf(amount))
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        reserveParkingLot();
+                        reserveParkingLot(duration, amount);
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -197,13 +225,16 @@ public class CarParkDetailActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+
     }
 
-    private void reserveParkingLot() {
+    private void reserveParkingLot(int duration, int amount) {
         CommandPackage commandPackage = new CommandPackage();
         commandPackage.setCarParkId(carPark.getId());
         commandPackage.setUsername(account.getUsername());
         commandPackage.setCommand(CommandPackage.COMMAND_RESERVE);
+        commandPackage.setAmount(amount);
+        commandPackage.setDuration(duration);
         pubNub.publish()
                 .channel(PubNubHelper.CHANNEL_USER)
                 .message(commandPackage)
