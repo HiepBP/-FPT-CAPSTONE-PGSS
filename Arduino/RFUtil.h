@@ -32,6 +32,7 @@
 #define CMD_TEST 0xAA
 #define CMD_RESERVE 0xDA
 #define CMD_UNRESERVE 0xCD
+#define CMD_CHANGE_OFFSET 0xCC
 
 /*************************************************
 * Definitions

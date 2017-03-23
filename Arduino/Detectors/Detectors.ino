@@ -1,3 +1,4 @@
+#include <EEPROM.h>
 #include <Servo.h>
 #include <RGBLED.h>
 #include <HMC5883L.h>
@@ -7,17 +8,14 @@
 #include <printf.h>
 #include <nRF24L01.h>
 
+#define SCHEME_VERSION 0
+
 // Address of device. Used for communication in RF network, each device need to have an unique address
-#define DEVICE_ADDRESS 0xFA02
+#define DEVICE_ADDRESS 0x000D
 
 // Hardware pins definition
 #define PIN_RF_CE 7 // Chip Enable of RF module
 #define PIN_RF_CSN 8 // Chip Select Not of RF module
-
-// Metal detector offset
-#define X_OFFSET 300
-#define Y_OFFSET 300
-#define Z_OFFSET 300
 
 // Indicator LED controller
 RGBLED indicator(3, 5, 6, COMMON_ANODE);
@@ -27,7 +25,7 @@ Servo servo;
 bool servoStatus = false;
 
 // Metal detector sensor
-HMC5883L sensor(X_OFFSET, Z_OFFSET, Y_OFFSET);
+HMC5883L sensor;
 bool sensorStatus = false;
 
 // Setup nRF24L01 radio with SPI bus, CE and CSN pin
@@ -138,6 +136,29 @@ void processPayload(char payload[], uint8_t payloadSize) {
 				}
 				break;
 			}
+			case CMD_CHANGE_OFFSET: {
+				sendAckPayload();
+				Serial.println("In CMD_CHANGE_OFFSET");
+				EEPROM.write(0, payload[3]);
+				EEPROM.write(1, payload[4]);
+				EEPROM.write(2, payload[5]);
+				EEPROM.write(3, payload[6]);
+				EEPROM.write(4, payload[7]);
+				EEPROM.write(5, payload[8]);
+				int16_t xOffset, yOffset, zOffset;
+				xOffset = (uint16_t)EEPROM.read(0) << 8 | EEPROM.read(1);
+				yOffset = (uint16_t)EEPROM.read(2) << 8 | EEPROM.read(3);
+				zOffset = (uint16_t)EEPROM.read(4) << 8 | EEPROM.read(5);
+				Serial.print("Offset ");
+				Serial.print("X= ");
+				Serial.print(xOffset);
+				Serial.print(" Y= ");
+				Serial.print(yOffset);
+				Serial.print(" Z= ");
+				Serial.println(zOffset);
+				sensor.setOffSet(xOffset, yOffset, zOffset);
+				break;
+			}
 			default:
 				break;
 			}
@@ -173,6 +194,18 @@ void setup()
 	// Print preamble
 	Serial.begin(115200);
 	printf_begin();
+	// Initialize offset from EEPROM
+	int16_t xOffset, yOffset, zOffset;
+	xOffset = (uint16_t)EEPROM.read(0) << 8 | EEPROM.read(1);
+	yOffset = (uint16_t)EEPROM.read(2) << 8 | EEPROM.read(3);
+	zOffset = (uint16_t)EEPROM.read(4) << 8 | EEPROM.read(5);
+	Serial.print("Offset ");
+	Serial.print("X= ");
+	Serial.print(xOffset);
+	Serial.print(" Y= ");
+	Serial.print(yOffset);
+	Serial.print(" Z= ");
+	Serial.println(zOffset);
 	Serial.println(F("Start communication with RF24"));
 	// Setup rf radio
 	radio.begin();
@@ -186,6 +219,7 @@ void setup()
 	radio.startListening();
 	radio.printDetails();
 	// Setup metal detector sensor
+	sensor.setOffSet(xOffset, yOffset, zOffset);
 	sensor.setup();
 	// Check car status
 	if (sensor.isInRange()) {

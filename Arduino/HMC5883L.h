@@ -10,8 +10,9 @@
 class HMC5883L
 {
 	public:
-		HMC5883L(int16_t xOffset, int16_t zOffset, int16_t yOffset);
+		HMC5883L();
 		void setup();
+		void setOffSet(int16_t xOffset, int16_t zOffset, int16_t yOffset);
 		boolean isInRange();
 		boolean isInRangeDebug();
 	private:

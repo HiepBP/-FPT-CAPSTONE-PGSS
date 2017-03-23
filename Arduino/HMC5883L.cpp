@@ -13,11 +13,8 @@ const uint16_t sampleDelay = 250;
 
 int16_t xStab, zStab, yStab;
 
-HMC5883L::HMC5883L(int16_t xOffset, int16_t zOffset, int16_t yOffset)
+HMC5883L::HMC5883L()
 {
-	X_OFFSET = xOffset;
-	Z_OFFSET = zOffset;
-	Y_OFFSET = yOffset;
 }
 
 void HMC5883L::setup()
@@ -40,6 +37,13 @@ void HMC5883L::setup()
 	Serial.print(F(" z: "));
 	Serial.print(zStab);
 	Serial.println();
+}
+
+void HMC5883L::setOffSet(int16_t xOffset, int16_t zOffset, int16_t yOffset)
+{
+	X_OFFSET = xOffset;
+	Y_OFFSET = yOffset;
+	Z_OFFSET = zOffset;
 }
 
 boolean HMC5883L::isInRange()
