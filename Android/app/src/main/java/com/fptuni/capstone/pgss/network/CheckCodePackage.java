@@ -1,5 +1,6 @@
 package com.fptuni.capstone.pgss.network;
 
+import com.fptuni.capstone.pgss.models.Transaction;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -7,37 +8,37 @@ import com.google.gson.annotations.SerializedName;
  */
 
 public class CheckCodePackage {
-    @SerializedName("CarParkId")
-    private int carParkId;
-    @SerializedName("Username")
-    private String username;
-    @SerializedName("TransactionCode")
-    private String transactionCode;
+    @SerializedName("success")
+    private boolean success;
+    @SerializedName("message")
+    private String message;
+    @SerializedName("obj")
+    private Transaction transaction;
 
     public CheckCodePackage() {
     }
 
-    public int getCarParkId() {
-        return carParkId;
+    public boolean isSuccess() {
+        return success;
     }
 
-    public void setCarParkId(int carParkId) {
-        this.carParkId = carParkId;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
-    public String getUsername() {
-        return username;
+    public String getMessage() {
+        return message;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public String getTransactionCode() {
-        return transactionCode;
+    public Transaction getTransaction() {
+        return transaction;
     }
 
-    public void setTransactionCode(String transactionCode) {
-        this.transactionCode = transactionCode;
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
     }
 }

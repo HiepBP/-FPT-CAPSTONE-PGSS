@@ -1,5 +1,6 @@
 package com.fptuni.capstone.pgss.interfaces;
 
+import com.fptuni.capstone.pgss.models.CheckCode;
 import com.fptuni.capstone.pgss.network.CheckCodePackage;
 import com.fptuni.capstone.pgss.network.TransactionPackage;
 
@@ -19,7 +20,8 @@ public interface TransactionClient {
             @Query("username") String username
     );
 
-    Call<TransactionPackage> checkCode(
-            @Body CheckCodePackage checkPackage
+    @POST("/api/Transactions/CheckCode")
+    Call<CheckCodePackage> checkCode(
+            @Body CheckCode checkPackage
     );
 }

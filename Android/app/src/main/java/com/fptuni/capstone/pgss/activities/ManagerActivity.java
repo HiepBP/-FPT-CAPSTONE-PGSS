@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -30,14 +29,23 @@ import com.afollestad.materialdialogs.internal.MDButton;
 import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
+import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.interfaces.TransactionClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
+import com.fptuni.capstone.pgss.models.Transaction;
+import com.fptuni.capstone.pgss.models.TransactionStatus;
 import com.fptuni.capstone.pgss.network.CarParkPackage;
+import com.fptuni.capstone.pgss.models.CheckCode;
 import com.fptuni.capstone.pgss.network.CheckCodePackage;
+import com.fptuni.capstone.pgss.network.CommandPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.fptuni.capstone.pgss.network.TransactionPackage;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -316,20 +324,42 @@ public class ManagerActivity extends AppCompatActivity {
     }
 
     private void checkCode() {
-        CheckCodePackage checkPackage = new CheckCodePackage();
+        CheckCode checkPackage = new CheckCode();
         checkPackage.setUsername(etUsername.getText().toString());
         checkPackage.setTransactionCode(etPin.getText().toString());
         checkPackage.setCarParkId(focusedCarPark.getId());
         TransactionClient client = ServiceGenerator.createService(TransactionClient.class);
-        Call<TransactionPackage> call = client.checkCode(checkPackage);
-        call.enqueue(new Callback<TransactionPackage>() {
+        Call<CheckCodePackage> call = client.checkCode(checkPackage);
+        call.enqueue(new Callback<CheckCodePackage>() {
             @Override
-            public void onResponse(Call<TransactionPackage> call, Response<TransactionPackage> response) {
-
+            public void onResponse(Call<CheckCodePackage> call, Response<CheckCodePackage> response) {
+                if (response.body().isSuccess()) {
+                    Transaction transaction = response.body().getTransaction();
+                    PubNub pubNub = PubNubHelper.getPubNub();
+                    Account account = AccountHelper.get(ManagerActivity.this);
+                    CommandPackage commandPackage = new CommandPackage();
+                    commandPackage.setTransactionId(transaction.getId());
+                    commandPackage.setCarParkId(transaction.getCarParkId());
+                    commandPackage.setLotId(transaction.getLotId());
+                    commandPackage.setUsername(account.getUsername());
+                    commandPackage.setCommand(CommandPackage.COMMAND_CHECK_IN);
+                    pubNub.publish()
+                            .channel(PubNubHelper.CHANNEL_USER)
+                            .message(commandPackage)
+                            .usePOST(true)
+                            .async(new PNCallback<PNPublishResult>() {
+                                @Override
+                                public void onResponse(PNPublishResult result, PNStatus status) {
+                                }
+                            });
+                } else {
+                    Toast.makeText(ManagerActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
 
             @Override
-            public void onFailure(Call<TransactionPackage> call, Throwable t) {
+            public void onFailure(Call<CheckCodePackage> call, Throwable t) {
 
             }
         });
