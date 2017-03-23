@@ -5,5 +5,10 @@
             android:id="@+id/nav_manager_log_out"
             android:icon="@drawable/user_nav_log_out_icon"
             android:title="@string/user_log_out_title" />
+
+        <item
+            android:id="@+id/nav_manager_check_code"
+            android:icon="@drawable/user_nav_about_us_icon"
+            android:title="Check code" />
     </group>
 </menu>

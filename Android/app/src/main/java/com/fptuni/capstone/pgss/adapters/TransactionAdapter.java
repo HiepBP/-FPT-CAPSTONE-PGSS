@@ -18,6 +18,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.http.Body;
 
 /**
  * Created by TrungTNM on 3/9/2017.
@@ -78,6 +79,8 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         TextView tvAmount;
         @BindView(R.id.textview_transaction_lot_name)
         TextView tvLotName;
+        @BindView(R.id.textview_transaction_pin)
+        TextView tvPin;
 
         ViewHolder(final View itemView) {
             super(itemView);
@@ -102,6 +105,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             tvStatus.setText(TransactionStatus.getById(transaction.getStatus()).getName());
             tvAmount.setText(Html.fromHtml(getAmountText(transaction.getAmount())));
             tvLotName.setText(Html.fromHtml(getLotNameText(transaction.getLot().getName())));
+            tvPin.setText(transaction.getTransactionCode());
         }
 
         private String getLotNameText(String lotName) {

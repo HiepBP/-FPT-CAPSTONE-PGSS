@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,8 +17,11 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -27,10 +31,13 @@ import com.fptuni.capstone.pgss.R;
 import com.fptuni.capstone.pgss.adapters.CarParkAdapter;
 import com.fptuni.capstone.pgss.helpers.AccountHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
+import com.fptuni.capstone.pgss.interfaces.TransactionClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.network.CarParkPackage;
+import com.fptuni.capstone.pgss.network.CheckCodePackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
+import com.fptuni.capstone.pgss.network.TransactionPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +70,12 @@ public class ManagerActivity extends AppCompatActivity {
     private EditText etDescription;
     private CarPark focusedCarPark;
     private MDButton btnPositive;
+
+    // Check code dialog
+    private MaterialDialog checkCodeDialog;
+    private Spinner spnCarParks;
+    private EditText etUsername;
+    private EditText etPin;
 
     private ActionBarDrawerToggle drawerToggle;
     private CarParkAdapter adapter;
@@ -144,7 +157,25 @@ public class ManagerActivity extends AppCompatActivity {
         rvCarParkList.setAdapter(adapter);
         rvCarParkList.setLayoutManager(new LinearLayoutManager(this));
 
-        // dialog
+        // check transaction code dialog
+        checkCodeDialog = new MaterialDialog.Builder(this)
+                .title("Check Code")
+                .customView(R.layout.dialog_check_code, true)
+                .positiveText("Check")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        checkCode();
+                    }
+                })
+                .build();
+        View customView = checkCodeDialog.getCustomView();
+        spnCarParks = (Spinner) customView.findViewById(R.id.spinner_dialogcheckcode_car_parks);
+        etUsername = (EditText) customView.findViewById(R.id.edittext_dialogcheckcode_username);
+        etPin = (EditText) customView.findViewById(R.id.edittext_dialogcheckcode_pin);
+    }
+
+    private void setupDetailDialog() {
         dialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialogcarpark_title)
                 .customView(R.layout.dialog_car_park, true)
@@ -200,11 +231,32 @@ public class ManagerActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 break;
+            case R.id.nav_manager_check_code:
+                List<String> carParkNames = new ArrayList<>();
+                for (CarPark car : carParks) {
+                    carParkNames.add(car.getName());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, carParkNames);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spnCarParks.setAdapter(adapter);
+                spnCarParks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        focusedCarPark = carParks.get(position);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+                focusedCarPark = carParks.get(0);
+                checkCodeDialog.show();
+                break;
             default:
         }
         drawerLayout.closeDrawers();
     }
-
 
     private void getCarParkData() {
         int oldSize = carParks.size();
@@ -236,6 +288,7 @@ public class ManagerActivity extends AppCompatActivity {
         });
     }
 
+
     private void updateCarPark() {
         if (!toolbarProgress.isShown()) {
             toolbarProgress.setVisibility(View.VISIBLE);
@@ -258,6 +311,26 @@ public class ManagerActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<CarParkPackage> call, Throwable t) {
                 updateCarPark();
+            }
+        });
+    }
+
+    private void checkCode() {
+        CheckCodePackage checkPackage = new CheckCodePackage();
+        checkPackage.setUsername(etUsername.getText().toString());
+        checkPackage.setTransactionCode(etPin.getText().toString());
+        checkPackage.setCarParkId(focusedCarPark.getId());
+        TransactionClient client = ServiceGenerator.createService(TransactionClient.class);
+        Call<TransactionPackage> call = client.checkCode(checkPackage);
+        call.enqueue(new Callback<TransactionPackage>() {
+            @Override
+            public void onResponse(Call<TransactionPackage> call, Response<TransactionPackage> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<TransactionPackage> call, Throwable t) {
+
             }
         });
     }

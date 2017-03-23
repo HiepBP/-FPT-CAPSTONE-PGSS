@@ -28,6 +28,8 @@ public class Transaction {
     private double amount;
     @SerializedName("ParkingLot")
     private ParkingLot lot;
+    @SerializedName("TransactionCode")
+    private String transactionCode;
 
     public Transaction() {
     }
@@ -110,5 +112,13 @@ public class Transaction {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public String getTransactionCode() {
+        return transactionCode;
+    }
+
+    public void setTransactionCode(String transactionCode) {
+        this.transactionCode = transactionCode;
     }
 }

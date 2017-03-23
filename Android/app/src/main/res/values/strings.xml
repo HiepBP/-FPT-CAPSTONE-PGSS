@@ -65,9 +65,11 @@
     <string name="transaction_text_lot_name">
         <u>Lot :</u>
     </string>
+
     <string name="transaction_text_amount">
         <u>Amount :</u>
     </string>
+    <string name="transaction_text_pin">PIN :</string>
     <string name="transaction_dialog_button_negative">Cancel</string>
     <string name="transaction_dialog_butotn_neutral">Nothing</string>
     <string name="transaction_dialog_button_positive">Check In</string>
@@ -99,7 +101,6 @@
 
     <!-- Strings related to parking lot -->
     <string name="parkinglot_title">Lots in</string>
-
     <!-- Strings related to parking lot dialog -->
     <string name="dialogparkinglot_title">Area Detail</string>
     <string name="dialogparkinglot_positive_text">Update</string>
