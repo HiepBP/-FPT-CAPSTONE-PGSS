@@ -14,5 +14,17 @@ namespace Capstone.ViewModels
     public class TransactionCreateViewModel : TransactionViewModel
     {
         public string Username { get; set; }
+        public int Duration { get; set; }
+    }
+
+    public class TransactionUpdateViewModel
+    {
+        public int Id { get; set; }
+        public int Status { get; set; }
+    }
+
+    public class TransactionCreateReturnViewModel : TransactionViewModel
+    {
+        public long LongEndTime { get; set; }
     }
 }

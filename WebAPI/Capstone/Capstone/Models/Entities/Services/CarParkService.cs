@@ -27,7 +27,7 @@ namespace Capstone.Models.Entities.Services
             var carPark = this.Get(carParkId);
             if(carPark!= null && carPark.Active != false)
             {
-                return carPark.Areas.Where(x => x.ParentId == null).Sum(q => q.EmptyAmount);
+                return carPark.ParkingLots.Count(q => q.Status == (int)ParkingLotStatus.Active);
             }
             return -1;
         }
@@ -37,8 +37,7 @@ namespace Capstone.Models.Entities.Services
             var carPark = this.GetActive().Select(q => new CarParkWithAmountEntities()
             {
                 CarPark = q,
-                EmptyAmount = q.Areas.Where(x => x.ParentId == null)
-                .Sum(x => x.EmptyAmount),
+                EmptyAmount = q.ParkingLots.Count(x => x.Status == (int)ParkingLotStatus.Active),
             });
             return carPark;
         }

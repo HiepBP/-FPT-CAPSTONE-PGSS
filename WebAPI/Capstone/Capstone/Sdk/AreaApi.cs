@@ -1,4 +1,5 @@
 ﻿using AutoMapper.QueryableExtensions;
+using Capstone.Models;
 using Capstone.Models.Entities.Services;
 using Capstone.ViewModels;
 using System;
@@ -17,6 +18,23 @@ namespace Capstone.Sdk
                 .ToList();
         }
 
+        public AreaCustomViewModel GetAreaWithEmptyNumber(int areaId)
+        {
+            var entity = this.BaseService.GetAreaWithEmptyNumber(areaId);
+            AreaCustomViewModel model = new AreaCustomViewModel
+            {
+                Active = entity.Active,
+                Address = entity.Address,
+                CarParkId = entity.CarParkId,
+                EmptyAmount = entity.EmptyAmount,
+                Id = entity.Id,
+                Name = entity.Name,
+                Status = entity.Status,
+                UpdateAvailable = entity.Active,
+            };
+            return model;
+        }
+
         public void UpdateName(AreaUpdateViewModel model)
         {
             var entity = this.BaseService.Get(model.Id);
@@ -33,7 +51,7 @@ namespace Capstone.Sdk
             if (entity != null)
             {
                 var parkingLotApi = new ParkingLotApi();
-                if (entity.EmptyAmount < entity.ParkingLots.Count())
+                if (entity.ParkingLots.Count(a => a.Status == (int)ParkingLotStatus.Active || a.Status == (int)ParkingLotStatus.Deactive) < entity.ParkingLots.Count())
                 {
                     return false;
                 }

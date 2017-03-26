@@ -23,9 +23,9 @@ namespace Capstone.Models.Entities
     
         public int Id { get; set; }
         public string Name { get; set; }
+        public Nullable<int> Address { get; set; }
         public Nullable<int> ParentId { get; set; }
         public int CarParkId { get; set; }
-        public int EmptyAmount { get; set; }
         public int Status { get; set; }
         public bool Active { get; set; }
     

@@ -27,7 +27,7 @@ namespace Capstone.Controllers
             try
             {
                 var areaApi = new AreaApi();
-                var area = areaApi.Get(areaId);
+                var area = areaApi.GetAreaWithEmptyNumber(areaId);
                 if (area == null || area.Active == false)
                 {
                     return Json(new
@@ -53,86 +53,86 @@ namespace Capstone.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model">Contain areaId and number of empty slot</param>
-        /// <returns>true/false</returns>
-        [HttpPost]
-        [Route("UpdateNumberOfEmptySlot")]
-        public IHttpActionResult UpdateNumberOfEmptySlot(AreaWithEmptySlot model)
-        {
-            try
-            {
-                var areaApi = new AreaApi();
-                var area = areaApi.Get(model.AreaId);
-                if (area == null || area.Active == false)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                    });
-                }
-                else
-                {
-                    area.EmptyAmount = model.EmptyNumber;
-                    areaApi.Edit(model.AreaId, area);
-                    return Json(new
-                    {
-                        success = true,
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new
-                {
-                    success = false,
-                });
-            }
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="model">Contain areaId and number of empty slot</param>
+        ///// <returns>true/false</returns>
+        //[HttpPost]
+        //[Route("UpdateNumberOfEmptySlot")]
+        //public IHttpActionResult UpdateNumberOfEmptySlot(AreaWithEmptySlot model)
+        //{
+        //    try
+        //    {
+        //        var areaApi = new AreaApi();
+        //        var area = areaApi.Get(model.AreaId);
+        //        if (area == null || area.Active == false)
+        //        {
+        //            return Json(new
+        //            {
+        //                success = false,
+        //            });
+        //        }
+        //        else
+        //        {
+        //            area.EmptyAmount = model.EmptyNumber;
+        //            areaApi.Edit(model.AreaId, area);
+        //            return Json(new
+        //            {
+        //                success = true,
+        //            });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new
+        //        {
+        //            success = false,
+        //        });
+        //    }
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model">Contain areaId and number of empty slot</param>
-        /// <returns>true/false</returns>
-        [HttpPost]
-        [Route("UpdateNumberOfEmptySlotMultiArea")]
-        public IHttpActionResult UpdateNumberOfEmptySlotMultiArea(IEnumerable<AreaWithEmptySlot> model)
-        {
-            try
-            {
-                var areaApi = new AreaApi();
-                foreach (var item in model)
-                {
-                    var area = areaApi.Get(item.AreaId);
-                    if (area == null || area.Active == false)
-                    {
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="model">Contain areaId and number of empty slot</param>
+        ///// <returns>true/false</returns>
+        //[HttpPost]
+        //[Route("UpdateNumberOfEmptySlotMultiArea")]
+        //public IHttpActionResult UpdateNumberOfEmptySlotMultiArea(IEnumerable<AreaWithEmptySlot> model)
+        //{
+        //    try
+        //    {
+        //        var areaApi = new AreaApi();
+        //        foreach (var item in model)
+        //        {
+        //            var area = areaApi.Get(item.AreaId);
+        //            if (area == null || area.Active == false)
+        //            {
                         
-                    }
-                    else
-                    {
-                        area.EmptyAmount = item.EmptyNumber;
-                        areaApi.Edit(item.AreaId, area);
-                    }
-                }
+        //            }
+        //            else
+        //            {
+        //                area.EmptyAmount = item.EmptyNumber;
+        //                areaApi.Edit(item.AreaId, area);
+        //            }
+        //        }
 
-                return Json(new ResultModel
-                {
-                    message = "Cập nhật thành công",
-                    success = true,
-                });
+        //        return Json(new ResultModel
+        //        {
+        //            message = "Cập nhật thành công",
+        //            success = true,
+        //        });
 
-            }
-            catch (Exception ex)
-            {
-                return Json(new
-                {
-                    success = false,
-                });
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new
+        //        {
+        //            success = false,
+        //        });
+        //    }
+        //}
 
         [HttpGet]
         [Route("GetAreasByCarParkid/{carParkId}")]

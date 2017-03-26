@@ -23,6 +23,7 @@ namespace Capstone.ViewModels
     			public virtual string Description { get; set; }
     			public virtual string Lat { get; set; }
     			public virtual string Lon { get; set; }
+    			public virtual Nullable<decimal> Fee { get; set; }
     			public virtual bool Active { get; set; }
     			public virtual string AspNetUserId { get; set; }
     	

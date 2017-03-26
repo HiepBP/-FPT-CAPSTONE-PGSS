@@ -17,11 +17,13 @@ namespace Capstone.ViewModels
     	
     			public virtual int Id { get; set; }
     			public virtual System.DateTime TransactionDate { get; set; }
+    			public virtual Nullable<System.DateTime> EndTime { get; set; }
     			public virtual decimal Amount { get; set; }
     			public virtual int Status { get; set; }
     			public virtual int CarParkId { get; set; }
     			public virtual int ParkingLotId { get; set; }
     			public virtual string AspNetUserId { get; set; }
+    			public virtual string TransactionCode { get; set; }
     	
     	public TransactionViewModel() : base() { }
     	public TransactionViewModel(Capstone.Models.Entities.Transaction entity) : base(entity) { }

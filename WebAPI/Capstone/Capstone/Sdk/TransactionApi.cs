@@ -16,11 +16,30 @@ namespace Capstone.Sdk
             return result;
         }
 
-        public int CreateTransaction(TransactionViewModel model)
+        public TransactionViewModel CheckCode(string userId, string transactionCode, int carParkId)
+        {
+            var entity = this.BaseService.CheckCode(userId, transactionCode, carParkId);
+            if(entity == null)
+            {
+                return null;
+            }
+            var model = new TransactionViewModel(entity);
+            return model;
+        }
+
+        public TransactionViewModel CreateTransaction(TransactionViewModel model)
         {
             var entity = model.ToEntity();
             this.BaseService.Create(entity);
-            return entity.Id;
+            model.Id = entity.Id;
+            return model;
+        }
+
+        public void ChangeStatus(TransactionUpdateViewModel model)
+        {
+            var entity = this.BaseService.Get(model.Id);
+            entity.Status = model.Status;
+            this.BaseService.Update(entity);
         }
     }
 

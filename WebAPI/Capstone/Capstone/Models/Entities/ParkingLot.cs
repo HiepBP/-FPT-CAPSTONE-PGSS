@@ -23,13 +23,14 @@ namespace Capstone.Models.Entities
     
         public int Id { get; set; }
         public string Name { get; set; }
-        public byte[] Address { get; set; }
+        public int Address { get; set; }
         public int Status { get; set; }
         public Nullable<int> AreaId { get; set; }
         public int CarParkId { get; set; }
         public bool Active { get; set; }
     
         public virtual Area Area { get; set; }
+        public virtual CarPark CarPark { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookingHistory> BookingHistories { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

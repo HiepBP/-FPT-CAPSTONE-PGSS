@@ -14,6 +14,7 @@ namespace Capstone.ViewModels
 
     public class AreaCustomViewModel : AreaViewModel
     {
+        public int EmptyAmount { get; set; }
         public bool UpdateAvailable { get; set; }
     }
 }

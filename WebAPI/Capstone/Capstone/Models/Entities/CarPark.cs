@@ -19,6 +19,7 @@ namespace Capstone.Models.Entities
         {
             this.Areas = new HashSet<Area>();
             this.BookingHistories = new HashSet<BookingHistory>();
+            this.ParkingLots = new HashSet<ParkingLot>();
             this.Transactions = new HashSet<Transaction>();
         }
     
@@ -30,6 +31,7 @@ namespace Capstone.Models.Entities
         public string Description { get; set; }
         public string Lat { get; set; }
         public string Lon { get; set; }
+        public Nullable<decimal> Fee { get; set; }
         public bool Active { get; set; }
         public string AspNetUserId { get; set; }
     
@@ -38,6 +40,8 @@ namespace Capstone.Models.Entities
         public virtual AspNetUser AspNetUser { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BookingHistory> BookingHistories { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ParkingLot> ParkingLots { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Transaction> Transactions { get; set; }
     }

@@ -16,11 +16,13 @@ namespace Capstone.Models.Entities
     {
         public int Id { get; set; }
         public System.DateTime TransactionDate { get; set; }
+        public Nullable<System.DateTime> EndTime { get; set; }
         public decimal Amount { get; set; }
         public int Status { get; set; }
         public int CarParkId { get; set; }
         public int ParkingLotId { get; set; }
         public string AspNetUserId { get; set; }
+        public string TransactionCode { get; set; }
     
         public virtual AspNetUser AspNetUser { get; set; }
         public virtual CarPark CarPark { get; set; }
