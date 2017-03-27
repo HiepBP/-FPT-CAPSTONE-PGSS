@@ -15,8 +15,8 @@
 // Payload
 #define MAX_PAYLOAD_SIZE 32
 #define CRC_PAYLOAD_INIT 0x00b704ce
-#define MAX_WAITING_MILLIS 1000
-#define MAX_RESEND_PAYLOAD 15
+#define MAX_WAITING_MILLIS 100
+#define MAX_RESEND_PAYLOAD 5
 #define PAYLOAD_ADDRESS_BYTE_1 0
 #define PAYLOAD_ADDRESS_BYTE_2 1
 #define PAYLOAD_COMMAND_BYTE 2
@@ -32,6 +32,7 @@
 #define CMD_TEST 0xAA
 #define CMD_RESERVE 0xDA
 #define CMD_UNRESERVE 0xCD
+#define CMD_CHANGE_OFFSET 0xCC
 
 /*************************************************
 * Definitions

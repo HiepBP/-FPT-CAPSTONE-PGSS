@@ -1,3 +1,4 @@
+#include <EEPROM.h>
 #include <Servo.h>
 #include <RGBLED.h>
 #include <HMC5883L.h>
@@ -7,17 +8,14 @@
 #include <printf.h>
 #include <nRF24L01.h>
 
+#define SCHEME_VERSION 0
+
 // Address of device. Used for communication in RF network, each device need to have an unique address
-#define DEVICE_ADDRESS 0xFA02
+#define DEVICE_ADDRESS 0x000C
 
 // Hardware pins definition
 #define PIN_RF_CE 7 // Chip Enable of RF module
 #define PIN_RF_CSN 8 // Chip Select Not of RF module
-
-// Metal detector offset
-#define X_OFFSET 300
-#define Y_OFFSET 300
-#define Z_OFFSET 300
 
 // Indicator LED controller
 RGBLED indicator(3, 5, 6, COMMON_ANODE);
@@ -27,7 +25,7 @@ Servo servo;
 bool servoStatus = false;
 
 // Metal detector sensor
-HMC5883L sensor(X_OFFSET, Z_OFFSET, Y_OFFSET);
+HMC5883L sensor;
 bool sensorStatus = false;
 
 // Setup nRF24L01 radio with SPI bus, CE and CSN pin
@@ -69,8 +67,7 @@ void sendPayload(uint8_t payloadSize) {
 bool waitAckPayload(uint8_t payloadSize) {
 	unsigned long startWaitingAt = millis();
 	bool timeout = false;
-	bool resend = false;
-	while (!timeout && !resend) {
+	while (!timeout) {
 		if (radio.available()) {
 			uint8_t len = radio.getDynamicPayloadSize();
 			radio.read(receive_payload, len);
@@ -82,16 +79,8 @@ bool waitAckPayload(uint8_t payloadSize) {
 			//rfUtil.printHex8((uint8_t *)receive_payload, len);
 
 			if (rfUtil.isTarget(receive_payload, DEVICE_ADDRESS)) {
-				if (receive_payload[2] != CMD_ACK) {
-					if (receive_payload[2] == CMD_RESERVE || receive_payload[2] == CMD_UNRESERVE) {
-						processPayload(receive_payload, payloadSize);
-						return true;
-					}
-					else {
-						resend = true;
-					}
-				}
-				else {
+				if (receive_payload[2] == CMD_ACK ||
+					receive_payload[2] == CMD_LOT_STATUS) {
 					return true;
 				}
 			}
@@ -100,9 +89,7 @@ bool waitAckPayload(uint8_t payloadSize) {
 			timeout = true;
 		}
 	}
-	if (timeout || resend) {
-		return false;
-	}
+	return false;
 }
 
 // This function will check the payload stored in receive_payload and process based on the content of payload
@@ -111,8 +98,6 @@ void processPayload(char payload[], uint8_t payloadSize) {
 	if (rfUtil.isValidated(payload, payloadSize)) {
 		// Check the target of payload
 		if (rfUtil.isTarget(payload, DEVICE_ADDRESS)) {
-			// send ACK message
-			sendAckPayload();
 			// execute command
 			uint8_t command = rfUtil.getCommand((uint8_t *)payload);
 			switch (command)
@@ -129,6 +114,7 @@ void processPayload(char payload[], uint8_t payloadSize) {
 				break;
 			}
 			case CMD_RESERVE: {
+				sendAckPayload();
 				if (servoStatus == false) {
 					Serial.println("Reserve");
 					servoStatus = true;
@@ -139,6 +125,7 @@ void processPayload(char payload[], uint8_t payloadSize) {
 				break;
 			}
 			case CMD_UNRESERVE: {
+				sendAckPayload();
 				Serial.println("In CMD_UNRESER");
 				if (servoStatus == true) {
 					Serial.println("Unreserve");
@@ -147,6 +134,29 @@ void processPayload(char payload[], uint8_t payloadSize) {
 					servo.write(0);
 					indicator.writeRGB(255, 0, 255);
 				}
+				break;
+			}
+			case CMD_CHANGE_OFFSET: {
+				sendAckPayload();
+				Serial.println("In CMD_CHANGE_OFFSET");
+				EEPROM.write(0, payload[3]);
+				EEPROM.write(1, payload[4]);
+				EEPROM.write(2, payload[5]);
+				EEPROM.write(3, payload[6]);
+				EEPROM.write(4, payload[7]);
+				EEPROM.write(5, payload[8]);
+				int16_t xOffset, yOffset, zOffset;
+				xOffset = (uint16_t)EEPROM.read(0) << 8 | EEPROM.read(1);
+				yOffset = (uint16_t)EEPROM.read(2) << 8 | EEPROM.read(3);
+				zOffset = (uint16_t)EEPROM.read(4) << 8 | EEPROM.read(5);
+				Serial.print("Offset ");
+				Serial.print("X= ");
+				Serial.print(xOffset);
+				Serial.print(" Y= ");
+				Serial.print(yOffset);
+				Serial.print(" Z= ");
+				Serial.println(zOffset);
+				sensor.setOffSet(xOffset, yOffset, zOffset);
 				break;
 			}
 			default:
@@ -183,17 +193,35 @@ void setup()
 {
 	// Print preamble
 	Serial.begin(115200);
+ Serial.print("Address ");
+ Serial.println(DEVICE_ADDRESS);
 	printf_begin();
+	// Initialize offset from EEPROM
+	int16_t xOffset, yOffset, zOffset;
+	xOffset = (uint16_t)EEPROM.read(0) << 8 | EEPROM.read(1);
+	yOffset = (uint16_t)EEPROM.read(2) << 8 | EEPROM.read(3);
+	zOffset = (uint16_t)EEPROM.read(4) << 8 | EEPROM.read(5);
+	Serial.print("Offset ");
+	Serial.print("X= ");
+	Serial.print(xOffset);
+	Serial.print(" Y= ");
+	Serial.print(yOffset);
+	Serial.print(" Z= ");
+	Serial.println(zOffset);
 	Serial.println(F("Start communication with RF24"));
 	// Setup rf radio
 	radio.begin();
+	radio.setPALevel(RF24_PA_MAX);
+	radio.setDataRate(RF24_250KBPS);
 	radio.enableDynamicPayloads();
-	radio.setRetries(5, 15);
 	radio.openWritingPipe(rfUtil.getPipeAddress(1));
 	radio.openReadingPipe(1, rfUtil.getPipeAddress(0));
+	radio.setAutoAck(false);
+	radio.disableCRC();
 	radio.startListening();
 	radio.printDetails();
 	// Setup metal detector sensor
+	sensor.setOffSet(xOffset, yOffset, zOffset);
 	sensor.setup();
 	// Check car status
 	if (sensor.isInRange()) {
@@ -233,7 +261,7 @@ void loop()
 		}
 
 		if (radio.available()) {
-			//Serial.println("##########################");
+			Serial.println("##########################");
 			uint8_t payloadSize = radio.getDynamicPayloadSize();
 			if (!payloadSize) {
 				continue;

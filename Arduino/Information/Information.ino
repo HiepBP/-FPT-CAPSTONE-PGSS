@@ -6,14 +6,14 @@
 #include <nRF24L01.h>
 
 // Address of device. Used for communication in RF network, each device need to have an unique address
-#define DEVICE_ADDRESS 0xCC01
+#define DEVICE_ADDRESS 0x000B
 
 // Hardware pins definition
 #define PIN_RF_CE 7 // Chip Enable of RF module
 #define PIN_RF_CSN 8 // Chip Select Not of RF module
 
 // Information LED controller
-SEVEN_SEGMENT information(4, 5, 6);
+SEVEN_SEGMENT information(4, 5, 3);
 
 // Setup nRF24L01 radio with SPI bus, CE and CSN pin
 RF24 radio(PIN_RF_CE, PIN_RF_CSN);
@@ -151,14 +151,18 @@ void setup()
 	Serial.println(F("Start communication with RF24"));
 	// Setup rf radio
 	radio.begin();
+  radio.setPALevel(RF24_PA_MAX);
+  radio.setDataRate(RF24_250KBPS);
 	radio.enableDynamicPayloads();
-	radio.setRetries(5, 15);
-	radio.openWritingPipe(rfUtil.getPipeAddress(1));
+	radio.openWritingPipe(rfUtil.getPipeAddress(3));
 	radio.openReadingPipe(1, rfUtil.getPipeAddress(2));
+  radio.setAutoAck(false);
+  radio.disableCRC();
 	radio.startListening();
 	radio.printDetails();
 	// Create ack payload
 	rfUtil.generateAckPayload(ack_payload, DEVICE_ADDRESS);
+  Serial.println("End setup");
 }
 
 void loop()
@@ -172,7 +176,7 @@ void loop()
 			}
 			radio.read(receive_payload, payloadSize);
 
-			// Spew it
+			// Spew it 
 			Serial.print(F("Got message size="));
 			Serial.println(payloadSize);
 			Serial.print(F("Value= "));
