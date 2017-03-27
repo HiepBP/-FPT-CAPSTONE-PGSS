@@ -11,7 +11,7 @@
 #define SCHEME_VERSION 0
 
 // Address of device. Used for communication in RF network, each device need to have an unique address
-#define DEVICE_ADDRESS 0x000D
+#define DEVICE_ADDRESS 0x000C
 
 // Hardware pins definition
 #define PIN_RF_CE 7 // Chip Enable of RF module
@@ -193,6 +193,8 @@ void setup()
 {
 	// Print preamble
 	Serial.begin(115200);
+ Serial.print("Address ");
+ Serial.println(DEVICE_ADDRESS);
 	printf_begin();
 	// Initialize offset from EEPROM
 	int16_t xOffset, yOffset, zOffset;
