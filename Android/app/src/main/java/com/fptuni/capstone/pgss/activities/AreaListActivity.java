@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -51,7 +50,7 @@ public class AreaListActivity extends AppCompatActivity {
     RecyclerView rvArea;
 
     // Area Dialog
-    private MaterialDialog dialog;
+    private MaterialDialog detailDialog;
     private EditText etName;
     private SwitchCompat scActive;
     private Area focusedArea;
@@ -123,7 +122,7 @@ public class AreaListActivity extends AppCompatActivity {
                 } else {
                     scActive.setEnabled(false);
                 }
-                dialog.show();
+                detailDialog.show();
             }
         });
     }
@@ -137,8 +136,8 @@ public class AreaListActivity extends AppCompatActivity {
         rvArea.setAdapter(adapter);
         rvArea.setLayoutManager(new LinearLayoutManager(this));
 
-        // Custom dialog
-        dialog = new MaterialDialog.Builder(this)
+        // Custom detailDialog
+        detailDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialogarea_title)
                 .positiveText(R.string.dialogarea_positive_text)
                 .negativeText(R.string.dialogcarpark_negative_text)
@@ -159,10 +158,10 @@ public class AreaListActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-        View customView = dialog.getCustomView();
+        View customView = detailDialog.getCustomView();
         etName = (EditText) customView.findViewById(R.id.edittext_dialogarea_name);
         scActive = (SwitchCompat) customView.findViewById(R.id.switchcompat_dialogarea_active);
-        btnPositive = dialog.getActionButton(DialogAction.POSITIVE);
+        btnPositive = detailDialog.getActionButton(DialogAction.POSITIVE);
         etName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

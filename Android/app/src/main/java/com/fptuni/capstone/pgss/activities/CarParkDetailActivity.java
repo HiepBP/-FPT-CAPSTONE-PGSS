@@ -149,7 +149,6 @@ public class CarParkDetailActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(color);
     }
 
-
     private void initiateFields() {
         carPark = (CarPark) getIntent().getSerializableExtra(EXTRA_CAR_PARK);
         account = AccountHelper.get(this);

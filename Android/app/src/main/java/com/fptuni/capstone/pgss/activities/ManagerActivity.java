@@ -35,13 +35,11 @@ import com.fptuni.capstone.pgss.interfaces.TransactionClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
 import com.fptuni.capstone.pgss.models.Transaction;
-import com.fptuni.capstone.pgss.models.TransactionStatus;
 import com.fptuni.capstone.pgss.network.CarParkPackage;
 import com.fptuni.capstone.pgss.models.CheckCode;
 import com.fptuni.capstone.pgss.network.CheckCodePackage;
 import com.fptuni.capstone.pgss.network.CommandPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
-import com.fptuni.capstone.pgss.network.TransactionPackage;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.models.consumer.PNPublishResult;
@@ -70,7 +68,7 @@ public class ManagerActivity extends AppCompatActivity {
     RecyclerView rvCarParkList;
 
     // Car Park Dialog
-    private MaterialDialog dialog;
+    private MaterialDialog detailDialog;
     private EditText etName;
     private EditText etPhone;
     private EditText etEmail;
@@ -79,7 +77,7 @@ public class ManagerActivity extends AppCompatActivity {
     private CarPark focusedCarPark;
     private MDButton btnPositive;
 
-    // Check code dialog
+    // Check code detailDialog
     private MaterialDialog checkCodeDialog;
     private Spinner spnCarParks;
     private EditText etUsername;
@@ -143,7 +141,7 @@ public class ManagerActivity extends AppCompatActivity {
 
                 btnPositive.setEnabled(false);
 
-                dialog.show();
+                detailDialog.show();
             }
         });
     }
@@ -165,7 +163,12 @@ public class ManagerActivity extends AppCompatActivity {
         rvCarParkList.setAdapter(adapter);
         rvCarParkList.setLayoutManager(new LinearLayoutManager(this));
 
-        // check transaction code dialog
+        setupDetailDialog();
+        setupCheckCodeDialog();
+    }
+
+    private void setupCheckCodeDialog() {
+        // check transaction code detailDialog
         checkCodeDialog = new MaterialDialog.Builder(this)
                 .title("Check Code")
                 .customView(R.layout.dialog_check_code, true)
@@ -184,7 +187,7 @@ public class ManagerActivity extends AppCompatActivity {
     }
 
     private void setupDetailDialog() {
-        dialog = new MaterialDialog.Builder(this)
+        detailDialog = new MaterialDialog.Builder(this)
                 .title(R.string.dialogcarpark_title)
                 .customView(R.layout.dialog_car_park, true)
                 .positiveText(R.string.dialogcarpark_positive_text)
@@ -200,8 +203,8 @@ public class ManagerActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-        View customView = dialog.getCustomView();
-        btnPositive = dialog.getActionButton(DialogAction.POSITIVE);
+        View customView = detailDialog.getCustomView();
+        btnPositive = detailDialog.getActionButton(DialogAction.POSITIVE);
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -295,7 +298,6 @@ public class ManagerActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void updateCarPark() {
         if (!toolbarProgress.isShown()) {

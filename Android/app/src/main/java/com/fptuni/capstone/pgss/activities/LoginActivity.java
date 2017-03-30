@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_login)
-    void onLoginButtonClick(View view) {
+    protected void onLoginButtonClick(View view) {
         dialog.show();
         String username = etUsername.getText().toString();
         String password = etPassword.getText().toString();
@@ -113,14 +113,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.textview_login_register)
-    void onRegisterTextClick(View view) {
+    protected void onRegisterTextClick(View view) {
         // Call Register Activity
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
     }
 
     @OnClick(R.id.textview_login_sign_in_guest)
-    void onSignInGuestTextClick(View view) {
+    protected void onSignInGuestTextClick(View view) {
         Intent intent = new Intent(LoginActivity.this, UserActivity.class);
         startActivity(intent);
         finish();

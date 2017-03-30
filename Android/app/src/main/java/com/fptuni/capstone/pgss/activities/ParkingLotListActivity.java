@@ -42,8 +42,8 @@ import retrofit2.Response;
 
 public class ParkingLotListActivity extends AppCompatActivity {
 
-    public static final String EXTRA_AREA_ID = "areaId";
-    public static final String EXTRA_AREA_NAME = "areaName";
+    private static final String EXTRA_AREA_ID = "areaId";
+    private static final String EXTRA_AREA_NAME = "areaName";
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;

@@ -18,8 +18,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // TODO: splash screen
+        directActivity();
+    }
 
+    private void directActivity() {
         Account account = AccountHelper.get(this);
         Intent intent = new Intent(this, LoginActivity.class);
         if (account == null) {
