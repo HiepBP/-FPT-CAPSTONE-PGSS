@@ -15,26 +15,6 @@
             android:icon="@drawable/user_nav_reserved_list_icon"
             android:title="@string/user_reserved_list_title" />
         <item
-            android:id="@+id/nav_user_save_parking"
-            android:icon="@drawable/user_nav_save_parking_icon"
-            android:title="@string/user_save_parking_title" />
-        <item
-            android:id="@+id/nav_user_my_cars"
-            android:icon="@drawable/user_nav_my_cars_icon"
-            android:title="@string/user_my_cars" />
-        <item
-            android:id="@+id/nav_user_search_location"
-            android:icon="@drawable/user_nav_search_location_icon"
-            android:title="@string/user_search_location_title" />
-        <item
-            android:id="@+id/nav_user_select_range"
-            android:icon="@drawable/user_nav_select_range_icon"
-            android:title="@string/user_select_range_title" />
-        <item
-            android:id="@+id/nav_user_sort"
-            android:icon="@drawable/user_nav_sort_icon"
-            android:title="@string/user_sort_title" />
-        <item
             android:id="@+id/nav_user_about_us"
             android:icon="@drawable/user_nav_about_us_icon"
             android:title="@string/user_about_us_title" />

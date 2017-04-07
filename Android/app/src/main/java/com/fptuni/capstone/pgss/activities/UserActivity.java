@@ -231,26 +231,6 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent = new Intent(this, TransactionActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.nav_user_save_parking:
-                // TODO: navigation drawer save parking click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_my_cars:
-                // TODO: navigation drawer my cars click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_search_location:
-                // TODO: navigation drawer search location click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_select_range:
-                // TODO: navigation drawer select range click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_sort:
-                // TODO: navigation drawer sort click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
             case R.id.nav_user_about_us:
                 // TODO: navigation drawer about us click
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();

@@ -319,8 +319,8 @@ public class CarParkDetailActivity extends AppCompatActivity {
 
     private String getDistanceString(double distance, String target) {
         DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
-        return distanceInKmFormat.format(distance / 1000) +
-                getResources().getString(R.string.carparkdetail_text_distance) + " " +
-                target;
+        return getResources().getString(R.string.carparkdetail_text_distance)
+                .replace("[r]", distanceInKmFormat.format(distance / 1000))
+                + " " + target;
     }
 }
