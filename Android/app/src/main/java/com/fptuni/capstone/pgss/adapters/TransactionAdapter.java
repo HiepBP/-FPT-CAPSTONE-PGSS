@@ -15,6 +15,7 @@ import com.fptuni.capstone.pgss.models.TransactionStatus;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,7 +68,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        private static final String DATE_FORMAT = "EEE, MMM d, ''yy";
+        private static final String DATE_FORMAT = "EEEE, dd MMMM, ''yy";
 
         @BindView(R.id.textview_transaction_address)
         TextView tvAddress;
@@ -117,7 +118,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         }
 
         private String getFormatedDate(Date date) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, new Locale("vi", "VN"));
             return dateFormat.format(date);
         }
     }

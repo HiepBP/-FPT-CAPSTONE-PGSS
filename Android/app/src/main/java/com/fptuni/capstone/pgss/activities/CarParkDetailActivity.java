@@ -185,11 +185,8 @@ public class CarParkDetailActivity extends AppCompatActivity {
     @OnClick(R.id.button_carparkdetail_reserve)
     protected void onReserveButtonClick(View view) {
         final List<String> durations = new ArrayList<>();
-        for (int i = 1; i <=6; i++) {
-            String text = String.valueOf(i) + "hour";
-            if (i > 1) {
-                text = text + "s";
-            }
+        for (int i = 1; i <= 6; i++) {
+            String text = String.valueOf(i) + " giờ";
             durations.add(text);
         }
         new MaterialDialog.Builder(this)
@@ -199,7 +196,7 @@ public class CarParkDetailActivity extends AppCompatActivity {
                 .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                        finalConfirm(which+1);
+                        finalConfirm(which + 1);
                         return true;
                     }
                 })
@@ -295,11 +292,11 @@ public class CarParkDetailActivity extends AppCompatActivity {
                         NotificationManager notiManager =
                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         Notification notification = new Notification.Builder(CarParkDetailActivity.this)
-                                .setContentTitle("Reserve Parking Lot of " +
-                                        notiPackage.getCarParkName())
+                                .setContentTitle(getString(R.string.notification_title)
+                                        .replace("[p]", notiPackage.getCarParkName()))
                                 .setSmallIcon(R.drawable.user_nav_select_range_icon)
-                                .setContentText("Your reserved parking lot is " +
-                                        notiPackage.getLotName())
+                                .setContentText(getString(R.string.notification_content)
+                                        .replace("[p]", notiPackage.getLotName()))
                                 .build();
                         notiManager.notify(0, notification);
                     }
@@ -321,6 +318,6 @@ public class CarParkDetailActivity extends AppCompatActivity {
         DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
         return getResources().getString(R.string.carparkdetail_text_distance)
                 .replace("[r]", distanceInKmFormat.format(distance / 1000))
-                + " " + target;
+                .replace("[t]", target);
     }
 }

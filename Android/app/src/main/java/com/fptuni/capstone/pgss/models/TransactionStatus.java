@@ -5,11 +5,11 @@ package com.fptuni.capstone.pgss.models;
  */
 
 public enum TransactionStatus {
-    Pending(0, "Pending"),
-    Reserved(1, "Reserved"),
-    Finished(2, "Finished"),
-    Canceled(3, "Canceled"),
-    Unknown(4, "Unknown");
+    Pending(0, "Đang xử lý"),
+    Reserved(1, "Đã đặt chỗ"),
+    Finished(2, "Hoàn thành"),
+    Canceled(3, "Đã hủy"),
+    Unknown(4, "Không rõ");
 
     private String name;
     private int id;

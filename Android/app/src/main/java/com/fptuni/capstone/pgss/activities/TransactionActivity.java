@@ -34,6 +34,7 @@ import com.pubnub.api.models.consumer.PNStatus;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,10 +97,11 @@ public class TransactionActivity extends AppCompatActivity {
                         transaction.getStatus() == TransactionStatus.Canceled.getId()) {
                     return;
                 }
-                SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a, MMM d, ''yy");
-                String content = "Reservation of lot " +
-                        transaction.getLot().getName() + " at " +
-                        transaction.getCarPark().getAddress() + " until " +
+                SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a, dd MMMM, ''yy",
+                        new Locale("vi", "VN"));
+                String content = "Đặt chỗ ô " +
+                        transaction.getLot().getName() + " tại " +
+                        transaction.getCarPark().getAddress() + " tới khi " +
                         dateFormat.format(transaction.getEndTime());
 
                 new MaterialDialog.Builder(TransactionActivity.this)

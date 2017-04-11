@@ -247,7 +247,8 @@ public class ManagerActivity extends AppCompatActivity {
                 for (CarPark car : carParks) {
                     carParkNames.add(car.getName());
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, carParkNames);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                        android.R.layout.simple_spinner_item, carParkNames);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spnCarParks.setAdapter(adapter);
                 spnCarParks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -263,6 +264,15 @@ public class ManagerActivity extends AppCompatActivity {
                 });
                 focusedCarPark = carParks.get(0);
                 checkCodeDialog.show();
+                break;
+            case R.id.nav_manager_about_us:
+                //TODO: manager about us
+                break;
+            case R.id.nav_manager_rate:
+                //TODO: manager rate
+                break;
+            case R.id.nav_manager_share:
+                //TODO: manager share
                 break;
             default:
         }

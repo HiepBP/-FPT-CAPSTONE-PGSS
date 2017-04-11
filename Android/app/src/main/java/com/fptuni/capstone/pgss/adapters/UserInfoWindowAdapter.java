@@ -50,6 +50,8 @@ public class UserInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     private String getDistanceString(double distance, String target) {
         DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
-        return distanceInKmFormat.format(distance / 1000) + "Kms. radius away from " + target;
+        String text = "Cách [t] bán kính [r] kms";
+        return text.replace("[r]", distanceInKmFormat.format(distance / 1000))
+                .replace("[t]", target);
     }
 }

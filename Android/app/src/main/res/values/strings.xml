@@ -48,58 +48,63 @@
     <string name="carparkdetail_reserve_dialog_message">Đặt giữ chỗ với giá</string>
     <string name="carparkdetail_reserve_dialog_failed">Đã có lỗi xảy ra! Xin vui lòng thử lại</string>
     <string name="carparkdetail_reserve_dialog_successful">Yêu cầu đặt chỗ đã được gửi thành công! \n Sau khi yêu cầu đã được xử lý, bạn sẽ nhận được thông báo thông qua app.</string>
-    <string name="carparkdetail_text_distance">Trong bán kính [r] kms từ</string>
+    <string name="carparkdetail_text_distance">Cách [t] trong bán kính [r] kms</string>
 
     <!-- Strings related to car park list -->
     <string name="carparklist_title">Gần</string>
-    <string name="carparklist_text_distance">Trong bán kính [r] kms từ</string>
+    <string name="carparklist_text_distance">Cách [t] trong bán kính [r] kms</string>
 
     <!-- Strings related to transaction list -->
-    <string name="transaction_title">Transaction List</string>
+    <string name="transaction_title">Lịch sử đặt chỗ</string>
     <string name="transaction_text_lot_name">
-        <u>Lot :</u>
+        <u>Ô :</u>
     </string>
 
     <string name="transaction_text_amount">
-        <u>Amount :</u>
+        <u>Tổng tiền :</u>
     </string>
-    <string name="transaction_text_pin">PIN :</string>
+    <string name="transaction_text_pin">Mã đặt chỗ :</string>
     <string name="transaction_dialog_button_negative">Cancel</string>
     <string name="transaction_dialog_butotn_neutral">Nothing</string>
     <string name="transaction_dialog_button_positive">Check In</string>
-    <string name="transaction_dialog_failed">An error has occurred! Please try again.</string>
-    <string name="transaction_dialog_successful">Your request was sent successfully!</string>
+    <string name="transaction_dialog_failed">Đã có lỗi xảy ra! Xin vui lòng thử lại</string>
+    <string name="transaction_dialog_successful">Yêu cầu đã được gửi thành công~</string>
 
     <!-- Strings related to car park dialog -->
-    <string name="dialogcarpark_title">Car Park Detail</string>
-    <string name="dialogcarpark_positive_text">Update</string>
-    <string name="dialogcarpark_negative_text">Cancel</string>
-    <string name="dialogcarpark_name">Name</string>
-    <string name="dialogcarpark_phone">Phone</string>
+    <string name="dialogcarpark_title">Chi tiết bãi xe</string>
+    <string name="dialogcarpark_positive_text">Cập nhật</string>
+    <string name="dialogcarpark_negative_text">Hủy</string>
+    <string name="dialogcarpark_name">Tên</string>
+    <string name="dialogcarpark_phone">Điên thọa</string>
     <string name="dialogcarpark_email">Email</string>
-    <string name="dialogcarpark_address">Address</string>
-    <string name="dialogcarpark_description">Description</string>
+    <string name="dialogcarpark_address">Địa chỉ</string>
+    <string name="dialogcarpark_description">Thông tin</string>
 
     <!-- Strings related to manager -->
-    <string name="manager_title">Own Car Parks</string>
+    <string name="manager_title">Danh sách bãi xe</string>
+    <string name="manager_log_out_title">Đăng xuất</string>
+    <string name="manager_check_code_title">Kiểm tra mã</string>
 
     <!-- Strings related to area -->
-    <string name="area_title">Areas in</string>
+    <string name="area_title">Danh sách khu thuộc </string>
 
     <!-- Strings related to area dialog -->
-    <string name="dialogarea_title">Area Detail</string>
-    <string name="dialogarea_positive_text">Update</string>
-    <string name="dialogarea_negative_text">Cancel</string>
-    <string name="dialogarea_name">Name</string>
-    <string name="dialogarea_active">Active</string>
+    <string name="dialogarea_title">Chi tiết khu</string>
+    <string name="dialogarea_positive_text">Cập nhật</string>
+    <string name="dialogarea_negative_text">Hủy</string>
+    <string name="dialogarea_name">Tên</string>
+    <string name="dialogarea_active">Hoạt động</string>
 
     <!-- Strings related to parking lot -->
-    <string name="parkinglot_title">Lots in</string>
+    <string name="parkinglot_title">Danh sách ô đỗ trong khu</string>
     <!-- Strings related to parking lot dialog -->
-    <string name="dialogparkinglot_title">Area Detail</string>
-    <string name="dialogparkinglot_positive_text">Update</string>
-    <string name="dialogparkinglot_negative_text">Cancel</string>
-    <string name="dialogparkinglot_name">Name</string>
-    <string name="dialogparkinglot_active">Active</string>
+    <string name="dialogparkinglot_title">Chi tiết ô đỗ</string>
+    <string name="dialogparkinglot_positive_text">Cập nhật</string>
+    <string name="dialogparkinglot_negative_text">Hủy</string>
+    <string name="dialogparkinglot_name">Tên</string>
+    <string name="dialogparkinglot_active">Hoạt động</string>
 
+    <!-- Strings related to notification -->
+    <string name="notification_title">Đặt chỗ tại [p]</string>
+    <string name="notification_content">Ô gửi xe của bạn là [p]</string>
 </resources>

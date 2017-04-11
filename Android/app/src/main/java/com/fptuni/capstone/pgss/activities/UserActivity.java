@@ -221,7 +221,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case R.id.nav_user_list_view:
                 if (fromYou) {
-                    intent = CarParkListActivity.createIntent(this, currentLocation, "You");
+                    intent = CarParkListActivity.createIntent(this, currentLocation, "bạn");
                 } else {
                     intent = CarParkListActivity.createIntent(this, placeLocation, placeName);
                 }
@@ -490,7 +490,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
                                 geo.getLatitude(), geo.getLongitude(), results);
                         carPark.setAwayDistance(results[0]);
-                        carPark.setFromTarget("You");
+                        carPark.setFromTarget("bạn");
                     } else {
                         float[] results = new float[3];
                         Location.distanceBetween(placeLocation.latitude, placeLocation.longitude,

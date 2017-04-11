@@ -114,9 +114,9 @@ public class CarParkAdvanceAdapter extends RecyclerView.Adapter<CarParkAdvanceAd
         private String getDistanceString(double distance, String target) {
             Context context = getContext();
             DecimalFormat distanceInKmFormat = new DecimalFormat("#.##");
-            return distanceInKmFormat.format(distance / 1000) +
-                    context.getString(R.string.carparklist_text_distance) + " " +
-                    target;
+            return context.getString(R.string.carparklist_text_distance)
+                    .replace("[r]", distanceInKmFormat.format(distance / 1000))
+                    .replace("[t]", target);
         }
 
         private boolean isBetween(int x, int lower, int upper) {

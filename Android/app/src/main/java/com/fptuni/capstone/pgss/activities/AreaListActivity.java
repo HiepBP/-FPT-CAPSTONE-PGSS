@@ -77,7 +77,7 @@ public class AreaListActivity extends AppCompatActivity {
         initiateFields();
         initiateViews();
         getAreaData();
-        String title = getResources().getString(R.string.area_title) + " " + carParkName;
+        String title = carParkName;
         setTitle(title);
     }
 

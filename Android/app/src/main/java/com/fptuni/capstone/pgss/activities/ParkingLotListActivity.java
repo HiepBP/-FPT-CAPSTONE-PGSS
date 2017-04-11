@@ -81,7 +81,7 @@ public class ParkingLotListActivity extends AppCompatActivity {
         initiateFields();
         initiateViews();
         getParkingLotData();
-        String title = getResources().getString(R.string.parkinglot_title) + " " + areaName;
+        String title = areaName;
         setTitle(title);
     }
 
