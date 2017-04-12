@@ -5,7 +5,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="4dc90a5d9c2a4d7e84735a6f040eb493" Name="Diagram1" ZoomLevel="76">
-        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="7.5" PointY="12.125" />
+        <EntityTypeShape EntityType="PGSSModel.Area" Width="1.5" PointX="7.5" PointY="12.5" />
         <EntityTypeShape EntityType="PGSSModel.AspNetRole" Width="1.5" PointX="0.75" PointY="7" />
         <EntityTypeShape EntityType="PGSSModel.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="9" />
         <EntityTypeShape EntityType="PGSSModel.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="3.125" />
@@ -14,7 +14,6 @@
         <EntityTypeShape EntityType="PGSSModel.ParkingLot" Width="1.5" PointX="9.75" PointY="12.125" />
         <EntityTypeShape EntityType="PGSSModel.Transaction" Width="1.5" PointX="12" PointY="9" />
         <EntityTypeShape EntityType="PGSSModel.BookingHistory" Width="1.5" PointX="7.5" PointY="8.375" />
-        <AssociationConnector Association="PGSSModel.FK_Area_Area1" />
         <AssociationConnector Association="PGSSModel.FK_Area_CarPark" />
         <AssociationConnector Association="PGSSModel.FK_ParkingLot_Area" />
         <AssociationConnector Association="PGSSModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />

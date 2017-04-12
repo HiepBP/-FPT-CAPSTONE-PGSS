@@ -17,21 +17,16 @@ namespace Capstone.Models.Entities
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Area()
         {
-            this.Area1 = new HashSet<Area>();
             this.ParkingLots = new HashSet<ParkingLot>();
         }
     
         public int Id { get; set; }
         public string Name { get; set; }
         public Nullable<int> Address { get; set; }
-        public Nullable<int> ParentId { get; set; }
         public int CarParkId { get; set; }
         public int Status { get; set; }
         public bool Active { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Area> Area1 { get; set; }
-        public virtual Area Area2 { get; set; }
         public virtual CarPark CarPark { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ParkingLot> ParkingLots { get; set; }
