@@ -45,8 +45,18 @@ public class RegisterActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
+    private boolean validateEmail(String email) {
+        // TODO: validate email format
+        return true;
+    }
+
+    private boolean validatePassword(String password, String confirmPassword) {
+        // TODO: validate password
+        return true;
+    }
+
     @OnClick(R.id.button_register)
-    void onRegisterButtonClick(View view) {
+    protected void onRegisterButtonClick(View view) {
         String email = etEmail.getText().toString();
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
@@ -97,18 +107,8 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validateEmail(String email) {
-        // TODO: validate email format
-        return true;
-    }
-
-    private boolean validatePassword(String password, String confirmPassword) {
-        // TODO: validate password
-        return true;
-    }
-
     @OnClick(R.id.textview_register_login)
-    void onLoginTextClick(View view) {
+    protected void onLoginTextClick(View view) {
         // return to login activity
         finish();
     }

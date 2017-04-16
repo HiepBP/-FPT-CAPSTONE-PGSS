@@ -13,9 +13,17 @@ import java.util.List;
 
 public class PubNubHelper {
 
+    public static final String CHANNEL_REALTIME_MAP = "realtime map";
+    public static final String CHANNEL_USER = "user";
+    public static final String CHANNEL_NOTIFICATION = "notification";
+
     private static final String SUBSCRIBE_KEY = "sub-c-ed7a8b02-ed34-11e6-a504-02ee2ddab7fe";
     private static final String PUBLISH_KEY = "pub-c-85b2050b-5425-4964-972f-90910aa358ca";
-    private static final List<String> CHANNELS_LIST = Arrays.asList("debug", "realtime map", "mobile");
+    private static final List<String> CHANNELS_LIST = Arrays.asList(
+            CHANNEL_REALTIME_MAP,
+            CHANNEL_NOTIFICATION,
+            CHANNEL_USER
+    );
 
     private PubNubHelper() {
 

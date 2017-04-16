@@ -25,10 +25,16 @@ public class CarPark implements Serializable {
     private String lat;
     @SerializedName("Lon")
     private String lon;
+    @SerializedName("Fee")
+    private int fee;
     @SerializedName("Active")
     private boolean active;
+    private int availableLot;
+    private double awayDistance;
+    private String fromTarget;
 
     public CarPark() {
+        setFromTarget("You");
     }
 
     public int getId() {
@@ -101,5 +107,37 @@ public class CarPark implements Serializable {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getAvailableLot() {
+        return availableLot;
+    }
+
+    public void setAvailableLot(int availableLot) {
+        this.availableLot = availableLot;
+    }
+
+    public double getAwayDistance() {
+        return awayDistance;
+    }
+
+    public void setAwayDistance(double awayDistance) {
+        this.awayDistance = awayDistance;
+    }
+
+    public String getFromTarget() {
+        return fromTarget;
+    }
+
+    public void setFromTarget(String fromTarget) {
+        this.fromTarget = fromTarget;
+    }
+
+    public int getFee() {
+        return fee;
+    }
+
+    public void setFee(int fee) {
+        this.fee = fee;
     }
 }

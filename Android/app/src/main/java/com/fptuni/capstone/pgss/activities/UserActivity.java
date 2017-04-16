@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,10 +33,11 @@ import com.fptuni.capstone.pgss.helpers.PubNubHelper;
 import com.fptuni.capstone.pgss.interfaces.CarParkClient;
 import com.fptuni.capstone.pgss.models.Account;
 import com.fptuni.capstone.pgss.models.CarPark;
-import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.fptuni.capstone.pgss.models.Geo;
+import com.fptuni.capstone.pgss.network.CarParkAdvancePackage;
 import com.fptuni.capstone.pgss.network.GetCoordinatePackage;
-import com.fptuni.capstone.pgss.network.MobilePubnubPackage;
+import com.fptuni.capstone.pgss.network.NotificationPackage;
+import com.fptuni.capstone.pgss.network.RealtimeMapPackage;
 import com.fptuni.capstone.pgss.network.ServiceGenerator;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,6 +50,9 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -57,7 +62,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNStatus;
@@ -74,21 +79,33 @@ import retrofit2.Response;
 
 public class UserActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    private static final int MAP_ZOOM_TO = 15;
+
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private GoogleMap map;
-    private Location currentLocation;
+    private LatLng centerLocation;
+    private LatLng currentLocation;
+    private LatLng placeLocation;
+    private boolean fromYou;
+    private String placeName;
+    private PlaceAutocompleteFragment autocompleteFragment;
+    private boolean refreshCarParkData;
 
     private GoogleApiClient googleApiClient;
 
-    private HashMap<String, Marker> markerMap;
+    private HashMap<Integer, Marker> markerMap;
 
     PubNub pubNub;
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
+    private ProgressBar toolbarProgress;
     private NavigationView navigationMenu;
     private ActionBarDrawerToggle drawerToggle;
+
+    private double searchRange;
+    private int numberOfCar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +115,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         ButterKnife.bind(this);
 
         initiateInstance();
+        googleApiClient.connect();
     }
 
     @Override
@@ -112,15 +130,45 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (fromYou) {
+            getCarParkData(currentLocation.latitude, currentLocation.longitude);
+        } else {
+            getCarParkData(placeLocation.latitude, placeLocation.longitude);
+        }
+    }
+
     private void initiateInstance() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_user_map);
         mapFragment.getMapAsync(this);
 
-        markerMap = new HashMap<>();
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager()
+                .findFragmentById(R.id.fragment_user_autocomplete_search);
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                LatLng latLng = place.getLatLng();
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+                fromYou = false;
+                placeName = place.getName().toString();
+                placeLocation = latLng;
+            }
 
-        initiatePubnub();
+            @Override
+            public void onError(Status status) {
+            }
+        });
+
+        markerMap = new HashMap<>();
+        centerLocation = new LatLng(0, 0);
+        currentLocation = new LatLng(0, 0);
+        placeLocation = new LatLng(0, 0);
+        fromYou = true;
 
         // Create an instance of GoogleAPIClient.
         if (googleApiClient == null) {
@@ -133,6 +181,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Drawer
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbarProgress = (ProgressBar) findViewById(R.id.toolbar_progress);
         setSupportActionBar(toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout_user);
         navigationMenu = (NavigationView) findViewById(R.id.navigationview_user);
@@ -148,6 +197,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             tvUsername.setText(R.string.user_guest);
         }
+
+        searchRange = 2;
+        numberOfCar = 10;
     }
 
     private void setupDrawerContent() {
@@ -161,38 +213,23 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onDrawerItemClick(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.nav_user_map_view:
                 // TODO: navigation drawer map view click
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_user_list_view:
-                // TODO: navigation drawer list view click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                if (fromYou) {
+                    intent = CarParkListActivity.createIntent(this, currentLocation, "bạn");
+                } else {
+                    intent = CarParkListActivity.createIntent(this, placeLocation, placeName);
+                }
+                startActivity(intent);
                 break;
             case R.id.nav_user_reserved_list:
-                // TODO: navigation reserved list view click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_save_parking:
-                // TODO: navigation drawer save parking click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_my_cars:
-                // TODO: navigation drawer my cars click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_search_location:
-                // TODO: navigation drawer search location click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_select_range:
-                // TODO: navigation drawer select range click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.nav_user_sort:
-                // TODO: navigation drawer sort click
-                Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
+                intent = new Intent(this, TransactionActivity.class);
+                startActivity(intent);
                 break;
             case R.id.nav_user_about_us:
                 // TODO: navigation drawer about us click
@@ -207,29 +244,34 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this, item.getTitle() + " clicked", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.nav_user_log_out:
-                Intent intent = new Intent(this, LoginActivity.class);
+                intent = new Intent(this, LoginActivity.class);
                 AccountHelper.clear(this);
                 startActivity(intent);
                 finish();
                 break;
             default:
         }
-
-        item.setChecked(true);
-        setTitle(item.getTitle());
         drawerLayout.closeDrawers();
     }
 
     @Override
     protected void onStart() {
-        googleApiClient.connect();
+//        googleApiClient.connect();
+        initiatePubnub();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        googleApiClient.disconnect();
+//        googleApiClient.disconnect();
+        pubNub.unsubscribeAll();
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        googleApiClient.disconnect();
     }
 
     @Override
@@ -252,37 +294,41 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void message(PubNub pubnub, final PNMessageResult message) {
                 String channel = message.getChannel();
-                if (channel.equals("realtime map")) {
-                    JsonObject json = message.getMessage().getAsJsonObject();
-                    String hubName = json.get("hub_name").getAsString();
-                    final int availableLot = json.get("available").getAsInt();
-                    if (markerMap.containsKey(hubName)) {
-                        final Marker marker = markerMap.get(hubName);
+                if (channel.equals(PubNubHelper.CHANNEL_REALTIME_MAP)) {
+                    JsonElement json = message.getMessage();
+                    Gson gson = new Gson();
+                    final RealtimeMapPackage mapPackage = gson.fromJson(json, RealtimeMapPackage.class);
+                    Integer id = mapPackage.getId();
+                    if (markerMap.containsKey(id)) {
+                        final Marker marker = markerMap.get(id);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
-                                data.setAvailableLot(availableLot);
+                                CarPark carPark = (CarPark) marker.getTag();
+                                carPark.setAvailableLot(mapPackage.getAvailableLot());
                                 marker.setIcon(BitmapDescriptorFactory
                                         .fromBitmap(MapMarkerHelper
-                                                .getParkingMarker(getBaseContext(), availableLot)));
+                                                .getParkingMarker(getBaseContext(),
+                                                        mapPackage.getAvailableLot())));
                             }
                         });
                     }
-                } else if (channel.equals("mobile")) {
-                    String json = message.getMessage().toString();
+                } else if (channel.equals(PubNubHelper.CHANNEL_NOTIFICATION)) {
+                    JsonElement json = message.getMessage();
                     Gson gson = new Gson();
-                    MobilePubnubPackage data = gson.fromJson(json, MobilePubnubPackage.class);
                     Account account = AccountHelper.get(UserActivity.this);
-                    if (data.getUsername().equals(account.getUsername())) {
-                        NotificationManager notificationManager =
+                    NotificationPackage notiPackage = gson.fromJson(json, NotificationPackage.class);
+                    if (account.getUsername().equals(notiPackage.getUsername())) {
+                        NotificationManager notiManager =
                                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                         Notification notification = new Notification.Builder(UserActivity.this)
-                                .setContentTitle("Reserve Parking Lot of " + data.getHubName())
+                                .setContentTitle("Reserve Parking Lot of " +
+                                        notiPackage.getCarParkName())
                                 .setSmallIcon(R.drawable.user_nav_select_range_icon)
-                                .setContentText("Your reserved parking lot is " + data.getLotName())
+                                .setContentText("Your reserved parking lot is " +
+                                        notiPackage.getLotName())
                                 .build();
-                        notificationManager.notify(0, notification);
+                        notiManager.notify(0, notification);
                     }
                 }
             }
@@ -321,9 +367,24 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                if (ActivityCompat.checkSelfPermission(UserActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(UserActivity.this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return true;
+                }
+                Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                currentLocation = latLng;
                 map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                map.animateCamera(CameraUpdateFactory.zoomTo(50));
+                map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+                fromYou = true;
                 return true;
             }
         });
@@ -334,11 +395,27 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onInfoWindowClick(Marker marker) {
                 // TODO: show car park detail page
                 marker.hideInfoWindow();
-                CarParkWithGeo data = (CarParkWithGeo) marker.getTag();
-                CarPark carPark = data.getCarPark();
-                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark,
-                        data.getAvailableLot());
+                CarPark carPark = (CarPark) marker.getTag();
+                Intent intent = CarParkDetailActivity.createIntent(UserActivity.this, carPark);
                 startActivity(intent);
+            }
+        });
+        map.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int reason) {
+                refreshCarParkData = reason != GoogleMap.OnCameraMoveStartedListener.REASON_API_ANIMATION;
+            }
+        });
+        map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                LatLng latLng = map.getCameraPosition().target;
+                if (latLng.longitude != centerLocation.longitude
+                        && latLng.latitude != centerLocation.latitude
+                        && refreshCarParkData) {
+                    centerLocation = latLng;
+                    getCarParkData(centerLocation.latitude, centerLocation.longitude);
+                }
             }
         });
     }
@@ -353,6 +430,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.i("UserActivity", "onConnected");
         map.clear();
         locationSettingRequest();
+        if (centerLocation != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLng(centerLocation));
+            map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
+        }
     }
 
     private void getCurrentLocation() {
@@ -378,25 +459,45 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
-        currentLocation = location;
+        currentLocation = latLng;
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.zoomTo(50));
-        getCarParkData(latitude, longitude);
-
+        map.animateCamera(CameraUpdateFactory.zoomTo(MAP_ZOOM_TO));
     }
 
-    private void getCarParkData(double lat, double lon) {
+    private void getCarParkData(final double lat, final double lon) {
+        if (!toolbarProgress.isShown()) {
+            toolbarProgress.setVisibility(View.VISIBLE);
+        }
         CarParkClient client = ServiceGenerator.createService(CarParkClient.class);
         Call<GetCoordinatePackage> call =
-                client.getCoordinateNearestCarPark(lat, lon, 20);
+                client.getCoordinateNearestCarParkByRange(lat, lon, numberOfCar, searchRange);
         call.enqueue(new Callback<GetCoordinatePackage>() {
             @Override
             public void onResponse(final Call<GetCoordinatePackage> call,
                                    Response<GetCoordinatePackage> response) {
-                List<CarParkWithGeo> list = response.body().getResult();
-                for (final CarParkWithGeo data : list) {
+                if (toolbarProgress.isShown()) {
+                    toolbarProgress.setVisibility(View.INVISIBLE);
+                }
+                markerMap.clear();
+                map.clear();
+                List<CarParkAdvancePackage> list = response.body().getResult();
+                for (CarParkAdvancePackage data : list) {
                     final Geo geo = data.getGeo();
                     final CarPark carPark = data.getCarPark();
+                    carPark.setAvailableLot(data.getAvailableLot());
+                    if (fromYou) {
+                        float[] results = new float[3];
+                        Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
+                                geo.getLatitude(), geo.getLongitude(), results);
+                        carPark.setAwayDistance(results[0]);
+                        carPark.setFromTarget("bạn");
+                    } else {
+                        float[] results = new float[3];
+                        Location.distanceBetween(placeLocation.latitude, placeLocation.longitude,
+                                geo.getLatitude(), geo.getLongitude(), results);
+                        carPark.setAwayDistance(results[0]);
+                        carPark.setFromTarget(placeName);
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -406,9 +507,9 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     .title(carPark.getName()));
                             marker.setIcon(BitmapDescriptorFactory
                                     .fromBitmap(MapMarkerHelper
-                                            .getParkingMarker(getBaseContext(), data.getAvailableLot())));
-                            marker.setTag(data);
-                            markerMap.put(carPark.getName(), marker);
+                                            .getParkingMarker(getBaseContext(), carPark.getAvailableLot())));
+                            marker.setTag(carPark);
+                            markerMap.put(carPark.getId(), marker);
                         }
                     });
                 }
@@ -416,7 +517,7 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onFailure(Call<GetCoordinatePackage> call, Throwable t) {
-
+                getCarParkData(lat, lon);
             }
         });
     }
@@ -465,13 +566,10 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
         result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
             public void onResult(@NonNull LocationSettingsResult result) {
-                Log.i("UserActivity", "onResult");
                 Status status = result.getStatus();
                 LocationSettingsStates state = result.getLocationSettingsStates();
-                Log.i("UserActivity", status.getStatusMessage());
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-                        Log.i("UserActivity", "on success");
                         getCurrentLocation();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -495,6 +593,4 @@ public class UserActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
-
 }

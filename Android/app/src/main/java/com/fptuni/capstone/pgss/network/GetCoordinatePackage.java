@@ -1,6 +1,5 @@
 package com.fptuni.capstone.pgss.network;
 
-import com.fptuni.capstone.pgss.models.CarParkWithGeo;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -11,18 +10,18 @@ import java.util.List;
 
 public class GetCoordinatePackage {
     @SerializedName("result")
-    private List<CarParkWithGeo> result;
+    private List<CarParkAdvancePackage> result;
     @SerializedName("success")
     private boolean success;
 
     public GetCoordinatePackage() {
     }
 
-    public List<CarParkWithGeo> getResult() {
+    public List<CarParkAdvancePackage> getResult() {
         return result;
     }
 
-    public void setResult(List<CarParkWithGeo> result) {
+    public void setResult(List<CarParkAdvancePackage> result) {
         this.result = result;
     }
 

@@ -12,11 +12,17 @@
 
         <!-- The ActionBar displayed at the top -->
         <include
-            layout="@layout/toolbar_user"
+            layout="@layout/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <!-- The main content view -->
+        <fragment
+            android:id="@+id/fragment_user_autocomplete_search"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <fragment
             android:id="@+id/fragment_user_map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
