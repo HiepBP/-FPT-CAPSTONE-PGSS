@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_manager_check_code"
+            android:icon="@drawable/manager_nav_check_code_icon"
+            android:title="@string/manager_check_code_title" />
+        <item
+            android:id="@+id/nav_manager_about_us"
+            android:icon="@drawable/user_nav_about_us_icon"
+            android:title="@string/user_about_us_title" />
+        <item
+            android:id="@+id/nav_manager_share"
+            android:icon="@drawable/user_nav_share_app_icon"
+            android:title="@string/user_share_app_title" />
+        <item
+            android:id="@+id/nav_manager_rate"
+            android:icon="@drawable/user_nav_rate_us_icon"
+            android:title="@string/user_rate_us_title" />
+        <item
+            android:id="@+id/nav_manager_log_out"
+            android:icon="@drawable/user_nav_log_out_icon"
+            android:title="@string/manager_log_out_title" />
+    </group>
+</menu>

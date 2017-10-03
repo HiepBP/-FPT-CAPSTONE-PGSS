@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_car_park_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.fptuni.capstone.pgss.activities.CarParkDetailActivity">
+
+    <include layout="@layout/toolbar" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_name"
+        style="?android:attr/textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/holo_blue_light" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_available_lot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_carparkdetail_call"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawablePadding="4dp"
+            android:drawableTop="@drawable/carparkdetail_call_button"
+            android:filterTouchesWhenObscured="true"
+            android:text="@string/carparkdetail_button_call"
+            android:textAllCaps="true"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <Button
+            android:id="@+id/button_carparkdetail_route"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawablePadding="4dp"
+            android:drawableTop="@drawable/carparkdetail_route_icon"
+            android:filterTouchesWhenObscured="true"
+            android:text="@string/carparkdetail_button_route"
+            android:textAllCaps="true"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <Button
+            android:id="@+id/button_carparkdetail_reserve"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawablePadding="4dp"
+            android:drawableTop="@drawable/carparkdetail_reserve_button"
+            android:filterTouchesWhenObscured="true"
+            android:text="@string/carparkdetail_button_reserve"
+            android:textAllCaps="true"
+            android:textColor="@android:color/holo_blue_dark" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:drawableLeft="@drawable/carparkdetail_address_icon"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/carparkdetail_address_icon"
+        android:paddingTop="16dp" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:drawableLeft="@drawable/carparkdetail_phone_icon"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/carparkdetail_phone_icon"
+        android:paddingTop="16dp" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:drawableLeft="@drawable/carparkdetail_email_icon"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/carparkdetail_email_icon"
+        android:paddingTop="16dp" />
+
+    <TextView
+        android:id="@+id/textview_carparkdetail_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:drawableLeft="@drawable/carparkdetail_description_icon"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/carparkdetail_description_icon"
+        android:paddingTop="16dp" />
+
+</LinearLayout>
